@@ -1,0 +1,17 @@
+[Unit]
+Description=Food Subscription Platform Backend
+After=network.target
+
+[Service]
+Type=simple
+User=www-data
+WorkingDirectory=/var/www/food-subscription/backend
+Environment="NODE_ENV=production"
+Environment="PORT=3001"
+Environment="JWT_SECRET=change-this-secret-in-production"
+ExecStart=/usr/bin/node server.js
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
