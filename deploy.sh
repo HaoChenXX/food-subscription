@@ -49,24 +49,44 @@ if ! command -v node &> /dev/null; then
   apt-get install -y nodejs
 fi
 
+# 判断是否在目标目录运行
+if [ "$SCRIPT_DIR" = "$PROJECT_DIR" ]; then
+  echo -e "${YELLOW}检测到在目标目录运行，跳过文件复制步骤${NC}"
+  SKIP_COPY=true
+else
+  SKIP_COPY=false
+fi
+
 echo -e "${GREEN}步骤 1/6: 创建项目目录...${NC}"
 mkdir -p "${PROJECT_DIR}"
 mkdir -p "${BACKEND_DIR}"
 mkdir -p "${FRONTEND_DIR}/dist"
 mkdir -p "${BACKEND_DIR}/uploads"
 
-# 复制后端文件
-echo -e "${GREEN}步骤 2/6: 部署后端...${NC}"
-cp -r "${SCRIPT_DIR}/backend/"* "${BACKEND_DIR}/"
+# 复制后端文件（如果不是在目标目录运行）
+if [ "$SKIP_COPY" = false ]; then
+  echo -e "${GREEN}步骤 2/6: 部署后端...${NC}"
+  cp -r "${SCRIPT_DIR}/backend/"* "${BACKEND_DIR}/"
+else
+  echo -e "${GREEN}步骤 2/6: 跳过后端复制（已在目标目录）${NC}"
+fi
 
 # 安装后端依赖
 echo -e "${GREEN}步骤 3/6: 安装后端依赖...${NC}"
 cd "${BACKEND_DIR}"
-npm install --production
+if [ ! -d "node_modules" ]; then
+  npm install --production
+else
+  echo -e "${YELLOW}依赖已存在，跳过安装${NC}"
+fi
 
 # 初始化数据库
 echo -e "${GREEN}步骤 4/6: 初始化数据库...${NC}"
-node scripts/init-db.js
+if [ ! -f "data/users.json" ]; then
+  node scripts/init-db.js
+else
+  echo -e "${YELLOW}数据库已存在，跳过初始化${NC}"
+fi
 
 # 设置权限
 chown -R www-data:www-data "${PROJECT_DIR}"
@@ -74,12 +94,16 @@ chmod 755 "${PROJECT_DIR}"
 chmod 755 "${BACKEND_DIR}"
 chmod 755 "${BACKEND_DIR}/uploads"
 
-# 复制前端文件
+# 复制前端文件（如果不是在目标目录运行）
 echo -e "${GREEN}步骤 5/6: 部署前端...${NC}"
-if [ -d "${SCRIPT_DIR}/frontend/dist" ]; then
-  cp -r "${SCRIPT_DIR}/frontend/dist/"* "${FRONTEND_DIR}/dist/"
+if [ "$SKIP_COPY" = false ]; then
+  if [ -d "${SCRIPT_DIR}/frontend/dist" ]; then
+    cp -r "${SCRIPT_DIR}/frontend/dist/"* "${FRONTEND_DIR}/dist/"
+  else
+    echo -e "${YELLOW}警告: 前端 dist 目录不存在，请确保已构建前端${NC}"
+  fi
 else
-  echo -e "${YELLOW}警告: 前端 dist 目录不存在，请确保已构建前端${NC}"
+  echo -e "${YELLOW}跳过前端复制（已在目标目录）${NC}"
 fi
 chown -R www-data:www-data "${FRONTEND_DIR}"
 

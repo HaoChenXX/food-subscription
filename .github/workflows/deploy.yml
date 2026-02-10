@@ -12,16 +12,27 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
     
-    - name: Deploy to Server
+    - name: Deploy to Server via SSH
       uses: appleboy/ssh-action@master
       with:
         host: ${{ secrets.SERVER_HOST }}
         username: ${{ secrets.SERVER_USER }}
         password: ${{ secrets.SERVER_PASSWORD }}
         script: |
+          echo "🚀 开始自动部署..."
           cd /var/www/food-subscription
+          
+          echo "📥 拉取最新代码..."
           git pull origin main
+          
+          echo "📦 安装依赖..."
           cd backend
           npm install --production
+          
+          echo "🔄 重启服务..."
           sudo systemctl restart food-subscription
+          
+          echo "✅ 检查服务状态..."
           sudo systemctl status food-subscription --no-pager
+          
+          echo "🎉 部署完成！"
