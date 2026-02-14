@@ -9,7 +9,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Checkbox } from '@/components/ui/checkbox';
 import { Utensils, Eye, EyeOff, Loader2, ArrowLeft } from 'lucide-react';
 import { useAuthStore } from '@/store';
-import { mockApi } from '@/api/mock';
+import api from '@/api';
 
 export default function Register() {
   const navigate = useNavigate();
@@ -31,7 +31,7 @@ export default function Register() {
       password: form.password,
       name: form.name
     }),
-    onSuccess: (data) => {
+    onSuccess: (data: { user: any; token: string }) => {
       login(data.user, data.token);
       toast.success('注册成功！');
       navigate('/diet-profile');

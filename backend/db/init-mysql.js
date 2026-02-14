@@ -1,0 +1,294 @@
+/**
+ * MySQL 数据库初始化脚本
+ * 创建表结构和初始数据
+ */
+
+const mysql = require('mysql2/promise');
+const bcrypt = require('bcryptjs');
+
+// 数据库配置（使用 food_user 用户）
+const DB_CONFIG = {
+  host: process.env.DB_HOST || 'localhost',
+  user: process.env.DB_USER || 'food_user',
+  password: process.env.DB_PASSWORD !== undefined ? process.env.DB_PASSWORD : 'food123456',
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0,
+  charset: 'utf8mb4'
+};
+
+const DB_NAME = process.env.DB_NAME || 'food_subscription';
+
+const TABLES_SQL = `
+CREATE TABLE IF NOT EXISTS users (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  email VARCHAR(255) UNIQUE NOT NULL,
+  password VARCHAR(255) NOT NULL,
+  name VARCHAR(100) NOT NULL,
+  phone VARCHAR(20),
+  role ENUM('admin', 'merchant', 'user') DEFAULT 'user',
+  avatar VARCHAR(500),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  INDEX idx_email (email),
+  INDEX idx_role (role)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS food_packages (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(200) NOT NULL,
+  description TEXT,
+  level ENUM('basic', 'intermediate', 'advanced') DEFAULT 'basic',
+  price DECIMAL(10, 2) NOT NULL,
+  original_price DECIMAL(10, 2),
+  image VARCHAR(500),
+  tags JSON,
+  ingredients JSON,
+  recipes JSON,
+  seasonings JSON,
+  nutrition_info JSON,
+  is_limited BOOLEAN DEFAULT FALSE,
+  stock_quantity INT DEFAULT 100,
+  merchant_id INT,
+  status ENUM('active', 'inactive', 'sold_out') DEFAULT 'active',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  INDEX idx_level (level),
+  INDEX idx_status (status),
+  INDEX idx_merchant (merchant_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS orders (
+  id VARCHAR(50) PRIMARY KEY,
+  user_id INT NOT NULL,
+  package_id INT NOT NULL,
+  quantity INT DEFAULT 1,
+  total_amount DECIMAL(10, 2) NOT NULL,
+  status ENUM('pending_payment', 'paid', 'preparing', 'delivered', 'completed', 'cancelled') DEFAULT 'pending_payment',
+  payment_method VARCHAR(50),
+  payment_time TIMESTAMP NULL,
+  delivery_address JSON,
+  contact_name VARCHAR(100),
+  contact_phone VARCHAR(20),
+  remark TEXT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  INDEX idx_user_id (user_id),
+  INDEX idx_status (status),
+  INDEX idx_created_at (created_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS subscriptions (
+  id VARCHAR(50) PRIMARY KEY,
+  user_id INT NOT NULL,
+  package_id INT NOT NULL,
+  frequency ENUM('weekly', 'biweekly', 'monthly') DEFAULT 'weekly',
+  quantity INT DEFAULT 1,
+  total_amount DECIMAL(10, 2) NOT NULL,
+  status ENUM('active', 'paused', 'cancelled', 'expired') DEFAULT 'active',
+  start_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  end_date TIMESTAMP NULL,
+  next_delivery_date TIMESTAMP NULL,
+  delivery_address JSON,
+  contact_name VARCHAR(100),
+  contact_phone VARCHAR(20),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  INDEX idx_user_id (user_id),
+  INDEX idx_status (status)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS diet_profiles (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT UNIQUE NOT NULL,
+  age INT,
+  gender ENUM('male', 'female', 'other'),
+  height INT,
+  weight INT,
+  activity_level ENUM('low', 'moderate', 'high'),
+  health_goals JSON,
+  dietary_restrictions JSON,
+  preferred_cuisines JSON,
+  allergies TEXT,
+  calorie_target INT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  INDEX idx_user_id (user_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS addresses (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT NOT NULL,
+  name VARCHAR(100),
+  phone VARCHAR(20),
+  province VARCHAR(50),
+  city VARCHAR(50),
+  district VARCHAR(50),
+  detail_address VARCHAR(255),
+  is_default BOOLEAN DEFAULT FALSE,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  INDEX idx_user_id (user_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS suppliers (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(100) NOT NULL,
+  contact VARCHAR(100),
+  phone VARCHAR(20),
+  email VARCHAR(255),
+  address VARCHAR(255),
+  categories JSON,
+  rating DECIMAL(2, 1) DEFAULT 5.0,
+  status ENUM('active', 'inactive') DEFAULT 'active',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS inventory_logs (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  package_id INT NOT NULL,
+  merchant_id INT NOT NULL,
+  change_quantity INT NOT NULL,
+  current_quantity INT NOT NULL,
+  type ENUM('in', 'out', 'adjust', 'sale') NOT NULL,
+  remark TEXT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  INDEX idx_package_id (package_id),
+  INDEX idx_merchant_id (merchant_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS payments (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  order_id VARCHAR(50),
+  subscription_id VARCHAR(50),
+  user_id INT NOT NULL,
+  amount DECIMAL(10, 2) NOT NULL,
+  payment_method VARCHAR(50) DEFAULT 'mock',
+  transaction_id VARCHAR(100),
+  status ENUM('pending', 'success', 'failed', 'refunded') DEFAULT 'pending',
+  paid_at TIMESTAMP NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  INDEX idx_order_id (order_id),
+  INDEX idx_user_id (user_id),
+  INDEX idx_status (status)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS uploads (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  filename VARCHAR(255) NOT NULL,
+  original_name VARCHAR(255),
+  mime_type VARCHAR(100),
+  size INT,
+  path VARCHAR(500) NOT NULL,
+  url VARCHAR(500) NOT NULL,
+  uploaded_by INT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  INDEX idx_uploaded_by (uploaded_by)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+`;
+
+async function initDatabase() {
+  console.log('========================================');
+  console.log('开始初始化 MySQL 数据库...');
+  console.log('========================================\n');
+
+  let connection;
+  try {
+    // 直接连接到指定数据库（数据库已由部署脚本创建）
+    console.log(`连接到数据库: ${DB_NAME}`);
+    connection = await mysql.createConnection({ ...DB_CONFIG, database: DB_NAME });
+    console.log(`✓ 已连接到数据库 '${DB_NAME}'`);
+    
+    // 创建表
+    const statements = TABLES_SQL.split(';').filter(s => s.trim());
+    for (const statement of statements) {
+      if (statement.trim()) {
+        await connection.execute(statement);
+      }
+    }
+    console.log('✓ 所有数据表创建成功');
+    
+    // 插入初始用户
+    const hashedAdminPassword = await bcrypt.hash('admin123', 10);
+    const hashedMerchantPassword = await bcrypt.hash('merchant123', 10);
+    const hashedUserPassword = await bcrypt.hash('user123', 10);
+    
+    await connection.execute(`
+      INSERT IGNORE INTO users (id, email, password, name, phone, role, avatar) VALUES
+      (1, 'admin@example.com', ?, '管理员', '13800138000', 'admin', 'https://api.dicebear.com/7.x/avataaars/svg?seed=admin'),
+      (2, 'merchant@example.com', ?, '李供应商', '13900139000', 'merchant', 'https://api.dicebear.com/7.x/avataaars/svg?seed=merchant'),
+      (3, 'user@example.com', ?, '张三', '13700137000', 'user', 'https://api.dicebear.com/7.x/avataaars/svg?seed=user')
+    `, [hashedAdminPassword, hashedMerchantPassword, hashedUserPassword]);
+    console.log('✓ 初始用户数据插入成功');
+    
+    // 插入初始食材包
+    await connection.execute(`
+      INSERT IGNORE INTO food_packages (id, name, description, level, price, original_price, image, tags, ingredients, recipes, seasonings, nutrition_info, is_limited, stock_quantity, merchant_id, status) VALUES
+      (1, '健康减脂套餐', '低卡路里、高蛋白的健康食材组合，适合减脂期食用', 'basic', 89, 109, 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=800&auto=format&fit=crop', 
+        '["减脂", "高蛋白", "低卡"]', 
+        '[{"id": "1", "name": "鸡胸肉", "category": "肉类", "quantity": 500, "unit": "g", "origin": "山东"}, {"id": "2", "name": "西兰花", "category": "蔬菜", "quantity": 300, "unit": "g", "origin": "云南"}, {"id": "3", "name": "胡萝卜", "category": "蔬菜", "quantity": 200, "unit": "g", "origin": "山东"}, {"id": "4", "name": "糙米", "category": "主食", "quantity": 500, "unit": "g", "origin": "东北"}]',
+        '[{"id": "1", "name": "香煎鸡胸肉配蔬菜", "description": "低脂高蛋白的经典减脂餐", "steps": [{"order": 1, "description": "鸡胸肉洗净切片，用盐和黑胡椒腌制15分钟", "duration": 15}, {"order": 2, "description": "西兰花和胡萝卜焯水备用", "duration": 5}, {"order": 3, "description": "平底锅少油煎鸡胸肉至两面金黄", "duration": 8}, {"order": 4, "description": "搭配蔬菜装盘即可", "duration": 2}], "tips": ["鸡胸肉不要煎太久，避免口感柴", "可以搭配低脂沙拉酱"]}]',
+        '[{"id": "1", "name": "海盐", "quantity": "适量", "included": true}, {"id": "2", "name": "黑胡椒", "quantity": "适量", "included": true}, {"id": "3", "name": "橄榄油", "quantity": "30ml", "included": true}]',
+        '{"calories": 450, "protein": 35, "carbs": 45, "fat": 12, "fiber": 8}',
+        false, 100, 2, 'active'),
+      (2, '增肌能量套餐', '高蛋白、适量碳水的增肌食材组合', 'intermediate', 129, 159, 'https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?w=800&auto=format&fit=crop',
+        '["增肌", "高蛋白", "健身"]',
+        '[{"id": "5", "name": "牛肉", "category": "肉类", "quantity": 600, "unit": "g", "origin": "澳洲"}, {"id": "6", "name": "鸡蛋", "category": "蛋奶", "quantity": 12, "unit": "个", "origin": "本地"}, {"id": "7", "name": "红薯", "category": "主食", "quantity": 800, "unit": "g", "origin": "新疆"}, {"id": "8", "name": "菠菜", "category": "蔬菜", "quantity": 400, "unit": "g", "origin": "山东"}]',
+        '[{"id": "2", "name": "黑椒牛柳配烤红薯", "description": "高蛋白增肌餐，搭配优质碳水", "steps": [{"order": 1, "description": "牛肉切条，用黑胡椒酱腌制20分钟", "duration": 20}, {"order": 2, "description": "红薯切块，烤箱200度烤30分钟", "duration": 30}, {"order": 3, "description": "热锅快炒牛柳至变色", "duration": 5}, {"order": 4, "description": "菠菜焯水后摆盘", "duration": 3}], "tips": ["牛肉逆纹切更嫩", "红薯烤后口感更佳"]}]',
+        '[{"id": "4", "name": "黑胡椒酱", "quantity": "50g", "included": true}, {"id": "5", "name": "海盐", "quantity": "适量", "included": true}, {"id": "6", "name": "橄榄油", "quantity": "30ml", "included": true}]',
+        '{"calories": 680, "protein": 55, "carbs": 65, "fat": 22, "fiber": 10}',
+        false, 100, 2, 'active'),
+      (3, '地中海风味套餐', '健康的地中海饮食风格，富含不饱和脂肪酸', 'advanced', 159, 199, 'https://images.unsplash.com/photo-1543339308-43e59d6b73a6?w=800&auto=format&fit=crop',
+        '["地中海", "健康", "高端"]',
+        '[{"id": "9", "name": "三文鱼", "category": "海鲜", "quantity": 400, "unit": "g", "origin": "挪威"}, {"id": "10", "name": "牛油果", "category": "水果", "quantity": 2, "unit": "个", "origin": "墨西哥"}, {"id": "11", "name": "藜麦", "category": "主食", "quantity": 300, "unit": "g", "origin": "秘鲁"}, {"id": "12", "name": "樱桃番茄", "category": "蔬菜", "quantity": 300, "unit": "g", "origin": "山东"}]',
+        '[{"id": "3", "name": "香煎三文鱼藜麦碗", "description": "地中海经典健康餐", "steps": [{"order": 1, "description": "藜麦淘洗后煮15分钟至熟透", "duration": 15}, {"order": 2, "description": "三文鱼用盐和黑胡椒腌制", "duration": 10}, {"order": 3, "description": "平底锅煎三文鱼至两面金黄", "duration": 8}, {"order": 4, "description": "牛油果切片，番茄对半切", "duration": 5}, {"order": 5, "description": "组装成碗，淋上柠檬汁", "duration": 2}], "tips": ["三文鱼不要煎过头，保持嫩滑", "可额外加入坚果增加口感"]}]',
+        '[{"id": "7", "name": "特级初榨橄榄油", "quantity": "50ml", "included": true}, {"id": "8", "name": "海盐", "quantity": "适量", "included": true}, {"id": "9", "name": "柠檬", "quantity": "1个", "included": true}]',
+        '{"calories": 580, "protein": 42, "carbs": 48, "fat": 28, "fiber": 12}',
+        true, 50, 2, 'active')
+    `);
+    console.log('✓ 初始食材包数据插入成功');
+    
+    // 插入供应商
+    await connection.execute(`
+      INSERT IGNORE INTO suppliers (id, name, contact, phone, email, address, categories, rating, status) VALUES
+      (1, '绿源农场', '王经理', '13800138001', 'green@example.com', '山东省寿光市', '["蔬菜", "水果"]', 4.8, 'active'),
+      (2, '优质肉业', '李经理', '13800138002', 'meat@example.com', '河北省唐山市', '["肉类"]', 4.6, 'active')
+    `);
+    console.log('✓ 初始供应商数据插入成功');
+    
+    await connection.end();
+    
+    console.log('\n========================================');
+    console.log('数据库初始化完成！');
+    console.log('========================================');
+    console.log('\n测试账号：');
+    console.log('  管理员: admin@example.com / admin123');
+    console.log('  商家:   merchant@example.com / merchant123');
+    console.log('  用户:   user@example.com / user123');
+    console.log('\n========================================');
+    
+  } catch (error) {
+    console.error('\n初始化失败:', error.message);
+    if (connection) await connection.end();
+    throw error;
+  }
+}
+
+// 运行初始化
+if (require.main === module) {
+  initDatabase().catch(err => {
+    console.error('\n初始化失败:', err.message);
+    if (err.code === 'ER_ACCESS_DENIED_ERROR') {
+      console.error('\n提示: MySQL 认证失败，请检查:');
+      console.error('  1. 用户 food_user 是否已创建');
+      console.error('  2. 密码是否正确');
+      console.error('  3. 数据库 food_subscription 是否已存在');
+      console.error('\n可以手动运行以下命令创建用户:');
+      console.error('  sudo mysql -e "CREATE USER IF NOT EXISTS \'food_user\'@\'localhost\' IDENTIFIED BY \'food123456\'; GRANT ALL PRIVILEGES ON food_subscription.* TO \'food_user\'@\'localhost\'; FLUSH PRIVILEGES;"');
+    }
+    process.exit(1);
+  });
+}
+
+module.exports = { initDatabase };

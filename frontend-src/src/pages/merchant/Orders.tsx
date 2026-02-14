@@ -62,13 +62,13 @@ export default function MerchantOrders() {
   // 获取订单列表
   const { data: orders, isLoading } = useQuery({
     queryKey: ['merchantOrders'],
-    queryFn: () => orderApi.getAll('1')
+    queryFn: () => orderApi.getAll()
   });
 
   // 更新订单状态 mutation
   const updateStatusMutation = useMutation({
     mutationFn: ({ orderId, status }: { orderId: string; status: OrderStatus }) =>
-      orderApi.updateStatus(orderId, status),
+      orderApi.update(orderId, { status }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['merchantOrders'] });
       toast.success('订单状态更新成功');

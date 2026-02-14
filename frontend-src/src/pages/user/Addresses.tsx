@@ -4,10 +4,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { useAuthStore, useAddressStore } from '@/store';
-import { mockApi } from '@/api/mock';
+import api from '@/api';
 import {
   MapPin,
   Plus,
@@ -39,10 +39,10 @@ export default function Addresses() {
   const { isLoading } = useQuery({
     queryKey: ['addresses', user?.id],
     queryFn: async () => {
-      const data = await mockApi.addresses.getAll(user?.id || '');
+      const data = await api.addresses.getAll();
       setAddresses(data);
-      if (data.find(a => a.isDefault)) {
-        setDefaultAddress(data.find(a => a.isDefault) || null);
+      if (data.find((a: any) => a.isDefault)) {
+        setDefaultAddress(data.find((a: any) => a.isDefault) || null);
       }
       return data;
     },
@@ -51,8 +51,8 @@ export default function Addresses() {
 
   // 创建地址
   const createMutation = useMutation({
-    mutationFn: (data: Partial<DeliveryAddress>) => mockApi.addresses.create(data),
-    onSuccess: (data) => {
+    mutationFn: (data: Partial<DeliveryAddress>) => api.addresses.create(data),
+    onSuccess: (data: any) => {
       addAddress(data);
       toast.success('地址添加成功');
       setDialogOpen(false);
@@ -110,10 +110,7 @@ export default function Addresses() {
       resetForm();
     } else {
       // 创建地址
-      createMutation.mutate({
-        ...formData,
-        userId: user?.id,
-      });
+      createMutation.mutate(formData);
     }
   };
 

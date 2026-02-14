@@ -1,8 +1,6 @@
 // 统一 API 层 - 生产环境连接真实后端，开发环境使用 mock
 import type { 
-  User, DietProfile, FoodPackage, Order, Subscription, 
-  Product, Supplier, StockAlert, PurchaseOrder, Feedback,
-  DashboardStats, InventoryStats, DeliveryAddress
+  User, DietProfile, FoodPackage, Order, Subscription, DeliveryAddress
 } from '@/types';
 
 // API 基础 URL
@@ -90,6 +88,20 @@ const realApi = {
     getRecommended: async (profileId: string) => {
       return fetchApi<FoodPackage[]>(`/food-packages/recommended?profileId=${profileId}`);
     },
+    
+    create: async (data: Partial<FoodPackage>) => {
+      return fetchWithAuth<FoodPackage>('/food-packages', {
+        method: 'POST',
+        body: JSON.stringify(data),
+      });
+    },
+    
+    update: async (id: string, data: Partial<FoodPackage>) => {
+      return fetchWithAuth<FoodPackage>(`/food-packages/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify(data),
+      });
+    },
   },
   
   // 饮食画像
@@ -129,6 +141,13 @@ const realApi = {
         body: JSON.stringify(data),
       });
     },
+    
+    update: async (id: string, data: Partial<Order>) => {
+      return fetchWithAuth<Order>(`/orders/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify(data),
+      });
+    },
   },
   
   // 订阅
@@ -147,6 +166,33 @@ const realApi = {
     cancel: async (id: string) => {
       return fetchWithAuth<void>(`/subscriptions/${id}/cancel`, {
         method: 'POST',
+      });
+    },
+  },
+  
+  // 地址
+  addresses: {
+    getAll: async () => {
+      return fetchWithAuth<DeliveryAddress[]>('/addresses');
+    },
+    
+    create: async (data: Partial<DeliveryAddress>) => {
+      return fetchWithAuth<DeliveryAddress>('/addresses', {
+        method: 'POST',
+        body: JSON.stringify(data),
+      });
+    },
+    
+    update: async (id: string, data: Partial<DeliveryAddress>) => {
+      return fetchWithAuth<DeliveryAddress>(`/addresses/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify(data),
+      });
+    },
+    
+    delete: async (id: string) => {
+      return fetchWithAuth<void>(`/addresses/${id}`, {
+        method: 'DELETE',
       });
     },
   },

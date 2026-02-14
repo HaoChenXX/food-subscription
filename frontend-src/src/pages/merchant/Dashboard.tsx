@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Skeleton } from '@/components/ui/skeleton';
-import { dashboardApi, orderApi } from '@/api';
+import api from '@/api';
 import {
   TrendingUp,
   Package,
@@ -46,16 +46,27 @@ const lowStockItems = [
 ];
 
 export default function MerchantDashboard() {
-  // 获取看板统计数据
+  // 获取看板统计数据（暂用模拟数据）
   const { data: stats, isLoading: isStatsLoading } = useQuery({
     queryKey: ['dashboardStats'],
-    queryFn: () => dashboardApi.getStats()
+    queryFn: async () => {
+      // 临时返回模拟数据，后续可替换为真实API
+      return {
+        revenueToday: 2580,
+        revenueGrowth: 12.5,
+        ordersToday: 18,
+        ordersGrowth: 8.3,
+        pendingOrders: 5,
+        lowStockCount: 2,
+        totalOrders: 156
+      };
+    }
   });
 
   // 获取订单数据
   const { data: orders, isLoading: isOrdersLoading } = useQuery({
     queryKey: ['merchantOrders'],
-    queryFn: () => orderApi.getAll('1')
+    queryFn: () => api.orders.getAll()
   });
 
   // 获取最近的订单

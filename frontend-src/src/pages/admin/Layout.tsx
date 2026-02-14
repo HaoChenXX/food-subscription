@@ -25,8 +25,6 @@ import {
   Users,
   ClipboardList,
   Boxes,
-  Truck,
-  BarChart3,
   Settings,
   LogOut,
   Menu,
