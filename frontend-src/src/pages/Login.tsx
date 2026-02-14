@@ -20,20 +20,20 @@ export default function Login() {
   
   // 用户登录表单
   const [userForm, setUserForm] = useState({
-    email: '',
-    password: ''
+    email: 'user@example.com',
+    password: 'user123'
   });
   
   // 商家登录表单
   const [merchantForm, setMerchantForm] = useState({
-    email: '',
-    password: ''
+    email: 'merchant@example.com',
+    password: 'merchant123'
   });
   
   // 管理员登录表单
   const [adminForm, setAdminForm] = useState({
-    email: '',
-    password: ''
+    email: 'admin@example.com',
+    password: 'admin123'
   });
 
   const loginMutation = useMutation({
@@ -274,7 +274,7 @@ export default function Login() {
             <div className="text-xs text-center text-gray-400">
               演示账号：user@example.com / merchant@example.com / admin@example.com
               <br />
-              密码：user123
+              密码：user123 / merchant123 / admin123
             </div>
           </CardFooter>
         </Card>
