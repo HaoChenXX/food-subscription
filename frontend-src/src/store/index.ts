@@ -11,21 +11,47 @@ interface AuthState {
   setToken: (token: string | null) => void;
   login: (user: User, token: string) => void;
   logout: () => void;
+  initialize: () => void;
 }
 
 export const useAuthStore = create<AuthState>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       user: null,
       token: null,
       isAuthenticated: false,
       setUser: (user) => set({ user }),
       setToken: (token) => set({ token }),
       login: (user, token) => set({ user, token, isAuthenticated: true }),
-      logout: () => set({ user: null, token: null, isAuthenticated: false })
+      logout: () => {
+        set({ user: null, token: null, isAuthenticated: false });
+        // 清除所有相关的 localStorage
+        localStorage.removeItem('auth-storage');
+        localStorage.removeItem('diet-profile-storage');
+        localStorage.removeItem('cart-storage');
+        localStorage.removeItem('address-storage');
+      },
+      initialize: () => {
+        // 从持久化存储恢复时，验证状态完整性
+        const { token, user } = get();
+        if (token && user) {
+          set({ isAuthenticated: true });
+        } else {
+          // 数据不完整，清除状态
+          set({ user: null, token: null, isAuthenticated: false });
+        }
+      }
     }),
     {
-      name: 'auth-storage'
+      name: 'auth-storage',
+      // 自定义序列化，添加版本控制
+      version: 1,
+      // 部分持久化 - 不持久化 isAuthenticated，每次重新验证
+      partialize: (state) => ({
+        user: state.user,
+        token: state.token,
+        // isAuthenticated 不持久化，每次初始化时重新计算
+      }),
     }
   )
 );
