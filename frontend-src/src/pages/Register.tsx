@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Utensils, Eye, EyeOff, Loader2, ArrowLeft } from 'lucide-react';
+import { Utensils, Eye, EyeOff, Loader2, ArrowLeft, User, Store } from 'lucide-react';
 import { useAuthStore } from '@/store';
 import api from '@/api';
 
@@ -22,14 +22,17 @@ export default function Register() {
     email: '',
     phone: '',
     password: '',
-    confirmPassword: ''
+    confirmPassword: '',
+    role: 'user' as 'user' | 'merchant'
   });
 
   const registerMutation = useMutation({
     mutationFn: () => api.auth.register({
       email: form.email,
       password: form.password,
-      name: form.name
+      name: form.name,
+      phone: form.phone,
+      role: form.role
     }),
     onSuccess: (data: { user: any; token: string }) => {
       login(data.user, data.token);
@@ -117,6 +120,40 @@ export default function Register() {
                   onChange={(e) => setForm({ ...form, phone: e.target.value })}
                   required
                 />
+              </div>
+
+              {/* 角色选择 */}
+              <div className="space-y-2">
+                <Label>注册类型</Label>
+                <div className="grid grid-cols-2 gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setForm({ ...form, role: 'user' })}
+                    className={`flex items-center justify-center gap-2 p-3 rounded-lg border-2 transition-all ${
+                      form.role === 'user'
+                        ? 'border-green-500 bg-green-50 text-green-700'
+                        : 'border-gray-200 hover:border-gray-300 text-gray-600'
+                    }`}
+                  >
+                    <User className="w-4 h-4" />
+                    <span className="font-medium">普通用户</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setForm({ ...form, role: 'merchant' })}
+                    className={`flex items-center justify-center gap-2 p-3 rounded-lg border-2 transition-all ${
+                      form.role === 'merchant'
+                        ? 'border-blue-500 bg-blue-50 text-blue-700'
+                        : 'border-gray-200 hover:border-gray-300 text-gray-600'
+                    }`}
+                  >
+                    <Store className="w-4 h-4" />
+                    <span className="font-medium">商家入驻</span>
+                  </button>
+                </div>
+                <p className="text-xs text-gray-500 mt-1">
+                  {form.role === 'user' ? '注册为普通用户，可以购买食材包和订阅服务' : '注册为商家，可以发布和管理食材包'}
+                </p>
               </div>
               
               <div className="space-y-2">

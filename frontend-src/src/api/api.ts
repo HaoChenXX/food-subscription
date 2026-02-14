@@ -56,7 +56,7 @@ const realApi = {
       });
     },
     
-    register: async (data: { email: string; password: string; name: string }) => {
+    register: async (data: { email: string; password: string; name: string; phone?: string; role?: 'user' | 'merchant' }) => {
       return fetchApi<{ user: User; token: string }>('/auth/register', {
         method: 'POST',
         body: JSON.stringify(data),

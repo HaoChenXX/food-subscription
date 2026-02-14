@@ -14,11 +14,14 @@ const router = express.Router();
 // 注册
 router.post('/register', async (req, res) => {
   try {
-    const { email, password, name, phone } = req.body;
+    const { email, password, name, phone, role } = req.body;
     
     if (!email || !password || !name) {
       return res.status(400).json({ message: '请填写所有必填字段' });
     }
+    
+    // 验证角色（只允许 user 或 merchant）
+    const userRole = role === 'merchant' ? 'merchant' : 'user';
     
     // 检查邮箱是否已存在
     const existingUsers = await query('SELECT id FROM users WHERE email = ?', [email]);
@@ -34,7 +37,7 @@ router.post('/register', async (req, res) => {
     
     const result = await query(
       'INSERT INTO users (email, password, name, phone, role, avatar) VALUES (?, ?, ?, ?, ?, ?)',
-      [email, hashedPassword, name, phone || '', 'user', avatar]
+      [email, hashedPassword, name, phone || '', userRole, avatar]
     );
     
     const newUser = await query('SELECT * FROM users WHERE id = ?', [result.insertId]);
