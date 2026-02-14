@@ -67,9 +67,22 @@ def backup_current():
     else:
         raise RuntimeError(f"项目目录不存在: {PROJECT_DIR}")
 
+def fix_git_ownership():
+    """修复 Git 目录所有权问题"""
+    try:
+        subprocess.run(
+            f"git config --global --add safe.directory {PROJECT_DIR}",
+            shell=True, check=False, capture_output=True
+        )
+    except:
+        pass
+
 def pull_or_clone():
     """拉取或克隆最新代码"""
     print("\n[2/6] 拉取最新代码...")
+    
+    # 先修复可能的 Git 所有权问题
+    fix_git_ownership()
     
     if is_git_repo(PROJECT_DIR):
         # 是 git 仓库，直接使用 git pull
