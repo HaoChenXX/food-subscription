@@ -10,7 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Utensils, Eye, EyeOff, Loader2 } from 'lucide-react';
 import { useAuthStore } from '@/store';
-import { mockApi } from '@/api/mock';
+import api from '@/api';
 
 export default function Login() {
   const navigate = useNavigate();
@@ -20,25 +20,25 @@ export default function Login() {
   
   // 用户登录表单
   const [userForm, setUserForm] = useState({
-    email: 'user@example.com',
-    password: 'password'
+    email: '',
+    password: ''
   });
   
   // 商家登录表单
   const [merchantForm, setMerchantForm] = useState({
-    email: 'merchant@example.com',
-    password: 'password'
+    email: '',
+    password: ''
   });
   
   // 管理员登录表单
   const [adminForm, setAdminForm] = useState({
-    email: 'admin@example.com',
-    password: 'password'
+    email: '',
+    password: ''
   });
 
   const loginMutation = useMutation({
     mutationFn: ({ email, password }: { email: string; password: string }) =>
-      mockApi.auth.login(email, password),
+      api.auth.login({ email, password }),
     onSuccess: (data) => {
       login(data.user, data.token);
       toast.success('登录成功！');
@@ -274,7 +274,7 @@ export default function Login() {
             <div className="text-xs text-center text-gray-400">
               演示账号：user@example.com / merchant@example.com / admin@example.com
               <br />
-              密码：password
+              密码：user123
             </div>
           </CardFooter>
         </Card>
