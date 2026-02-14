@@ -77,12 +77,27 @@ def fix_git_ownership():
     except:
         pass
 
+def fix_git_http2():
+    """禁用 Git HTTP/2 协议，解决网络问题"""
+    try:
+        subprocess.run(
+            "git config --global http.version HTTP/1.1",
+            shell=True, check=False, capture_output=True
+        )
+        subprocess.run(
+            "git config --global http.postBuffer 524288000",
+            shell=True, check=False, capture_output=True
+        )
+    except:
+        pass
+
 def pull_or_clone():
     """拉取或克隆最新代码"""
     print("\n[2/6] 拉取最新代码...")
     
-    # 先修复可能的 Git 所有权问题
+    # 先修复可能的 Git 所有权和网络问题
     fix_git_ownership()
+    fix_git_http2()
     
     if is_git_repo(PROJECT_DIR):
         # 是 git 仓库，直接使用 git pull
