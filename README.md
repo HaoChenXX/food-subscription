@@ -38,9 +38,16 @@ npm run dev
 
 ### 生产部署
 
+**服务器地址**: `39.104.25.212`
+
 ```bash
-# 在服务器上
-sudo bash deploy.sh
+# 在服务器上更新代码
+cd /var/www/food-subscription-v01.1-backup
+python3 update-server.py
+
+# 或手动更新
+git pull origin main
+pm2 restart food-subscription
 ```
 
 ## 📁 项目结构
