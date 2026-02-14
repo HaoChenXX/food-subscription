@@ -87,8 +87,25 @@ def pull_or_clone():
     if is_git_repo(PROJECT_DIR):
         # 是 git 仓库，直接使用 git pull
         try:
-            run_command("git pull origin main", cwd=PROJECT_DIR)
-            print("  ✓ 代码更新成功 (git pull)")
+            # 先检查是否有本地修改
+            result = subprocess.run(
+                "git status --porcelain",
+                shell=True, cwd=PROJECT_DIR, capture_output=True, text=True
+            )
+            
+            if result.stdout.strip():
+                print("  ! 检测到本地修改，先暂存...")
+                # 暂存本地修改
+                subprocess.run("git add -A", shell=True, cwd=PROJECT_DIR, check=False)
+                subprocess.run(
+                    'git commit -m "WIP: auto-commit before update" || git stash',
+                    shell=True, cwd=PROJECT_DIR, check=False
+                )
+            
+            # 强制拉取最新代码（放弃本地修改）
+            run_command("git fetch origin", cwd=PROJECT_DIR)
+            run_command("git reset --hard origin/main", cwd=PROJECT_DIR)
+            print("  ✓ 代码更新成功 (git reset --hard)")
             return
         except RuntimeError as e:
             print(f"  ✗ git pull 失败: {e}")
