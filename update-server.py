@@ -197,9 +197,41 @@ def fix_all_scripts():
     
     print(f"  ✓ 修复了 {fixed_count} 个脚本")
 
+def sync_frontend_dist():
+    """同步前端 dist 文件到部署目录"""
+    print("\n[4/6] 同步前端文件...")
+    src_dist = os.path.join(PROJECT_DIR, "frontend-src", "dist")
+    dst_dist = os.path.join(PROJECT_DIR, "frontend", "dist")
+    
+    if not os.path.exists(src_dist):
+        print(f"  ! 警告: 源目录不存在 {src_dist}")
+        return
+    
+    # 确保目标目录存在
+    os.makedirs(dst_dist, exist_ok=True)
+    
+    # 清空旧文件
+    for item in os.listdir(dst_dist):
+        item_path = os.path.join(dst_dist, item)
+        if os.path.isdir(item_path):
+            shutil.rmtree(item_path)
+        else:
+            os.remove(item_path)
+    
+    # 复制新文件
+    for item in os.listdir(src_dist):
+        src = os.path.join(src_dist, item)
+        dst = os.path.join(dst_dist, item)
+        if os.path.isdir(src):
+            shutil.copytree(src, dst)
+        else:
+            shutil.copy2(src, dst)
+    
+    print(f"  ✓ 前端文件已同步到 {dst_dist}")
+
 def install_dependencies():
     """安装后端依赖"""
-    print("\n[4/6] 安装后端依赖...")
+    print("\n[5/6] 安装后端依赖...")
     backend_dir = os.path.join(PROJECT_DIR, "backend")
     
     # 检查是否存在 node_modules，如果不存在或需要更新则安装
@@ -254,7 +286,7 @@ def restart_service():
 
 def check_health():
     """检查服务状态"""
-    print("\n[6/6] 检查服务状态...")
+    print("\n[7/7] 检查服务状态...")
     import time
     time.sleep(2)
     
@@ -288,6 +320,7 @@ def main():
         backup_current()
         pull_or_clone()
         fix_all_scripts()
+        sync_frontend_dist()
         install_dependencies()
         restart_service()
         check_health()
