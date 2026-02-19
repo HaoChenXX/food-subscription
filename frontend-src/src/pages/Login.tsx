@@ -84,8 +84,11 @@ export default function Login() {
         
         <Card className="shadow-xl border-0">
           <CardHeader className="text-center">
-            <div className="bg-red-500 text-white font-bold text-lg py-2 px-4 rounded-lg mb-3 animate-pulse">
-              🧪 测试版本 v2.0 - 升级验证
+            <div className="bg-red-500 text-white font-bold text-sm py-2 px-4 rounded-lg mb-3 animate-pulse">
+              <div>🧪 测试版本 v2.0 - 升级验证</div>
+              <div className="text-xs opacity-90 mt-1 font-mono">
+                v{import.meta.env.VITE_GIT_HASH?.slice(0, 7) || 'dev'} | {import.meta.env.VITE_BUILD_TIME || new Date().toLocaleString('zh-CN')}
+              </div>
             </div>
             <CardTitle className="text-2xl font-bold text-gray-900">欢迎回来</CardTitle>
             <CardDescription>登录您的智能食材包订阅账户</CardDescription>
