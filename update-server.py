@@ -253,7 +253,7 @@ def add_version_marker():
         with open(index_path, 'r', encoding='utf-8') as f:
             content = f.read()
         
-        # 版本标识 HTML (右上角固定，可关闭)
+        # 版本标识 HTML (右上角固定，可关闭，每次刷新都显示)
         version_marker = f'''<!-- 版本标识 -->
 <div id="version-marker" style="
     position: fixed;
@@ -269,12 +269,12 @@ def add_version_marker():
     z-index: 99999;
     box-shadow: 0 4px 15px rgba(0,0,0,0.3);
     cursor: pointer;
-    opacity: 0.9;
+    opacity: 0.95;
     transition: all 0.3s ease;
     max-width: 300px;
     text-align: center;
     line-height: 1.4;
-" onclick="this.style.display='none'; localStorage.setItem('hideVersionMarker', 'true');" title="点击关闭">
+" onclick="this.style.display='none';" title="点击关闭">
     <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: center;">
         <span>📦</span>
         <span>v{commit_hash}</span>
@@ -284,23 +284,23 @@ def add_version_marker():
     </div>
 </div>
 <script>
-    // 如果用户之前关闭过，默认隐藏
-    if (localStorage.getItem('hideVersionMarker') === 'true') {{
-        document.getElementById('version-marker').style.display = 'none';
-    }}
     // 5秒后自动淡化
     setTimeout(function() {{
         var marker = document.getElementById('version-marker');
-        if (marker) {{
+        if (marker && marker.style.display !== 'none') {{
             marker.style.opacity = '0.4';
         }}
     }}, 5000);
     // 鼠标悬停时恢复透明度
     document.getElementById('version-marker').addEventListener('mouseenter', function() {{
-        this.style.opacity = '0.95';
+        if (this.style.display !== 'none') {{
+            this.style.opacity = '0.95';
+        }}
     }});
     document.getElementById('version-marker').addEventListener('mouseleave', function() {{
-        this.style.opacity = '0.4';
+        if (this.style.display !== 'none') {{
+            this.style.opacity = '0.4';
+        }}
     }});
 </script>
 <style>
@@ -308,7 +308,7 @@ def add_version_marker():
     #version-marker {{ animation: fadeInScale 0.5s ease-out; }}
     @keyframes fadeInScale {{
         from {{ opacity: 0; transform: scale(0.9) translateY(-10px); }}
-        to {{ opacity: 0.9; transform: scale(1) translateY(0); }}
+        to {{ opacity: 0.95; transform: scale(1) translateY(0); }}
     }}
 </style>
 <!-- 版本标识结束 -->
