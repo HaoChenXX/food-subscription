@@ -2,6 +2,7 @@
 import type { 
   User, DietProfile, FoodPackage, Order, Subscription, DeliveryAddress
 } from '@/types';
+import { useAuthStore } from '@/store';
 
 // API 基础 URL
 const API_BASE_URL = '/api';
@@ -34,7 +35,8 @@ async function fetchWithAuth<T>(
   endpoint: string, 
   options: RequestInit = {}
 ): Promise<T> {
-  const token = localStorage.getItem('auth_token');
+  // 从 zustand store 获取 token
+  const token = useAuthStore.getState().token;
   
   return fetchApi<T>(endpoint, {
     ...options,

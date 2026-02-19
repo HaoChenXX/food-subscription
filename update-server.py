@@ -253,31 +253,62 @@ def add_version_marker():
         with open(index_path, 'r', encoding='utf-8') as f:
             content = f.read()
         
-        # 版本标识 HTML
+        # 版本标识 HTML (右上角固定，可关闭)
         version_marker = f'''<!-- 版本标识 -->
 <div id="version-marker" style="
     position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    background: linear-gradient(90deg, #ff4757, #ff6348);
+    top: 10px;
+    right: 10px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
-    text-align: center;
-    padding: 8px;
+    padding: 8px 16px;
+    border-radius: 20px;
     font-family: monospace;
-    font-size: 14px;
+    font-size: 12px;
     font-weight: bold;
     z-index: 99999;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.3);
-">
-    📦 食材包订阅平台 | 🏷️ 版本: <span id="ver-commit">{commit_hash}</span> | 🕐 更新: <span id="ver-time">{update_time}</span>
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    cursor: pointer;
+    opacity: 0.9;
+    transition: all 0.3s ease;
+    max-width: 300px;
+    text-align: center;
+    line-height: 1.4;
+" onclick="this.style.display='none'; localStorage.setItem('hideVersionMarker', 'true');" title="点击关闭">
+    <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: center;">
+        <span>📦</span>
+        <span>v{commit_hash}</span>
+        <span style="opacity: 0.7;">|</span>
+        <span style="font-size: 11px; opacity: 0.9;">{update_time}</span>
+        <span style="font-size: 10px; opacity: 0.6; margin-left: 4px;">✕</span>
+    </div>
 </div>
+<script>
+    // 如果用户之前关闭过，默认隐藏
+    if (localStorage.getItem('hideVersionMarker') === 'true') {{
+        document.getElementById('version-marker').style.display = 'none';
+    }}
+    // 5秒后自动淡化
+    setTimeout(function() {{
+        var marker = document.getElementById('version-marker');
+        if (marker) {{
+            marker.style.opacity = '0.4';
+        }}
+    }}, 5000);
+    // 鼠标悬停时恢复透明度
+    document.getElementById('version-marker').addEventListener('mouseenter', function() {{
+        this.style.opacity = '0.95';
+    }});
+    document.getElementById('version-marker').addEventListener('mouseleave', function() {{
+        this.style.opacity = '0.4';
+    }});
+</script>
 <style>
-    body {{ padding-top: 36px !important; }}
-    #version-marker {{ animation: slideDown 0.5s ease-out; }}
-    @keyframes slideDown {{
-        from {{ transform: translateY(-100%); }}
-        to {{ transform: translateY(0); }}
+    #version-marker:hover {{ opacity: 0.95 !important; transform: scale(1.02); }}
+    #version-marker {{ animation: fadeInScale 0.5s ease-out; }}
+    @keyframes fadeInScale {{
+        from {{ opacity: 0; transform: scale(0.9) translateY(-10px); }}
+        to {{ opacity: 0.9; transform: scale(1) translateY(0); }}
     }}
 </style>
 <!-- 版本标识结束 -->
