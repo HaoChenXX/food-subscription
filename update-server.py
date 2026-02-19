@@ -59,7 +59,7 @@ def is_git_repo(path):
 
 def backup_current():
     """备份当前版本"""
-    print("\n[1/6] 备份当前版本...")
+    print("\n[1/8] 备份当前版本...")
     if os.path.exists(PROJECT_DIR):
         os.makedirs(os.path.dirname(BACKUP_DIR), exist_ok=True)
         shutil.copytree(PROJECT_DIR, BACKUP_DIR)
@@ -93,7 +93,7 @@ def fix_git_http2():
 
 def pull_or_clone():
     """拉取或克隆最新代码"""
-    print("\n[2/6] 拉取最新代码...")
+    print("\n[2/8] 拉取最新代码...")
     
     # 先修复可能的 Git 所有权和网络问题
     fix_git_ownership()
@@ -177,7 +177,7 @@ def pull_or_clone():
 
 def fix_all_scripts():
     """修复所有脚本的换行符"""
-    print("\n[3/6] 修复脚本换行符...")
+    print("\n[3/8] 修复脚本换行符...")
     scripts = ["deploy.sh", "auto-deploy.sh", "v1_2.sh", "fix-v1.2.sh", "update-server.sh"]
     fixed_count = 0
     for script in scripts:
@@ -199,7 +199,7 @@ def fix_all_scripts():
 
 def sync_frontend_dist():
     """同步前端 dist 文件到部署目录"""
-    print("\n[4/6] 同步前端文件...")
+    print("\n[4/8] 同步前端文件...")
     src_dist = os.path.join(PROJECT_DIR, "frontend-src", "dist")
     dst_dist = os.path.join(PROJECT_DIR, "frontend", "dist")
     
@@ -229,9 +229,80 @@ def sync_frontend_dist():
     
     print(f"  ✓ 前端文件已同步到 {dst_dist}")
 
+def add_version_marker():
+    """在 index.html 中添加版本标识"""
+    print("\n[5/8] 添加版本标识...")
+    
+    index_path = os.path.join(PROJECT_DIR, "frontend", "dist", "index.html")
+    if not os.path.exists(index_path):
+        print(f"  ! 警告: 找不到 {index_path}")
+        return
+    
+    try:
+        # 获取版本信息
+        result = subprocess.run(
+            "git rev-parse --short HEAD",
+            shell=True, cwd=PROJECT_DIR, capture_output=True, text=True
+        )
+        commit_hash = result.stdout.strip() if result.returncode == 0 else "unknown"
+        
+        # 获取当前时间
+        update_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        
+        # 读取 index.html
+        with open(index_path, 'r', encoding='utf-8') as f:
+            content = f.read()
+        
+        # 版本标识 HTML
+        version_marker = f'''<!-- 版本标识 -->
+<div id="version-marker" style="
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(90deg, #ff4757, #ff6348);
+    color: white;
+    text-align: center;
+    padding: 8px;
+    font-family: monospace;
+    font-size: 14px;
+    font-weight: bold;
+    z-index: 99999;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+">
+    📦 食材包订阅平台 | 🏷️ 版本: <span id="ver-commit">{commit_hash}</span> | 🕐 更新: <span id="ver-time">{update_time}</span>
+</div>
+<style>
+    body {{ padding-top: 36px !important; }}
+    #version-marker {{ animation: slideDown 0.5s ease-out; }}
+    @keyframes slideDown {{
+        from {{ transform: translateY(-100%); }}
+        to {{ transform: translateY(0); }}
+    }}
+</style>
+<!-- 版本标识结束 -->
+'''
+        
+        # 在 <body> 标签后插入版本标识
+        if '<body>' in content:
+            content = content.replace('<body>', f'<body>\n{version_marker}')
+        elif '<body ' in content:
+            # 处理带属性的 body 标签
+            import re
+            content = re.sub(r'(<body[^>]*>)', r'\1\n' + version_marker, content)
+        
+        # 写回文件
+        with open(index_path, 'w', encoding='utf-8') as f:
+            f.write(content)
+        
+        print(f"  ✓ 版本标识已添加: {commit_hash} @ {update_time}")
+        
+    except Exception as e:
+        print(f"  ! 添加版本标识失败: {e}")
+
 def install_dependencies():
     """安装后端依赖"""
-    print("\n[5/6] 安装后端依赖...")
+    print("\n[6/8] 安装后端依赖...")
     backend_dir = os.path.join(PROJECT_DIR, "backend")
     
     # 检查是否存在 node_modules，如果不存在或需要更新则安装
@@ -245,7 +316,7 @@ def install_dependencies():
 
 def restart_service():
     """重启服务"""
-    print("\n[5/6] 重启后端服务...")
+    print("\n[7/8] 重启后端服务...")
     
     # 尝试使用 PM2
     result = subprocess.run("which pm2", shell=True, capture_output=True)
@@ -286,7 +357,7 @@ def restart_service():
 
 def check_health():
     """检查服务状态"""
-    print("\n[7/7] 检查服务状态...")
+    print("\n[8/8] 检查服务状态...")
     import time
     time.sleep(2)
     
@@ -321,6 +392,7 @@ def main():
         pull_or_clone()
         fix_all_scripts()
         sync_frontend_dist()
+        add_version_marker()
         install_dependencies()
         restart_service()
         check_health()
