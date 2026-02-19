@@ -196,6 +196,48 @@ const realApi = {
       });
     },
   },
+  
+  // 管理员接口
+  admin: {
+    // 获取所有用户
+    getUsers: async () => {
+      return fetchWithAuth<User[]>('/admin/users');
+    },
+    
+    // 删除用户
+    deleteUser: async (id: number) => {
+      return fetchWithAuth<void>(`/admin/users/${id}`, {
+        method: 'DELETE',
+      });
+    },
+    
+    // 获取统计数据
+    getStatistics: async () => {
+      return fetchWithAuth<{
+        users: { total: number; today: number };
+        orders: { total: number; totalAmount: number; today: number; todayAmount: number; byStatus: any[] };
+        packages: { total: number; lowStock: number };
+      }>('/admin/statistics');
+    },
+    
+    // 获取所有订单（管理员）
+    getAllOrders: async () => {
+      return fetchWithAuth<Order[]>('/admin/orders');
+    },
+    
+    // 更新订单状态
+    updateOrderStatus: async (id: string, status: string) => {
+      return fetchWithAuth<void>(`/admin/orders/${id}/status`, {
+        method: 'PUT',
+        body: JSON.stringify({ status }),
+      });
+    },
+    
+    // 获取所有订阅
+    getAllSubscriptions: async () => {
+      return fetchWithAuth<Subscription[]>('/admin/subscriptions');
+    },
+  },
 };
 
 export default realApi;
