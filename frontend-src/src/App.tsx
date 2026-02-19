@@ -99,8 +99,17 @@ const ProtectedRoute = ({ children, allowedRoles }: { children: React.ReactNode;
     return <Navigate to="/login" replace state={{ from: location }} />;
   }
   
-  if (allowedRoles && user && !allowedRoles.includes(user.role)) {
-    return <Navigate to="/" replace />;
+  // 检查角色权限
+  if (allowedRoles && user) {
+    // 如果用户是 admin，但当前路由只允许 merchant（不包括 admin），则重定向到 /admin
+    if (user.role === 'admin' && !allowedRoles.includes('admin')) {
+      return <Navigate to="/admin" replace />;
+    }
+    
+    // 其他角色权限检查
+    if (!allowedRoles.includes(user.role)) {
+      return <Navigate to="/" replace />;
+    }
   }
   
   return <>{children}</>;
@@ -109,16 +118,9 @@ const ProtectedRoute = ({ children, allowedRoles }: { children: React.ReactNode;
 // 公开路由 - 已登录用户自动跳转到对应首页
 const PublicRoute = ({ children }: { children: React.ReactNode }) => {
   const { isAuthenticated, user } = useAuthStore();
-  const location = useLocation();
-  const from = (location.state as any)?.from?.pathname;
   
   if (isAuthenticated && user) {
-    // 如果有来源页面，跳回来源页
-    if (from && from !== '/login') {
-      return <Navigate to={from} replace />;
-    }
-    
-    // 根据角色跳转到对应首页
+    // 根据角色跳转到对应首页（admin 优先到 /admin，不跳转到其他角色页面）
     switch (user.role) {
       case 'admin':
         return <Navigate to="/admin" replace />;
@@ -190,9 +192,9 @@ function App() {
               <Route path="checkout" element={<Checkout />} />
             </Route>
             
-            {/* 商家端路由 */}
+            {/* 商家端路由 - admin 会被重定向到 /admin */}
             <Route path="/merchant" element={
-              <ProtectedRoute allowedRoles={['merchant', 'admin']}>
+              <ProtectedRoute allowedRoles={['merchant']}>
                 <MerchantLayout />
               </ProtectedRoute>
             }>
