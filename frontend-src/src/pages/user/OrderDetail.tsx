@@ -115,9 +115,9 @@ export default function OrderDetail() {
     if (!order) return;
     try {
       setPaying(true);
-      // 调用支付 API（这里使用 updateOrderStatus 模拟支付）
-      await api.orders.update(order.id, { status: 'paid' } as any);
-      toast.success('支付成功！');
+      // 调用支付 API
+      const result = await api.orders.pay(order.id, 'mock');
+      toast.success(result.message || '支付成功！');
       loadOrder(); // 刷新订单状态
     } catch (error: any) {
       toast.error(error.message || '支付失败');

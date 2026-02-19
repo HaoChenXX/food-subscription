@@ -208,4 +208,42 @@ router.get('/:id/inventory-logs', authMiddleware, merchantMiddleware, async (req
   }
 });
 
+// 获取商家的所有订单（商家/管理员）
+router.get('/merchant/orders', authMiddleware, merchantMiddleware, async (req, res) => {
+  try {
+    // 获取商家创建的所有食材包ID
+    const packages = await query(
+      'SELECT id FROM food_packages WHERE merchant_id = ?',
+      [req.user.id]
+    );
+    
+    const packageIds = packages.map(p => p.id);
+    
+    if (packageIds.length === 0) {
+      return res.json([]);
+    }
+    
+    // 获取这些食材包的所有订单
+    const placeholders = packageIds.map(() => '?').join(',');
+    const orders = await query(
+      `SELECT o.*, fp.name as package_name, fp.image as package_image,
+              u.name as user_name, u.email as user_email, u.phone as user_phone
+       FROM orders o 
+       LEFT JOIN food_packages fp ON o.package_id = fp.id 
+       LEFT JOIN users u ON o.user_id = u.id
+       WHERE o.package_id IN (${placeholders})
+       ORDER BY o.created_at DESC`,
+      packageIds
+    );
+    
+    res.json(orders.map(order => ({
+      ...order,
+      delivery_address: safeJsonParse(order.delivery_address, {})
+    })));
+  } catch (error) {
+    console.error('获取商家订单错误:', error);
+    res.status(500).json({ message: '获取订单失败' });
+  }
+});
+
 module.exports = router;

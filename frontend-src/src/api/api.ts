@@ -150,6 +150,13 @@ const realApi = {
         body: JSON.stringify(data),
       });
     },
+    
+    pay: async (id: string, paymentMethod: string = 'mock') => {
+      return fetchWithAuth<{ message: string; transactionId: string; order: Order }>(`/orders/${id}/pay`, {
+        method: 'POST',
+        body: JSON.stringify({ paymentMethod }),
+      });
+    },
   },
   
   // 订阅
@@ -196,6 +203,14 @@ const realApi = {
       return fetchWithAuth<void>(`/addresses/${id}`, {
         method: 'DELETE',
       });
+    },
+  },
+  
+  // 商家接口
+  merchant: {
+    // 获取商家的所有订单
+    getOrders: async () => {
+      return fetchWithAuth<Order[]>('/food-packages/merchant/orders');
     },
   },
   
