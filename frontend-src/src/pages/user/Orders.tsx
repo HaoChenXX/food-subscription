@@ -1,12 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useAuthStore, useOrderStore } from '@/store';
-import { mockApi } from '@/api/mock';
+import { api } from '@/api/api';
+import { toast } from 'sonner';
 import type { OrderStatus } from '@/types';
 import {
   ShoppingBag,
@@ -17,8 +16,29 @@ import {
   XCircle,
   ChevronRight,
   Calendar,
-  MapPin
+  MapPin,
+  Loader2,
+  RefreshCw,
 } from 'lucide-react';
+
+// 后端返回的订单数据格式
+interface BackendOrder {
+  id: string;
+  user_id: number;
+  package_id: number;
+  quantity: number;
+  total_amount: number;
+  status: OrderStatus;
+  delivery_date: string | null;
+  delivery_time_slot: string | null;
+  delivery_address: string;
+  created_at: string;
+  updated_at: string;
+  package_name?: string;
+  package_image?: string;
+  contact_name?: string;
+  contact_phone?: string;
+}
 
 const statusConfig: Record<OrderStatus, { label: string; color: string; icon: React.ElementType }> = {
   pending_payment: { label: '待支付', color: 'bg-yellow-100 text-yellow-700', icon: Clock },
@@ -38,20 +58,28 @@ const orderTabs = [
 ];
 
 export default function Orders() {
-  const { user } = useAuthStore();
-  const { orders, setOrders } = useOrderStore();
+  const [orders, setOrders] = useState<BackendOrder[]>([]);
   const [activeTab, setActiveTab] = useState('all');
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
 
-  // 获取订单列表
-  const { isLoading } = useQuery({
-    queryKey: ['orders', user?.id],
-    queryFn: async () => {
-      const data = await mockApi.orders.getAll(user?.id || '');
+  // 加载订单列表
+  const loadOrders = async () => {
+    try {
+      setRefreshing(true);
+      const data = await api.orders.getAll() as unknown as BackendOrder[];
       setOrders(data);
-      return data;
-    },
-    enabled: !!user
-  });
+    } catch (error: any) {
+      toast.error(error.message || '加载订单失败');
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  };
+
+  useEffect(() => {
+    loadOrders();
+  }, []);
 
   // 过滤订单
   const filteredOrders = orders.filter(order => {
@@ -62,10 +90,28 @@ export default function Orders() {
     return true;
   });
 
-  if (isLoading) {
+  // 解析配送地址
+  const parseAddress = (addressStr: string) => {
+    try {
+      return JSON.parse(addressStr);
+    } catch {
+      return { province: '', city: '', district: '', address: '未知地址' };
+    }
+  };
+
+  // 格式化日期
+  const formatDate = (dateStr: string | null) => {
+    if (!dateStr) return '-';
+    return new Date(dateStr).toLocaleDateString('zh-CN');
+  };
+
+  if (loading) {
     return (
       <div className="flex items-center justify-center h-96">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="w-8 h-8 animate-spin text-green-600" />
+          <p className="text-gray-500">加载订单中...</p>
+        </div>
       </div>
     );
   }
@@ -73,9 +119,15 @@ export default function Orders() {
   return (
     <div className="p-4 lg:p-6 space-y-6">
       {/* 页面标题 */}
-      <div>
-        <h1 className="text-2xl font-bold mb-2">我的订单</h1>
-        <p className="text-gray-500">查看和管理您的所有订单</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold mb-2">我的订单</h1>
+          <p className="text-gray-500">查看和管理您的所有订单</p>
+        </div>
+        <Button variant="outline" onClick={loadOrders} disabled={refreshing}>
+          <RefreshCw className={`w-4 h-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
+          刷新
+        </Button>
       </div>
 
       {/* 统计卡片 */}
@@ -159,6 +211,7 @@ export default function Orders() {
               {filteredOrders.map((order) => {
                 const status = statusConfig[order.status];
                 const StatusIcon = status.icon;
+                const address = parseAddress(order.delivery_address || '{}');
                 
                 return (
                   <Card key={order.id} className="hover:shadow-md transition-shadow">
@@ -168,7 +221,7 @@ export default function Orders() {
                           <span className="text-sm text-gray-500">订单号：{order.id}</span>
                           <span className="text-sm text-gray-500">
                             <Calendar className="w-4 h-4 inline mr-1" />
-                            {new Date(order.createdAt).toLocaleDateString()}
+                            {formatDate(order.created_at)}
                           </span>
                         </div>
                         <Badge className={`${status.color} w-fit`}>
@@ -180,24 +233,19 @@ export default function Orders() {
                       <div className="flex flex-col lg:flex-row lg:items-center justify-between">
                         <div className="flex items-start space-x-4 mb-4 lg:mb-0">
                           <img
-                            src={order.packageImage}
-                            alt={order.packageName}
+                            src={order.package_image || '/placeholder.png'}
+                            alt={order.package_name || '商品'}
                             className="w-20 h-20 object-cover rounded-lg"
                           />
                           <div>
-                            <h4 className="font-medium text-lg">{order.packageName}</h4>
+                            <h4 className="font-medium text-lg">{order.package_name || '商品'}</h4>
                             <div className="flex items-center text-sm text-gray-500 mt-1">
                               <MapPin className="w-4 h-4 mr-1" />
-                              {order.address.province} {order.address.city} {order.address.district}
+                              {address.province} {address.city} {address.district}
                             </div>
                             <div className="flex items-center space-x-4 mt-2">
                               <span className="text-sm text-gray-500">
                                 数量：{order.quantity}
-                              </span>
-                              <span className="text-sm text-gray-500">
-                                {order.subscriptionType === 'weekly' && '周订阅'}
-                                {order.subscriptionType === 'monthly' && '月订阅'}
-                                {order.subscriptionType === 'quarterly' && '季订阅'}
                               </span>
                             </div>
                           </div>
@@ -205,7 +253,7 @@ export default function Orders() {
 
                         <div className="flex flex-col lg:items-end">
                           <div className="text-2xl font-bold text-green-600 mb-2">
-                            ¥{order.totalAmount}
+                            ¥{order.total_amount}
                           </div>
                           <Button variant="ghost" size="sm" className="text-green-600" asChild>
                             <Link to={`/orders/${order.id}`}>

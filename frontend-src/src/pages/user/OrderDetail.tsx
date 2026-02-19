@@ -1,11 +1,11 @@
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { useOrderStore } from '@/store';
-import { mockApi } from '@/api/mock';
+import { api } from '@/api/api';
+import { toast } from 'sonner';
 import type { OrderStatus } from '@/types';
 import {
   ArrowLeft,
@@ -16,8 +16,29 @@ import {
   MapPin,
   Calendar,
   CreditCard,
-  MessageSquare
+  MessageSquare,
+  Loader2,
 } from 'lucide-react';
+
+// 后端返回的订单数据格式
+interface BackendOrder {
+  id: string;
+  user_id: number;
+  package_id: number;
+  quantity: number;
+  total_amount: number;
+  price?: number;
+  status: OrderStatus;
+  delivery_date: string | null;
+  delivery_time_slot: string | null;
+  delivery_address: string;
+  contact_name?: string;
+  contact_phone?: string;
+  created_at: string;
+  updated_at: string;
+  package_name?: string;
+  package_image?: string;
+}
 
 const statusConfig: Record<OrderStatus, { label: string; color: string; description: string }> = {
   pending_payment: { 
@@ -68,27 +89,74 @@ const timelineSteps = [
 export default function OrderDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { orders } = useOrderStore();
+  const [order, setOrder] = useState<BackendOrder | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [paying, setPaying] = useState(false);
 
-  // 获取订单详情
-  const { data: order, isLoading } = useQuery({
-    queryKey: ['order', id],
-    queryFn: () => mockApi.orders.getById(id || ''),
-    enabled: !!id
-  });
+  // 加载订单详情
+  const loadOrder = async () => {
+    if (!id) return;
+    try {
+      const data = await api.orders.getById(id) as unknown as BackendOrder;
+      setOrder(data);
+    } catch (error: any) {
+      toast.error(error.message || '加载订单详情失败');
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  // 优先使用store中的数据
-  const orderData = orders.find(o => o.id === id) || order;
+  useEffect(() => {
+    loadOrder();
+  }, [id]);
 
-  if (isLoading) {
+  // 支付订单
+  const handlePay = async () => {
+    if (!order) return;
+    try {
+      setPaying(true);
+      // 调用支付 API（这里使用 updateOrderStatus 模拟支付）
+      await api.orders.update(order.id, { status: 'paid' } as any);
+      toast.success('支付成功！');
+      loadOrder(); // 刷新订单状态
+    } catch (error: any) {
+      toast.error(error.message || '支付失败');
+    } finally {
+      setPaying(false);
+    }
+  };
+
+  // 解析配送地址
+  const parseAddress = (addressStr: string) => {
+    try {
+      return JSON.parse(addressStr);
+    } catch {
+      return { 
+        name: order?.contact_name || '未知', 
+        phone: order?.contact_phone || '', 
+        province: '', 
+        city: '', 
+        district: '', 
+        address: '未知地址' 
+      };
+    }
+  };
+
+  // 格式化日期
+  const formatDate = (dateStr: string | null) => {
+    if (!dateStr) return '-';
+    return new Date(dateStr).toLocaleString('zh-CN');
+  };
+
+  if (loading) {
     return (
       <div className="flex items-center justify-center h-96">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
+        <Loader2 className="w-8 h-8 animate-spin text-green-600" />
       </div>
     );
   }
 
-  if (!orderData) {
+  if (!order) {
     return (
       <div className="text-center py-12">
         <h2 className="text-xl font-bold mb-2">订单不存在</h2>
@@ -100,8 +168,9 @@ export default function OrderDetail() {
     );
   }
 
-  const status = statusConfig[orderData.status];
-  const currentStepIndex = timelineSteps.findIndex(s => s.status === orderData.status);
+  const status = statusConfig[order.status];
+  const currentStepIndex = timelineSteps.findIndex(s => s.status === order.status);
+  const address = parseAddress(order.delivery_address || '{}');
 
   return (
     <div className="p-4 lg:p-6 max-w-4xl mx-auto">
@@ -121,24 +190,24 @@ export default function OrderDetail() {
           <div className="flex flex-col lg:flex-row lg:items-center justify-between mb-6">
             <div>
               <div className="flex items-center space-x-3 mb-2">
-                <h1 className="text-xl font-bold">订单 {orderData.id}</h1>
+                <h1 className="text-xl font-bold">订单 {order.id}</h1>
                 <Badge className={status.color}>
                   {status.label}
                 </Badge>
               </div>
               <p className="text-gray-500">
-                下单时间：{new Date(orderData.createdAt).toLocaleString()}
+                下单时间：{formatDate(order.created_at)}
               </p>
             </div>
             <div className="mt-4 lg:mt-0 text-right">
               <div className="text-3xl font-bold text-green-600">
-                ¥{orderData.totalAmount}
+                ¥{order.total_amount}
               </div>
             </div>
           </div>
 
           {/* 进度条 */}
-          {orderData.status !== 'cancelled' && orderData.status !== 'refunded' && (
+          {order.status !== 'cancelled' && order.status !== 'refunded' && (
             <div className="relative">
               <div className="flex items-center justify-between">
                 {timelineSteps.map((step, index) => {
@@ -190,22 +259,17 @@ export default function OrderDetail() {
             <CardContent className="p-6">
               <div className="flex items-start space-x-4">
                 <img
-                  src={orderData.packageImage}
-                  alt={orderData.packageName}
+                  src={order.package_image || '/placeholder.png'}
+                  alt={order.package_name || '商品'}
                   className="w-24 h-24 object-cover rounded-lg"
                 />
                 <div className="flex-1">
-                  <h3 className="font-medium text-lg">{orderData.packageName}</h3>
+                  <h3 className="font-medium text-lg">{order.package_name || '商品'}</h3>
                   <div className="flex items-center space-x-4 mt-2 text-sm text-gray-500">
-                    <span>数量：{orderData.quantity}</span>
-                    <span>
-                      {orderData.subscriptionType === 'weekly' && '周订阅'}
-                      {orderData.subscriptionType === 'monthly' && '月订阅'}
-                      {orderData.subscriptionType === 'quarterly' && '季订阅'}
-                    </span>
+                    <span>数量：{order.quantity}</span>
                   </div>
                   <div className="mt-4 text-lg font-medium text-green-600">
-                    ¥{orderData.price} × {orderData.quantity} = ¥{orderData.totalAmount}
+                    ¥{order.price || order.total_amount} × {order.quantity} = ¥{order.total_amount}
                   </div>
                 </div>
               </div>
@@ -222,14 +286,14 @@ export default function OrderDetail() {
                 <Calendar className="w-5 h-5 text-gray-400" />
                 <div>
                   <div className="text-sm text-gray-500">配送日期</div>
-                  <div>{orderData.deliveryDate}</div>
+                  <div>{order.delivery_date || '待定'}</div>
                 </div>
               </div>
               <div className="flex items-center space-x-3">
                 <Clock className="w-5 h-5 text-gray-400" />
                 <div>
                   <div className="text-sm text-gray-500">配送时段</div>
-                  <div>{orderData.deliveryTimeSlot}</div>
+                  <div>{order.delivery_time_slot || '待定'}</div>
                 </div>
               </div>
               <Separator />
@@ -237,11 +301,11 @@ export default function OrderDetail() {
                 <MapPin className="w-5 h-5 text-gray-400 mt-0.5" />
                 <div>
                   <div className="text-sm text-gray-500">配送地址</div>
-                  <div className="font-medium">{orderData.address.name} {orderData.address.phone}</div>
+                  <div className="font-medium">{address.name} {address.phone}</div>
                   <div>
-                    {orderData.address.province} {orderData.address.city} {orderData.address.district}
+                    {address.province} {address.city} {address.district}
                   </div>
-                  <div>{orderData.address.address}</div>
+                  <div>{address.address}</div>
                 </div>
               </div>
             </CardContent>
@@ -258,7 +322,7 @@ export default function OrderDetail() {
             <CardContent className="p-6 space-y-3">
               <div className="flex justify-between">
                 <span className="text-gray-500">商品金额</span>
-                <span>¥{orderData.totalAmount}</span>
+                <span>¥{order.total_amount}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-500">运费</span>
@@ -267,7 +331,7 @@ export default function OrderDetail() {
               <Separator />
               <div className="flex justify-between text-lg font-bold">
                 <span>实付金额</span>
-                <span className="text-green-600">¥{orderData.totalAmount}</span>
+                <span className="text-green-600">¥{order.total_amount}</span>
               </div>
             </CardContent>
           </Card>
@@ -287,12 +351,23 @@ export default function OrderDetail() {
 
           {/* 操作按钮 */}
           <div className="space-y-3">
-            {orderData.status === 'pending_payment' && (
-              <Button className="w-full bg-green-600 hover:bg-green-700">
-                立即支付
+            {order.status === 'pending_payment' && (
+              <Button 
+                className="w-full bg-green-600 hover:bg-green-700"
+                onClick={handlePay}
+                disabled={paying}
+              >
+                {paying ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    支付中...
+                  </>
+                ) : (
+                  '立即支付'
+                )}
               </Button>
             )}
-            {orderData.status === 'delivered' && (
+            {order.status === 'delivered' && (
               <Button className="w-full" variant="outline">
                 <MessageSquare className="w-4 h-4 mr-2" />
                 评价订单
