@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -58,6 +58,7 @@ const orderTabs = [
 ];
 
 export default function Orders() {
+  const location = useLocation();
   const [orders, setOrders] = useState<BackendOrder[]>([]);
   const [activeTab, setActiveTab] = useState('all');
   const [loading, setLoading] = useState(true);
@@ -77,9 +78,15 @@ export default function Orders() {
     }
   };
 
+  // 页面加载时刷新
   useEffect(() => {
     loadOrders();
   }, []);
+
+  // 从详情页返回时刷新
+  useEffect(() => {
+    loadOrders();
+  }, [location.key]);
 
   // 过滤订单
   const filteredOrders = orders.filter(order => {
