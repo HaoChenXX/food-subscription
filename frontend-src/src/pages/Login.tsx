@@ -84,6 +84,9 @@ export default function Login() {
         
         <Card className="shadow-xl border-0">
           <CardHeader className="text-center">
+            <div className="bg-red-500 text-white font-bold text-lg py-2 px-4 rounded-lg mb-3 animate-pulse">
+              🧪 测试版本 v2.0 - 升级验证
+            </div>
             <CardTitle className="text-2xl font-bold text-gray-900">欢迎回来</CardTitle>
             <CardDescription>登录您的智能食材包订阅账户</CardDescription>
           </CardHeader>

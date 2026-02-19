@@ -17,7 +17,7 @@ import tempfile
 
 # 配置
 PROJECT_DIR = "/var/www/food-subscription-v01.1-backup"
-GIT_REPO = "https://github.com/HaoChenXX/food-subscription.git"
+GIT_REPO = "git@codehub.devcloud.cn-north-4.huaweicloud.com:a384bf0b99f140dbaa16281939ab38b1/huawei_food_subscription.git"
 BACKUP_DIR = f"/var/www/backups/food-subscription-{datetime.datetime.now().strftime('%Y%m%d-%H%M%S')}"
 
 # 需要保留的目录和文件（不会被覆盖）
