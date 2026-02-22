@@ -119,20 +119,144 @@ router.put('/orders/:id/status', authMiddleware, adminMiddleware, async (req, re
   }
 });
 
-// 删除用户（管理员）
-router.delete('/users/:id', authMiddleware, adminMiddleware, async (req, res) => {
+// 创建用户（管理员）
+router.post('/users', authMiddleware, adminMiddleware, async (req, res) => {
   try {
-    // 不能删除自己
-    if (parseInt(req.params.id) === req.user.id) {
-      return res.status(400).json({ message: '不能删除自己' });
+    const { email, password, name, phone, role } = req.body;
+
+    // 验证必填字段
+    if (!email || !password || !name) {
+      return res.status(400).json({ message: '邮箱、密码和姓名不能为空' });
     }
-    
-    await query('DELETE FROM users WHERE id = ?', [req.params.id]);
-    res.json({ message: '用户已删除' });
+
+    // 验证邮箱格式
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({ message: '邮箱格式不正确' });
+    }
+
+    // 验证密码长度
+    if (password.length < 6) {
+      return res.status(400).json({ message: '密码长度至少为6位' });
+    }
+
+    // 验证角色
+    const validRoles = ['user', 'merchant', 'admin'];
+    if (role && !validRoles.includes(role)) {
+      return res.status(400).json({ message: '无效的用户角色' });
+    }
+
+    // 检查邮箱是否已存在
+    const existingUsers = await query('SELECT id FROM users WHERE email = ?', [email]);
+    if (existingUsers.length > 0) {
+      return res.status(400).json({ message: '该邮箱已被注册' });
+    }
+
+    // 检查用户名是否已存在
+    const existingName = await query('SELECT id FROM users WHERE name = ?', [name]);
+    if (existingName.length > 0) {
+      return res.status(400).json({ message: '该用户名已被使用' });
+    }
+
+    // 加密密码
+    const bcrypt = require('bcryptjs');
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // 生成用户ID
+    const userId = Date.now().toString();
+    const userRole = role || 'user';
+
+    // 插入新用户
+    await query(
+      'INSERT INTO users (id, email, password, name, phone, role) VALUES (?, ?, ?, ?, ?, ?)',
+      [userId, email, hashedPassword, name, phone || '', userRole]
+    );
+
+    // 返回新创建的用户（不包含密码）
+    const newUser = await query(
+      'SELECT id, email, name, phone, role, avatar, created_at, updated_at FROM users WHERE id = ?',
+      [userId]
+    );
+
+    res.status(201).json({
+      message: '用户创建成功',
+      user: newUser[0]
+    });
   } catch (error) {
-    console.error('删除用户错误:', error);
-    res.status(500).json({ message: '删除用户失败' });
+    console.error('创建用户错误:', error);
+    res.status(500).json({ message: '创建用户失败' });
   }
 });
+
+// 更新用户信息（管理员）
+router.put('/users/:id', authMiddleware, adminMiddleware, async (req, res) => {
+  try {
+    const { name, phone, role } = req.body;
+    const userId = req.params.id;
+
+    // 验证角色
+    const validRoles = ['user', 'merchant', 'admin'];
+    if (role && !validRoles.includes(role)) {
+      return res.status(400).json({ message: '无效的用户角色' });
+    }
+
+    // 检查用户名是否已被其他用户使用
+    if (name) {
+      const existingName = await query('SELECT id FROM users WHERE name = ? AND id != ?', [name, userId]);
+      if (existingName.length > 0) {
+        return res.status(400).json({ message: '该用户名已被使用' });
+      }
+    }
+
+    // 构建更新字段
+    const updateFields = [];
+    const updateValues = [];
+
+    if (name) {
+      updateFields.push('name = ?');
+      updateValues.push(name);
+    }
+    if (phone !== undefined) {
+      updateFields.push('phone = ?');
+      updateValues.push(phone);
+    }
+    if (role) {
+      updateFields.push('role = ?');
+      updateValues.push(role);
+    }
+
+    if (updateFields.length === 0) {
+      return res.status(400).json({ message: '没有要更新的字段' });
+    }
+
+    updateValues.push(userId);
+
+    // 更新用户信息
+    await query(
+      `UPDATE users SET ${updateFields.join(', ')}, updated_at = NOW() WHERE id = ?`,
+      updateValues
+    );
+
+    // 返回更新后的用户信息
+    const updatedUser = await query(
+      'SELECT id, email, name, phone, role, avatar, created_at, updated_at FROM users WHERE id = ?',
+      [userId]
+    );
+
+    if (updatedUser.length === 0) {
+      return res.status(404).json({ message: '用户不存在' });
+    }
+
+    res.json({
+      message: '用户信息更新成功',
+      user: updatedUser[0]
+    });
+  } catch (error) {
+    console.error('更新用户信息错误:', error);
+    res.status(500).json({ message: '更新用户信息失败' });
+  }
+});
+
+// 删除用户（管理员）
 
 module.exports = router;

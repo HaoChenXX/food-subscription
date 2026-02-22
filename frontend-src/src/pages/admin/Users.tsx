@@ -32,6 +32,8 @@ import {
   Trash2,
   Loader2,
   RefreshCw,
+  Plus,
+  Edit,
 } from 'lucide-react';
 
 // 后端返回的用户数据格式
@@ -90,8 +92,27 @@ export default function AdminUsers() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedUser, setSelectedUser] = useState<UserWithStats | null>(null);
   const [showDetailDialog, setShowDetailDialog] = useState(false);
+  const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [showEditDialog, setShowEditDialog] = useState(false);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [saving, setSaving] = useState(false);
+
+  // 创建用户表单
+  const [createForm, setCreateForm] = useState({
+    email: '',
+    password: '',
+    name: '',
+    phone: '',
+    role: 'user' as 'user' | 'merchant' | 'admin',
+  });
+
+  // 编辑用户表单
+  const [editForm, setEditForm] = useState({
+    name: '',
+    phone: '',
+    role: 'user' as 'user' | 'merchant' | 'admin',
+  });
 
   // 加载用户数据和统计
   const loadData = async () => {
@@ -135,18 +156,109 @@ export default function AdminUsers() {
     loadData();
   }, []);
 
+  // 创建用户
+  const handleCreateUser = async () => {
+    try {
+      setSaving(true);
+
+      // 验证必填字段
+      if (!createForm.email || !createForm.password || !createForm.name) {
+        toast.error('请填写必填字段');
+        return;
+      }
+
+      // 验证邮箱格式
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(createForm.email)) {
+        toast.error('邮箱格式不正确');
+        return;
+      }
+
+      // 验证密码长度
+      if (createForm.password.length < 6) {
+        toast.error('密码长度至少为6位');
+        return;
+      }
+
+      await api.admin.createUser({
+        email: createForm.email,
+        password: createForm.password,
+        name: createForm.name,
+        phone: createForm.phone,
+        role: createForm.role,
+      });
+
+      toast.success('用户创建成功');
+      setShowCreateDialog(false);
+
+      // 重置表单
+      setCreateForm({
+        email: '',
+        password: '',
+        name: '',
+        phone: '',
+        role: 'user',
+      });
+
+      loadData(); // 刷新数据
+    } catch (error: any) {
+      toast.error(error.message || '创建用户失败');
+    } finally {
+      setSaving(false);
+    }
+  };
+
   // 删除用户
   const handleDeleteUser = async (userId: number) => {
-    if (!confirm('确定要删除此用户吗？此操作不可恢复。')) {
-      return;
-    }
-    
     try {
       await api.admin.deleteUser(userId);
       toast.success('用户已删除');
       loadData(); // 刷新数据
     } catch (error: any) {
       toast.error(error.message || '删除用户失败');
+    }
+  };
+
+  // 编辑用户
+  const handleEditUser = (user: UserWithStats) => {
+    setSelectedUser(user);
+    setEditForm({
+      name: user.name || '',
+      phone: user.phone || '',
+      role: user.role,
+    });
+    setShowEditDialog(true);
+  };
+
+  // 保存编辑的用户
+  const handleSaveEditUser = async () => {
+    if (!selectedUser) return;
+
+    try {
+      setSaving(true);
+
+      // 检查是否有修改
+      if (editForm.name === selectedUser.name &&
+          editForm.phone === selectedUser.phone &&
+          editForm.role === selectedUser.role) {
+        toast.info('没有需要保存的修改');
+        return;
+      }
+
+      await api.admin.updateUser(selectedUser.id, {
+        name: editForm.name,
+        phone: editForm.phone,
+        role: editForm.role,
+      });
+
+      toast.success('用户信息更新成功');
+      setShowEditDialog(false);
+      setSelectedUser(null);
+      loadData(); // 刷新数据
+    } catch (error: any) {
+      toast.error(error.message || '更新用户信息失败');
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -211,6 +323,10 @@ export default function AdminUsers() {
         <Button variant="outline">
           <Filter className="w-4 h-4 mr-2" />
           筛选
+        </Button>
+        <Button onClick={() => setShowCreateDialog(true)}>
+          <Plus className="w-4 h-4 mr-2" />
+          添加用户
         </Button>
       </div>
 
@@ -328,8 +444,20 @@ export default function AdminUsers() {
                       <Button
                         variant="ghost"
                         size="sm"
+                        onClick={() => handleEditUser(user)}
+                      >
+                        <Edit className="w-4 h-4 mr-1" />
+                        编辑
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
                         className="text-red-600 hover:text-red-700"
-                        onClick={() => handleDeleteUser(user.id)}
+                        onClick={() => {
+                          if (confirm('确定要删除此用户吗？此操作不可恢复。')) {
+                            handleDeleteUser(user.id);
+                          }
+                        }}
                       >
                         <Trash2 className="w-4 h-4 mr-1" />
                         删除
@@ -409,14 +537,14 @@ export default function AdminUsers() {
               </div>
 
               <div className="flex space-x-3">
-                <Button 
+                <Button
                   className="flex-1 bg-purple-600 hover:bg-purple-700"
-                  onClick={() => toast.info('编辑功能开发中...')}
+                  onClick={() => handleEditUser(selectedUser)}
                 >
                   编辑用户
                 </Button>
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   className="flex-1"
                   onClick={() => toast.info('订单查看功能开发中...')}
                 >
@@ -425,6 +553,160 @@ export default function AdminUsers() {
               </div>
             </div>
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* 创建用户对话框 */}
+      <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>创建新用户</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium mb-1">邮箱 *</label>
+              <Input
+                type="email"
+                placeholder="user@example.com"
+                value={createForm.email}
+                onChange={(e) => setCreateForm({ ...createForm, email: e.target.value })}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">密码 *</label>
+              <Input
+                type="password"
+                placeholder="至少6位字符"
+                value={createForm.password}
+                onChange={(e) => setCreateForm({ ...createForm, password: e.target.value })}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">姓名 *</label>
+              <Input
+                placeholder="请输入姓名"
+                value={createForm.name}
+                onChange={(e) => setCreateForm({ ...createForm, name: e.target.value })}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">手机号</label>
+              <Input
+                type="tel"
+                placeholder="13800138000"
+                value={createForm.phone}
+                onChange={(e) => setCreateForm({ ...createForm, phone: e.target.value })}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">角色</label>
+              <select
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                value={createForm.role}
+                onChange={(e) => setCreateForm({ ...createForm, role: e.target.value as any })}
+              >
+                <option value="user">普通用户</option>
+                <option value="merchant">商家</option>
+                <option value="admin">管理员</option>
+              </select>
+            </div>
+          </div>
+          <div className="flex space-x-3 pt-4">
+            <Button
+              className="flex-1"
+              onClick={handleCreateUser}
+              disabled={saving}
+            >
+              {saving ? (
+                <><Loader2 className="w-4 h-4 mr-2 animate-spin" />创建中...</>
+              ) : (
+                '创建用户'
+              )}
+            </Button>
+            <Button
+              variant="outline"
+              className="flex-1"
+              onClick={() => setShowCreateDialog(false)}
+              disabled={saving}
+            >
+              取消
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* 编辑用户对话框 */}
+      <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>编辑用户</DialogTitle>
+          </DialogHeader>
+          {selectedUser && (
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">邮箱</label>
+                <Input
+                  type="email"
+                  value={selectedUser.email}
+                  disabled
+                  className="bg-gray-100"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">姓名</label>
+                <Input
+                  placeholder="请输入姓名"
+                  value={editForm.name}
+                  onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">手机号</label>
+                <Input
+                  type="tel"
+                  placeholder="13800138000"
+                  value={editForm.phone}
+                  onChange={(e) => setEditForm({ ...editForm, phone: e.target.value })}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">角色</label>
+                <select
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  value={editForm.role}
+                  onChange={(e) => setEditForm({ ...editForm, role: e.target.value as any })}
+                >
+                  <option value="user">普通用户</option>
+                  <option value="merchant">商家</option>
+                  <option value="admin">管理员</option>
+                </select>
+              </div>
+            </div>
+          )}
+          <div className="flex space-x-3 pt-4">
+            <Button
+              className="flex-1"
+              onClick={handleSaveEditUser}
+              disabled={saving}
+            >
+              {saving ? (
+                <><Loader2 className="w-4 h-4 mr-2 animate-spin" />保存中...</>
+              ) : (
+                '保存修改'
+              )}
+            </Button>
+            <Button
+              variant="outline"
+              className="flex-1"
+              onClick={() => {
+                setShowEditDialog(false);
+                setSelectedUser(null);
+              }}
+              disabled={saving}
+            >
+              取消
+            </Button>
+          </div>
         </DialogContent>
       </Dialog>
     </div>

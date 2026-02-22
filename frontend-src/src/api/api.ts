@@ -232,7 +232,23 @@ const realApi = {
     getUsers: async () => {
       return fetchWithAuth<User[]>('/admin/users');
     },
-    
+
+    // 创建用户（管理员）
+    createUser: async (data: { email: string; password: string; name: string; phone?: string; role?: string }) => {
+      return fetchWithAuth<User>('/admin/users', {
+        method: 'POST',
+        body: JSON.stringify(data),
+      });
+    },
+
+    // 更新用户信息（管理员）
+    updateUser: async (id: number, data: { name?: string; phone?: string; role?: string }) => {
+      return fetchWithAuth<User>(`/admin/users/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify(data),
+      });
+    },
+
     // 删除用户
     deleteUser: async (id: number) => {
       return fetchWithAuth<void>(`/admin/users/${id}`, {
