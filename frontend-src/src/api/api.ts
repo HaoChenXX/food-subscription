@@ -9,11 +9,12 @@ const API_BASE_URL = '/api';
 
 // 通用请求函数
 async function fetchApi<T>(
-  endpoint: string, 
+  endpoint: string,
   options: RequestInit = {}
 ): Promise<T> {
   const url = `${API_BASE_URL}${endpoint}`;
-  
+  console.log('API请求:', url, options);
+
   const response = await fetch(url, {
     headers: {
       'Content-Type': 'application/json',
@@ -21,13 +22,24 @@ async function fetchApi<T>(
     },
     ...options,
   });
-  
+
+  console.log('API响应状态:', response.status);
+
   if (!response.ok) {
-    const error = await response.json().catch(() => ({ message: '请求失败' }));
+    const errorText = await response.text();
+    console.error('API错误响应:', errorText);
+    let error;
+    try {
+      error = JSON.parse(errorText);
+    } catch {
+      error = { message: '请求失败' };
+    }
     throw new Error(error.message || `HTTP ${response.status}`);
   }
-  
-  return response.json();
+
+  const data = await response.json();
+  console.log('API响应数据:', data);
+  return data;
 }
 
 // 带认证的请求

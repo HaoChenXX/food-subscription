@@ -21,7 +21,7 @@ import {
   RefreshCw,
 } from 'lucide-react';
 
-// 后端返回的订单数据格式
+// 后端返回的订单数据格式 - 使用与后端一致的字段名
 interface BackendOrder {
   id: string;
   user_id: number;
@@ -29,15 +29,16 @@ interface BackendOrder {
   quantity: number;
   total_amount: number;
   status: OrderStatus;
-  delivery_date: string | null;
-  delivery_time_slot: string | null;
   delivery_address: string;
+  contact_name?: string;
+  contact_phone?: string;
+  payment_method?: string;
+  payment_time?: string;
   created_at: string;
   updated_at: string;
   package_name?: string;
   package_image?: string;
-  contact_name?: string;
-  contact_phone?: string;
+  remark?: string;
 }
 
 const statusConfig: Record<OrderStatus, { label: string; color: string; icon: React.ElementType }> = {
@@ -68,9 +69,17 @@ export default function Orders() {
   const loadOrders = async () => {
     try {
       setRefreshing(true);
+      console.log('开始加载订单列表...');
       const data = await api.orders.getAll() as unknown as BackendOrder[];
+      console.log('获取到的订单数据:', data);
       setOrders(data);
+
+      // 如果没有订单，显示提示
+      if (data.length === 0) {
+        console.log('没有获取到任何订单');
+      }
     } catch (error: any) {
+      console.error('加载订单失败:', error);
       toast.error(error.message || '加载订单失败');
     } finally {
       setLoading(false);
@@ -105,7 +114,12 @@ export default function Orders() {
   // 解析配送地址
   const parseAddress = (addressStr: string) => {
     try {
-      return JSON.parse(addressStr);
+      const parsed = JSON.parse(addressStr);
+      // 如果已经是对象格式，直接返回
+      if (typeof parsed === 'object' && parsed !== null) {
+        return parsed;
+      }
+      return { province: '', city: '', district: '', address: '未知地址' };
     } catch {
       return { province: '', city: '', district: '', address: '未知地址' };
     }
