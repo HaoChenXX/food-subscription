@@ -118,7 +118,12 @@ export default function OrderDetail() {
       // 调用支付 API
       const result = await api.orders.pay(order.id, 'mock');
       toast.success(result.message || '支付成功！');
+      localStorage.setItem('shouldRefreshOrders', 'true'); // 标记需要刷新订单列表
       loadOrder(); // 刷新订单状态
+      // 延迟返回订单列表，让用户看到支付成功状态
+      setTimeout(() => {
+        navigate('/orders', { state: { refresh: true } });
+      }, 1500);
     } catch (error: any) {
       toast.error(error.message || '支付失败');
     } finally {

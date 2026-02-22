@@ -85,8 +85,13 @@ export default function Orders() {
 
   // 从详情页返回时刷新
   useEffect(() => {
-    loadOrders();
-  }, [location.key]);
+    // 检查是否是支付后返回
+    const shouldRefresh = localStorage.getItem('shouldRefreshOrders');
+    if (shouldRefresh || location.state?.refresh) {
+      loadOrders();
+      localStorage.removeItem('shouldRefreshOrders');
+    }
+  }, [location.key, location.state]);
 
   // 过滤订单
   const filteredOrders = orders.filter(order => {

@@ -9,8 +9,9 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { useAuthStore, useCartStore, useOrderStore } from '@/store';
-import { mockApi } from '@/api/mock';
+import { useCartStore, useOrderStore } from '@/store';
+import { api } from '@/api/api';
+import type { Order } from '@/types';
 import {
   MapPin,
   Clock,
@@ -36,7 +37,6 @@ const paymentMethods = [
 
 export default function Checkout() {
   const navigate = useNavigate();
-  const { user } = useAuthStore();
   const { items, getTotalAmount, clearCart } = useCartStore();
   const { addOrder } = useOrderStore();
   
@@ -71,30 +71,38 @@ export default function Checkout() {
       const address = addresses.find(a => a.id === selectedAddress);
       if (!address) throw new Error('请选择配送地址');
 
-      // 为每个购物车商品创建订单
-      const orderPromises = items.map(item =>
-        mockApi.orders.create({
-          userId: user?.id || '',
-          packageId: item.packageId,
-          packageName: item.packageName,
-          packageImage: item.packageImage,
-          quantity: item.quantity,
-          price: item.price,
-          totalAmount: item.price * item.quantity,
-          subscriptionType: item.subscriptionType,
-          deliveryDate,
-          deliveryTimeSlot: selectedTimeSlot,
-          address
-        })
-      );
+      // 为第一个购物车商品创建订单（简化流程）
+      const firstItem = items[0];
 
-      return Promise.all(orderPromises);
+      const order = await api.orders.create({
+        packageId: firstItem.packageId,
+        quantity: firstItem.quantity,
+        deliveryAddress: address,
+        contactName: address?.name || '',
+        contactPhone: address?.phone || '',
+        remark: firstItem.subscriptionType
+      } as Partial<Order>);
+
+      return [order]; // 返回数组以保持兼容性
     },
-    onSuccess: (orders) => {
+    onSuccess: async (orders) => {
       orders.forEach(order => addOrder(order));
       setCreatedOrderId(orders[0].id);
-      setShowSuccessDialog(true);
       clearCart();
+
+      // 直接支付第一个订单（简化流程）
+      try {
+        await api.orders.pay(orders[0].id, 'mock');
+        toast.success('订单创建并支付成功！');
+        localStorage.setItem('shouldRefreshOrders', 'true');
+        // 跳转到订单列表页
+        setTimeout(() => {
+          navigate('/orders', { state: { refresh: true } });
+        }, 1500);
+      } catch (error: any) {
+        toast.error(error.message || '支付失败，但订单已创建');
+        setShowSuccessDialog(true);
+      }
     },
     onError: (error: Error) => {
       toast.error(error.message || '创建订单失败');
@@ -107,6 +115,12 @@ export default function Checkout() {
       navigate('/packages');
       return;
     }
+
+    // 如果购物车有多个商品，显示提示
+    if (items.length > 1) {
+      toast.info('购物车有多个商品，目前只支持逐个结算', { duration: 3000 });
+    }
+
     createOrderMutation.mutate();
   };
 
