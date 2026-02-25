@@ -9,6 +9,39 @@ const { formatFoodPackage, safeJsonParse } = require('../utils/helpers');
 
 const router = express.Router();
 
+// 获取推荐食材包
+router.get('/recommended', async (req, res) => {
+  try {
+    const { profileId } = req.query;
+    // 简单推荐逻辑：根据用户画像返回不同的推荐
+    // 实际项目中可以使用更复杂的推荐算法
+    let sql = 'SELECT * FROM food_packages WHERE status = "active"';
+    
+    // 这里可以根据 profileId 查询用户画像，然后个性化推荐
+    // 暂时返回所有食材包作为推荐
+    sql += ' ORDER BY created_at DESC LIMIT 4';
+    
+    const packages = await query(sql);
+    res.json(packages.map(formatFoodPackage));
+  } catch (error) {
+    console.error('获取推荐食材包错误:', error);
+    res.status(500).json({ message: '获取推荐失败' });
+  }
+});
+
+// 获取限时特惠食材包
+router.get('/limited', async (req, res) => {
+  try {
+    const packages = await query(
+      'SELECT * FROM food_packages WHERE status = "active" AND is_limited = 1 ORDER BY created_at DESC LIMIT 6'
+    );
+    res.json(packages.map(formatFoodPackage));
+  } catch (error) {
+    console.error('获取限时特惠错误:', error);
+    res.status(500).json({ message: '获取限时特惠失败' });
+  }
+});
+
 // 获取所有食材包（公开接口）
 router.get('/', async (req, res) => {
   try {

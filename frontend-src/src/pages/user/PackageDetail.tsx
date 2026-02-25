@@ -9,7 +9,7 @@ import { Separator } from '@/components/ui/separator';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { useFoodPackageStore, useCartStore } from '@/store';
-import { mockApi } from '@/api/mock';
+import api from '@/api';
 import {
   ArrowLeft,
   Clock,
@@ -48,7 +48,7 @@ export default function PackageDetail() {
   const { data: pkg, isLoading } = useQuery({
     queryKey: ['foodPackage', id],
     queryFn: async () => {
-      const data = await mockApi.foodPackages.getById(id || '');
+      const data = await api.foodPackages.getById(id || '');
       if (data) setCurrentPackage(data);
       return data;
     },

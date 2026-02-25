@@ -103,6 +103,10 @@ const realApi = {
       return fetchApi<FoodPackage[]>(`/food-packages/recommended?profileId=${profileId}`);
     },
     
+    getLimited: async () => {
+      return fetchApi<FoodPackage[]>('/food-packages/limited');
+    },
+    
     create: async (data: Partial<FoodPackage>) => {
       return fetchWithAuth<FoodPackage>('/food-packages', {
         method: 'POST',

@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Separator } from '@/components/ui/separator';
 import { useAuthStore, useDietProfileStore, useFoodPackageStore, useOrderStore, useSubscriptionStore } from '@/store';
-import { mockApi } from '@/api/mock';
+import api from '@/api';
 import {
   ChefHat,
   Clock,
@@ -33,14 +33,14 @@ export default function UserHome() {
   // 获取推荐食材包
   const { data: recommendedData } = useQuery({
     queryKey: ['recommendedPackages', user?.id],
-    queryFn: () => mockApi.foodPackages.getRecommended(user?.id || ''),
+    queryFn: () => api.foodPackages.getRecommended(user?.id || ''),
     enabled: !!user
   });
 
   // 获取限时特惠
   const { data: limitedData } = useQuery({
     queryKey: ['limitedPackages'],
-    queryFn: () => mockApi.foodPackages.getLimited()
+    queryFn: () => api.foodPackages.getLimited()
   });
 
   useEffect(() => {

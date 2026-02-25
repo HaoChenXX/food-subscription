@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useFoodPackageStore, useCartStore } from '@/store';
-import { mockApi } from '@/api/mock';
+import api from '@/api';
 import { formatPrice, getDifficultyText } from '@/lib/utils';
 import {
   Search,
@@ -54,7 +54,7 @@ export default function PackageList() {
   // 获取所有食材包
   const { data, isLoading } = useQuery({
     queryKey: ['foodPackages'],
-    queryFn: () => mockApi.foodPackages.getAll()
+    queryFn: () => api.foodPackages.getAll()
   });
 
   useEffect(() => {
