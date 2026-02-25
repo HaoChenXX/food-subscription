@@ -21,7 +21,6 @@ import {
 } from '@/components/ui/sheet';
 // import { Separator } from '@/components/ui/separator';
 import {
-  Utensils,
   Home,
   Package,
   ShoppingCart,
@@ -77,11 +76,14 @@ export default function UserLayout() {
         {/* Logo */}
         <div className="h-16 flex items-center justify-center border-b border-gray-200">
           <Link to="/" className="flex items-center space-x-2">
-            <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center">
-              <Utensils className="w-5 h-5 text-white" />
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center overflow-hidden bg-gradient-to-br from-amber-100 to-orange-50 shadow-sm">
+              <img src="/logo.png" alt="梓里炊烟" className="w-8 h-8 object-contain" />
             </div>
             {sidebarOpen && (
-              <span className="font-bold text-lg text-gray-900">鲜食智选</span>
+              <div className="flex flex-col">
+                <span className="font-bold text-base text-gray-900 leading-tight">梓里炊烟</span>
+                <span className="text-[10px] text-gray-500 leading-tight">县域富民食材平台</span>
+              </div>
             )}
           </Link>
         </div>
@@ -96,7 +98,7 @@ export default function UserLayout() {
                 to={item.path}
                 className={`flex items-center space-x-3 px-3 py-3 rounded-lg transition-colors ${
                   isActive(item.path)
-                    ? 'bg-green-50 text-green-600'
+                    ? 'bg-amber-50 text-amber-600'
                     : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                 }`}
               >
@@ -137,10 +139,13 @@ export default function UserLayout() {
               <SheetContent side="left" className="w-72 p-0">
                 <SheetHeader className="p-6 border-b border-gray-200">
                   <SheetTitle className="flex items-center space-x-2">
-                    <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center">
-                      <Utensils className="w-5 h-5 text-white" />
+                    <div className="w-10 h-10 rounded-xl flex items-center justify-center overflow-hidden bg-gradient-to-br from-amber-100 to-orange-50 shadow-sm">
+                      <img src="/logo.png" alt="梓里炊烟" className="w-8 h-8 object-contain" />
                     </div>
-                    <span className="font-bold text-lg">鲜食智选</span>
+                    <div className="flex flex-col">
+                      <span className="font-bold text-base">梓里炊烟</span>
+                      <span className="text-[10px] text-gray-500">县域富民食材平台</span>
+                    </div>
                   </SheetTitle>
                 </SheetHeader>
                 <nav className="p-4 space-y-1">
@@ -208,7 +213,7 @@ export default function UserLayout() {
                 <Button variant="ghost" className="flex items-center space-x-2">
                   <Avatar className="h-8 w-8">
                     <AvatarImage src={user?.avatar} />
-                    <AvatarFallback className="bg-green-100 text-green-600">
+                    <AvatarFallback className="bg-amber-100 text-amber-600">
                       {user?.name?.charAt(0) || 'U'}
                     </AvatarFallback>
                   </Avatar>

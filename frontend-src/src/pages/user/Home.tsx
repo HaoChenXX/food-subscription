@@ -64,19 +64,26 @@ export default function UserHome() {
   return (
     <div className="p-4 lg:p-6 space-y-6">
       {/* 欢迎区域 */}
-      <div className="bg-gradient-to-r from-green-500 to-emerald-600 rounded-2xl p-6 lg:p-8 text-white">
-        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between">
+      <div className="bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 rounded-2xl p-6 lg:p-8 text-white relative overflow-hidden">
+        {/* 装饰性背景元素 */}
+        <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/4"></div>
+        <div className="absolute bottom-0 left-0 w-32 h-32 bg-white/5 rounded-full translate-y-1/2 -translate-x-1/4"></div>
+        <div className="relative z-10 flex flex-col lg:flex-row lg:items-center lg:justify-between">
           <div>
+            <div className="flex items-center gap-2 mb-2">
+              <img src="/logo.png" alt="梓里炊烟" className="w-8 h-8 rounded-lg" />
+              <span className="text-amber-100 text-sm font-medium">梓里炊烟</span>
+            </div>
             <h1 className="text-2xl lg:text-3xl font-bold mb-2">
               欢迎回来，{user?.name}！
             </h1>
-            <p className="text-green-100 mb-4">
+            <p className="text-amber-100 mb-4">
               {profile ? '根据您的饮食画像，为您推荐以下食材包' : '完善您的饮食画像，获取个性化推荐'}
             </p>
             {!profile && (
               <Button
                 variant="secondary"
-                className="bg-white text-green-600 hover:bg-green-50"
+                className="bg-white text-amber-600 hover:bg-amber-50"
                 asChild
               >
                 <Link to="/diet-profile">
@@ -105,8 +112,8 @@ export default function UserHome() {
         <Link to="/packages">
           <Card className="hover:shadow-md transition-shadow cursor-pointer h-full">
             <CardContent className="p-4 flex flex-col items-center text-center">
-              <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mb-3">
-                <Package className="w-6 h-6 text-green-600" />
+              <div className="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center mb-3">
+                <Package className="w-6 h-6 text-amber-600" />
               </div>
               <h3 className="font-medium">浏览食材包</h3>
               <p className="text-sm text-gray-500 mt-1">发现更多美味</p>
@@ -156,7 +163,7 @@ export default function UserHome() {
               <TrendingUp className="w-5 h-5 mr-2 text-red-500" />
               限时特惠
             </h2>
-            <Link to="/packages" className="text-green-600 hover:text-green-700 flex items-center text-sm">
+            <Link to="/packages" className="text-amber-600 hover:text-amber-700 flex items-center text-sm">
               查看全部 <ArrowRight className="w-4 h-4 ml-1" />
             </Link>
           </div>
@@ -211,7 +218,7 @@ export default function UserHome() {
               <Sparkles className="w-5 h-5 mr-2 text-yellow-500" />
               为您推荐
             </h2>
-            <Link to="/packages" className="text-green-600 hover:text-green-700 flex items-center text-sm">
+            <Link to="/packages" className="text-amber-600 hover:text-amber-700 flex items-center text-sm">
               查看全部 <ArrowRight className="w-4 h-4 ml-1" />
             </Link>
           </div>
@@ -225,7 +232,7 @@ export default function UserHome() {
                       alt={pkg.name}
                       className="w-full h-40 object-cover group-hover:scale-105 transition-transform"
                     />
-                    <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm rounded-full px-2 py-1 text-sm font-bold text-green-600">
+                    <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm rounded-full px-2 py-1 text-sm font-bold text-amber-600">
                       ¥{pkg.price}
                     </div>
                   </div>
@@ -268,7 +275,7 @@ export default function UserHome() {
         <div>
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-bold">最近订单</h2>
-            <Link to="/orders" className="text-green-600 hover:text-green-700 flex items-center text-sm">
+            <Link to="/orders" className="text-amber-600 hover:text-amber-700 flex items-center text-sm">
               查看全部 <ArrowRight className="w-4 h-4 ml-1" />
             </Link>
           </div>

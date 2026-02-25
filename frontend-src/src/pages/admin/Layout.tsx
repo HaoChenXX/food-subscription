@@ -20,7 +20,6 @@ import {
 } from '@/components/ui/sheet';
 import { Badge } from '@/components/ui/badge';
 import {
-  Shield,
   LayoutDashboard,
   Users,
   ClipboardList,
@@ -71,11 +70,14 @@ export default function AdminLayout() {
         {/* Logo */}
         <div className="h-16 flex items-center justify-center border-b border-slate-800">
           <Link to="/admin" className="flex items-center space-x-2">
-            <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl flex items-center justify-center">
-              <Shield className="w-5 h-5 text-white" />
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center overflow-hidden bg-gradient-to-br from-amber-100 to-orange-50 shadow-sm">
+              <img src="/logo.png" alt="梓里炊烟" className="w-8 h-8 object-contain" />
             </div>
             {sidebarOpen && (
-              <span className="font-bold text-lg">管理后台</span>
+              <div className="flex flex-col">
+                <span className="font-bold text-base text-white leading-tight">梓里炊烟</span>
+                <span className="text-[10px] text-slate-400 leading-tight">管理后台</span>
+              </div>
             )}
           </Link>
         </div>
@@ -131,10 +133,13 @@ export default function AdminLayout() {
               <SheetContent side="left" className="w-72 p-0 bg-slate-900">
                 <SheetHeader className="p-6 border-b border-slate-800">
                   <SheetTitle className="flex items-center space-x-2 text-white">
-                    <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl flex items-center justify-center">
-                      <Shield className="w-5 h-5 text-white" />
+                    <div className="w-10 h-10 rounded-xl flex items-center justify-center overflow-hidden bg-gradient-to-br from-amber-100 to-orange-50 shadow-sm">
+                      <img src="/logo.png" alt="梓里炊烟" className="w-8 h-8 object-contain" />
                     </div>
-                    <span className="font-bold text-lg">管理后台</span>
+                    <div className="flex flex-col">
+                      <span className="font-bold text-base">梓里炊烟</span>
+                      <span className="text-[10px] text-slate-400">管理后台</span>
+                    </div>
                   </SheetTitle>
                 </SheetHeader>
                 <nav className="p-4 space-y-1">

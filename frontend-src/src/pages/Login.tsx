@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Utensils, Eye, EyeOff, Loader2 } from 'lucide-react';
+import { Eye, EyeOff, Loader2 } from 'lucide-react';
 import { useAuthStore } from '@/store';
 import api from '@/api';
 
@@ -73,25 +73,21 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 to-emerald-100 p-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-100 p-4">
       <div className="w-full max-w-md">
-        {/* Logo */}
-        <div className="flex items-center justify-center mb-8">
-          <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center shadow-lg">
-            <Utensils className="w-8 h-8 text-white" />
+        {/* Logo & Brand */}
+        <div className="flex flex-col items-center justify-center mb-6">
+          <div className="w-20 h-20 rounded-2xl flex items-center justify-center shadow-lg overflow-hidden bg-gradient-to-br from-amber-100 to-orange-50">
+            <img src="/logo.png" alt="梓里炊烟" className="w-16 h-16 object-contain" />
           </div>
+          <h1 className="mt-4 text-2xl font-bold text-gray-900">梓里炊烟</h1>
+          <p className="text-sm text-gray-500 mt-1">基于饮食画像与三级供应链的县域富民食材订阅平台</p>
         </div>
         
         <Card className="shadow-xl border-0">
           <CardHeader className="text-center">
-            <div className="bg-red-500 text-white font-bold text-sm py-2 px-4 rounded-lg mb-3 animate-pulse">
-              <div>🧪 测试版本 v2.0 - 升级验证</div>
-              <div className="text-xs opacity-90 mt-1 font-mono">
-                v{import.meta.env.VITE_GIT_HASH?.slice(0, 7) || 'dev'} | {import.meta.env.VITE_BUILD_TIME || new Date().toLocaleString('zh-CN')}
-              </div>
-            </div>
-            <CardTitle className="text-2xl font-bold text-gray-900">欢迎回来</CardTitle>
-            <CardDescription>登录您的智能食材包订阅账户</CardDescription>
+            <CardTitle className="text-xl font-bold text-gray-900">欢迎回来</CardTitle>
+            <CardDescription>登录您的账户，开启健康食材之旅</CardDescription>
           </CardHeader>
           
           <CardContent>
@@ -151,7 +147,7 @@ export default function Login() {
                   </div>
                   <Button
                     type="submit"
-                    className="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700"
+                    className="w-full bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700"
                     disabled={loginMutation.isPending}
                   >
                     {loginMutation.isPending ? (
@@ -202,7 +198,7 @@ export default function Login() {
                   </div>
                   <Button
                     type="submit"
-                    className="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700"
+                    className="w-full bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700"
                     disabled={loginMutation.isPending}
                   >
                     {loginMutation.isPending ? (
@@ -253,7 +249,7 @@ export default function Login() {
                   </div>
                   <Button
                     type="submit"
-                    className="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700"
+                    className="w-full bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700"
                     disabled={loginMutation.isPending}
                   >
                     {loginMutation.isPending ? (
@@ -273,7 +269,7 @@ export default function Login() {
           <CardFooter className="flex flex-col space-y-4">
             <div className="text-sm text-center text-gray-500">
               还没有账户？{' '}
-              <Link to="/register" className="text-green-600 hover:text-green-700 font-medium">
+              <Link to="/register" className="text-amber-600 hover:text-amber-700 font-medium">
                 立即注册
               </Link>
             </div>

@@ -20,7 +20,6 @@ import {
 } from '@/components/ui/sheet';
 import { Badge } from '@/components/ui/badge';
 import {
-  Store,
   LayoutDashboard,
   Package,
   ClipboardList,
@@ -70,11 +69,14 @@ export default function MerchantLayout() {
         {/* Logo */}
         <div className="h-16 flex items-center justify-center border-b border-gray-200">
           <Link to="/merchant" className="flex items-center space-x-2">
-            <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center">
-              <Store className="w-5 h-5 text-white" />
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center overflow-hidden bg-gradient-to-br from-amber-100 to-orange-50 shadow-sm">
+              <img src="/logo.png" alt="梓里炊烟" className="w-8 h-8 object-contain" />
             </div>
             {sidebarOpen && (
-              <span className="font-bold text-lg text-gray-900">商家中心</span>
+              <div className="flex flex-col">
+                <span className="font-bold text-base text-gray-900 leading-tight">梓里炊烟</span>
+                <span className="text-[10px] text-gray-500 leading-tight">商家中心</span>
+              </div>
             )}
           </Link>
         </div>
@@ -130,10 +132,13 @@ export default function MerchantLayout() {
               <SheetContent side="left" className="w-72 p-0">
                 <SheetHeader className="p-6 border-b border-gray-200">
                   <SheetTitle className="flex items-center space-x-2">
-                    <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center">
-                      <Store className="w-5 h-5 text-white" />
+                    <div className="w-10 h-10 rounded-xl flex items-center justify-center overflow-hidden bg-gradient-to-br from-amber-100 to-orange-50 shadow-sm">
+                      <img src="/logo.png" alt="梓里炊烟" className="w-8 h-8 object-contain" />
                     </div>
-                    <span className="font-bold text-lg">商家中心</span>
+                    <div className="flex flex-col">
+                      <span className="font-bold text-base">梓里炊烟</span>
+                      <span className="text-[10px] text-gray-500">商家中心</span>
+                    </div>
                   </SheetTitle>
                 </SheetHeader>
                 <nav className="p-4 space-y-1">
