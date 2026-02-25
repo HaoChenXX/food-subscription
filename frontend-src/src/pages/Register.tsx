@@ -61,7 +61,7 @@ export default function Register() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-100 p-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 via-emerald-50 to-teal-100 p-4">
       <div className="w-full max-w-md">
         {/* 返回按钮 */}
         <Link 
@@ -74,7 +74,7 @@ export default function Register() {
         
         {/* Logo & Brand */}
         <div className="flex flex-col items-center justify-center mb-6">
-          <div className="w-20 h-20 rounded-2xl flex items-center justify-center shadow-lg overflow-hidden bg-gradient-to-br from-amber-100 to-orange-50">
+          <div className="w-20 h-20 rounded-2xl flex items-center justify-center shadow-lg overflow-hidden bg-gradient-to-br from-green-100 to-emerald-50">
             <img src="/logo.png" alt="梓里炊烟" className="w-16 h-16 object-contain" />
           </div>
           <h1 className="mt-4 text-2xl font-bold text-gray-900">梓里炊烟</h1>
@@ -133,7 +133,7 @@ export default function Register() {
                     onClick={() => setForm({ ...form, role: 'user' })}
                     className={`flex items-center justify-center gap-2 p-3 rounded-lg border-2 transition-all ${
                       form.role === 'user'
-                        ? 'border-amber-500 bg-amber-50 text-amber-700'
+                        ? 'border-green-500 bg-green-50 text-green-700'
                         : 'border-gray-200 hover:border-gray-300 text-gray-600'
                     }`}
                   >
@@ -200,7 +200,7 @@ export default function Register() {
                 />
                 <Label htmlFor="terms" className="text-sm font-normal leading-tight">
                   我已阅读并同意{' '}
-                  <Link to="/terms" className="text-amber-600 hover:text-amber-700">
+                  <Link to="/terms" className="text-green-600 hover:text-green-700">
                     服务条款
                   </Link>
                   {' '}和{' '}
@@ -212,7 +212,7 @@ export default function Register() {
               
               <Button
                 type="submit"
-                className="w-full bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700"
+                className="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700"
                 disabled={registerMutation.isPending}
               >
                 {registerMutation.isPending ? (
@@ -230,7 +230,7 @@ export default function Register() {
           <CardFooter>
             <div className="text-sm text-center w-full text-gray-500">
               已有账户？{' '}
-              <Link to="/login" className="text-amber-600 hover:text-amber-700 font-medium">
+              <Link to="/login" className="text-green-600 hover:text-green-700 font-medium">
                 立即登录
               </Link>
             </div>

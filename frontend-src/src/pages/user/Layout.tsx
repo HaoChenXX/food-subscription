@@ -76,7 +76,7 @@ export default function UserLayout() {
         {/* Logo */}
         <div className="h-16 flex items-center justify-center border-b border-gray-200">
           <Link to="/" className="flex items-center space-x-2">
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center overflow-hidden bg-gradient-to-br from-amber-100 to-orange-50 shadow-sm">
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center overflow-hidden bg-gradient-to-br from-green-100 to-emerald-50 shadow-sm">
               <img src="/logo.png" alt="梓里炊烟" className="w-8 h-8 object-contain" />
             </div>
             {sidebarOpen && (
@@ -98,7 +98,7 @@ export default function UserLayout() {
                 to={item.path}
                 className={`flex items-center space-x-3 px-3 py-3 rounded-lg transition-colors ${
                   isActive(item.path)
-                    ? 'bg-amber-50 text-amber-600'
+                    ? 'bg-green-50 text-green-600'
                     : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                 }`}
               >
@@ -139,7 +139,7 @@ export default function UserLayout() {
               <SheetContent side="left" className="w-72 p-0">
                 <SheetHeader className="p-6 border-b border-gray-200">
                   <SheetTitle className="flex items-center space-x-2">
-                    <div className="w-10 h-10 rounded-xl flex items-center justify-center overflow-hidden bg-gradient-to-br from-amber-100 to-orange-50 shadow-sm">
+                    <div className="w-10 h-10 rounded-xl flex items-center justify-center overflow-hidden bg-gradient-to-br from-green-100 to-emerald-50 shadow-sm">
                       <img src="/logo.png" alt="梓里炊烟" className="w-8 h-8 object-contain" />
                     </div>
                     <div className="flex flex-col">
@@ -213,7 +213,7 @@ export default function UserLayout() {
                 <Button variant="ghost" className="flex items-center space-x-2">
                   <Avatar className="h-8 w-8">
                     <AvatarImage src={user?.avatar} />
-                    <AvatarFallback className="bg-amber-100 text-amber-600">
+                    <AvatarFallback className="bg-green-100 text-green-600">
                       {user?.name?.charAt(0) || 'U'}
                     </AvatarFallback>
                   </Avatar>
@@ -304,7 +304,7 @@ export default function UserLayout() {
                           {item.subscriptionType === 'monthly' && '月订阅'}
                           {item.subscriptionType === 'quarterly' && '季订阅'}
                         </p>
-                        <p className="text-amber-600 font-medium">
+                        <p className="text-green-600 font-medium">
                           ¥{item.price} × {item.quantity}
                         </p>
                       </div>
@@ -314,12 +314,12 @@ export default function UserLayout() {
                 <div className="border-t border-gray-200 pt-4 mt-4">
                   <div className="flex justify-between items-center mb-4">
                     <span className="text-gray-600">合计</span>
-                    <span className="text-xl font-bold text-amber-600">
+                    <span className="text-xl font-bold text-green-600">
                       ¥{useCartStore.getState().getTotalAmount()}
                     </span>
                   </div>
                   <Button
-                    className="w-full bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700"
+                    className="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700"
                     onClick={() => {
                       setIsOpen(false);
                       navigate('/checkout');

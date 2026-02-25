@@ -69,7 +69,7 @@ export default function MerchantLayout() {
         {/* Logo */}
         <div className="h-16 flex items-center justify-center border-b border-gray-200">
           <Link to="/merchant" className="flex items-center space-x-2">
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center overflow-hidden bg-gradient-to-br from-amber-100 to-orange-50 shadow-sm">
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center overflow-hidden bg-gradient-to-br from-green-100 to-emerald-50 shadow-sm">
               <img src="/logo.png" alt="梓里炊烟" className="w-8 h-8 object-contain" />
             </div>
             {sidebarOpen && (
@@ -91,7 +91,7 @@ export default function MerchantLayout() {
                 to={item.path}
                 className={`flex items-center space-x-3 px-3 py-3 rounded-lg transition-colors ${
                   isActive(item.path)
-                    ? 'bg-amber-50 text-amber-600'
+                    ? 'bg-green-50 text-green-600'
                     : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                 }`}
               >
@@ -132,7 +132,7 @@ export default function MerchantLayout() {
               <SheetContent side="left" className="w-72 p-0">
                 <SheetHeader className="p-6 border-b border-gray-200">
                   <SheetTitle className="flex items-center space-x-2">
-                    <div className="w-10 h-10 rounded-xl flex items-center justify-center overflow-hidden bg-gradient-to-br from-amber-100 to-orange-50 shadow-sm">
+                    <div className="w-10 h-10 rounded-xl flex items-center justify-center overflow-hidden bg-gradient-to-br from-green-100 to-emerald-50 shadow-sm">
                       <img src="/logo.png" alt="梓里炊烟" className="w-8 h-8 object-contain" />
                     </div>
                     <div className="flex flex-col">
@@ -181,7 +181,7 @@ export default function MerchantLayout() {
                 <Button variant="ghost" className="flex items-center space-x-2">
                   <Avatar className="h-8 w-8">
                     <AvatarImage src={user?.avatar} />
-                    <AvatarFallback className="bg-amber-100 text-amber-600">
+                    <AvatarFallback className="bg-green-100 text-green-600">
                       {user?.name?.charAt(0) || 'M'}
                     </AvatarFallback>
                   </Avatar>

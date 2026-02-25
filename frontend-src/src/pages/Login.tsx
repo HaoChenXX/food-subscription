@@ -73,11 +73,11 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-100 p-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 via-emerald-50 to-teal-100 p-4">
       <div className="w-full max-w-md">
         {/* Logo & Brand */}
         <div className="flex flex-col items-center justify-center mb-6">
-          <div className="w-20 h-20 rounded-2xl flex items-center justify-center shadow-lg overflow-hidden bg-gradient-to-br from-amber-100 to-orange-50">
+          <div className="w-20 h-20 rounded-2xl flex items-center justify-center shadow-lg overflow-hidden bg-gradient-to-br from-green-100 to-emerald-50">
             <img src="/logo.png" alt="梓里炊烟" className="w-16 h-16 object-contain" />
           </div>
           <h1 className="mt-4 text-2xl font-bold text-gray-900">梓里炊烟</h1>
@@ -147,7 +147,7 @@ export default function Login() {
                   </div>
                   <Button
                     type="submit"
-                    className="w-full bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700"
+                    className="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700"
                     disabled={loginMutation.isPending}
                   >
                     {loginMutation.isPending ? (
@@ -198,7 +198,7 @@ export default function Login() {
                   </div>
                   <Button
                     type="submit"
-                    className="w-full bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700"
+                    className="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700"
                     disabled={loginMutation.isPending}
                   >
                     {loginMutation.isPending ? (
@@ -249,7 +249,7 @@ export default function Login() {
                   </div>
                   <Button
                     type="submit"
-                    className="w-full bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700"
+                    className="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700"
                     disabled={loginMutation.isPending}
                   >
                     {loginMutation.isPending ? (
@@ -269,7 +269,7 @@ export default function Login() {
           <CardFooter className="flex flex-col space-y-4">
             <div className="text-sm text-center text-gray-500">
               还没有账户？{' '}
-              <Link to="/register" className="text-amber-600 hover:text-amber-700 font-medium">
+              <Link to="/register" className="text-green-600 hover:text-green-700 font-medium">
                 立即注册
               </Link>
             </div>
