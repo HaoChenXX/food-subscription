@@ -158,7 +158,7 @@ export default function UserLayout() {
                         onClick={() => setMobileMenuOpen(false)}
                         className={`flex items-center space-x-3 px-3 py-3 rounded-lg transition-colors ${
                           isActive(item.path)
-                            ? 'bg-green-50 text-green-600'
+                            ? 'bg-amber-50 text-amber-600'
                             : 'text-gray-600 hover:bg-gray-50'
                         }`}
                       >
@@ -304,7 +304,7 @@ export default function UserLayout() {
                           {item.subscriptionType === 'monthly' && '月订阅'}
                           {item.subscriptionType === 'quarterly' && '季订阅'}
                         </p>
-                        <p className="text-green-600 font-medium">
+                        <p className="text-amber-600 font-medium">
                           ¥{item.price} × {item.quantity}
                         </p>
                       </div>
@@ -314,12 +314,12 @@ export default function UserLayout() {
                 <div className="border-t border-gray-200 pt-4 mt-4">
                   <div className="flex justify-between items-center mb-4">
                     <span className="text-gray-600">合计</span>
-                    <span className="text-xl font-bold text-green-600">
+                    <span className="text-xl font-bold text-amber-600">
                       ¥{useCartStore.getState().getTotalAmount()}
                     </span>
                   </div>
                   <Button
-                    className="w-full bg-gradient-to-r from-green-500 to-emerald-600"
+                    className="w-full bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700"
                     onClick={() => {
                       setIsOpen(false);
                       navigate('/checkout');

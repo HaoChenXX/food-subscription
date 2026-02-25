@@ -91,7 +91,7 @@ export default function MerchantLayout() {
                 to={item.path}
                 className={`flex items-center space-x-3 px-3 py-3 rounded-lg transition-colors ${
                   isActive(item.path)
-                    ? 'bg-blue-50 text-blue-600'
+                    ? 'bg-amber-50 text-amber-600'
                     : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                 }`}
               >
@@ -181,7 +181,7 @@ export default function MerchantLayout() {
                 <Button variant="ghost" className="flex items-center space-x-2">
                   <Avatar className="h-8 w-8">
                     <AvatarImage src={user?.avatar} />
-                    <AvatarFallback className="bg-blue-100 text-blue-600">
+                    <AvatarFallback className="bg-amber-100 text-amber-600">
                       {user?.name?.charAt(0) || 'M'}
                     </AvatarFallback>
                   </Avatar>

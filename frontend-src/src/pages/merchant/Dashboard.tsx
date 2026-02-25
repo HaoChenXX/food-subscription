@@ -112,7 +112,7 @@ export default function MerchantDashboard() {
           <h1 className="text-2xl font-bold mb-2">商家仪表盘</h1>
           <p className="text-gray-500">查看您的店铺运营数据和销售统计</p>
         </div>
-        <Button asChild className="bg-blue-600 hover:bg-blue-700">
+        <Button asChild className="bg-amber-600 hover:bg-amber-700">
           <Link to="/merchant/products">
             <Package className="w-4 h-4 mr-2" />
             管理商品

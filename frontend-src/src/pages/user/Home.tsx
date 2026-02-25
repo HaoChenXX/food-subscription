@@ -96,12 +96,12 @@ export default function UserHome() {
           <div className="mt-6 lg:mt-0 flex items-center space-x-4">
             <div className="text-center">
               <div className="text-3xl font-bold">{orders.length}</div>
-              <div className="text-sm text-green-100">总订单</div>
+              <div className="text-sm text-amber-100">总订单</div>
             </div>
-            <Separator orientation="vertical" className="h-12 bg-green-400" />
+            <Separator orientation="vertical" className="h-12 bg-white/30" />
             <div className="text-center">
               <div className="text-3xl font-bold">{activeSubscriptions.length}</div>
-              <div className="text-sm text-green-100">活跃订阅</div>
+              <div className="text-sm text-amber-100">活跃订阅</div>
             </div>
           </div>
         </div>
