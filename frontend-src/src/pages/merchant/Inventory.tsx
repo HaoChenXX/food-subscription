@@ -28,7 +28,9 @@ import {
   TrendingDown,
   TrendingUp,
   RefreshCw,
-  Package
+  Package,
+  CheckCircle2,
+  XCircle
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -41,6 +43,19 @@ interface InventoryItem {
   minStock: number;
   unit: string;
   price: number;
+  status: string;
+  isLow: boolean;
+  isOut: boolean;
+}
+
+interface StockAlert {
+  id: string;
+  productId: string;
+  productName: string;
+  currentStock: number;
+  minStock: number;
+  alertType: 'low_stock' | 'out_of_stock';
+  resolved: boolean;
 }
 
 export default function MerchantInventory() {
@@ -50,24 +65,16 @@ export default function MerchantInventory() {
   const [showAdjustDialog, setShowAdjustDialog] = useState(false);
   const [adjustAmount, setAdjustAmount] = useState(0);
 
-  // 获取商家的食材包作为库存数据
-  const { data: products, isLoading } = useQuery({
+  // 获取商家库存数据
+  const { data: products, isLoading: isLoadingInventory } = useQuery({
     queryKey: ['merchant-inventory'],
-    queryFn: async () => {
-      // 获取所有食材包，筛选出当前商家的
-      const allPackages = await api.foodPackages.getAll();
-      // 转换为库存项格式
-      return allPackages.map((pkg: any) => ({
-        id: pkg.id,
-        name: pkg.name,
-        image: pkg.image || 'https://via.placeholder.com/40',
-        category: pkg.level === 'basic' ? '基础套餐' : pkg.level === 'advanced' ? '进阶套餐' : '精品套餐',
-        stock: pkg.stockQuantity || 0,
-        minStock: 10, // 默认预警值
-        unit: '份',
-        price: pkg.price
-      }));
-    }
+    queryFn: () => api.merchant.getInventory()
+  });
+
+  // 获取库存预警数据
+  const { data: alerts, isLoading: isLoadingAlerts } = useQuery({
+    queryKey: ['merchant-stock-alerts'],
+    queryFn: () => api.merchant.getStockAlerts()
   });
 
   // 更新库存 mutation
@@ -81,13 +88,18 @@ export default function MerchantInventory() {
         },
         body: JSON.stringify({ quantity, type, remark: '商家库存调整' })
       });
-      if (!response.ok) throw new Error('更新库存失败');
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || '更新库存失败');
+      }
       return response.json();
     },
     onSuccess: () => {
       toast.success('库存调整成功');
       queryClient.invalidateQueries({ queryKey: ['merchant-inventory'] });
+      queryClient.invalidateQueries({ queryKey: ['merchant-stock-alerts'] });
       setShowAdjustDialog(false);
+      setAdjustAmount(0);
     },
     onError: (error: Error) => {
       toast.error(error.message || '库存调整失败');
@@ -99,8 +111,11 @@ export default function MerchantInventory() {
     product.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  // 库存预警列表
-  const lowStockAlerts = products?.filter((p: InventoryItem) => p.stock < p.minStock) || [];
+  // 统计
+  const totalProducts = products?.length || 0;
+  const inStockProducts = products?.filter((p: InventoryItem) => p.stock >= p.minStock).length || 0;
+  const lowStockCount = alerts?.filter((a: StockAlert) => a.alertType === 'low_stock').length || 0;
+  const outOfStockCount = alerts?.filter((a: StockAlert) => a.alertType === 'out_of_stock').length || 0;
 
   const handleAdjustStock = (product: InventoryItem) => {
     setSelectedProduct(product);
@@ -109,7 +124,10 @@ export default function MerchantInventory() {
   };
 
   const confirmAdjust = async (type: 'in' | 'out') => {
-    if (!selectedProduct || adjustAmount === 0) return;
+    if (!selectedProduct || adjustAmount <= 0) {
+      toast.error('请输入有效的数量');
+      return;
+    }
     
     const newStock = type === 'in' 
       ? selectedProduct.stock + adjustAmount 
@@ -126,6 +144,8 @@ export default function MerchantInventory() {
       type
     });
   };
+
+  const isLoading = isLoadingInventory || isLoadingAlerts;
 
   if (isLoading) {
     return (
@@ -145,11 +165,14 @@ export default function MerchantInventory() {
         </div>
         <div className="flex items-center space-x-2">
           <div className="text-sm text-gray-500">
-            共 <span className="font-bold text-gray-900">{products?.length || 0}</span> 个商品
+            共 <span className="font-bold text-gray-900">{totalProducts}</span> 个商品
           </div>
           <Button 
             variant="outline" 
-            onClick={() => queryClient.invalidateQueries({ queryKey: ['merchant-inventory'] })}
+            onClick={() => {
+              queryClient.invalidateQueries({ queryKey: ['merchant-inventory'] });
+              queryClient.invalidateQueries({ queryKey: ['merchant-stock-alerts'] });
+            }}
           >
             <RefreshCw className="w-4 h-4 mr-2" />
             刷新
@@ -157,7 +180,7 @@ export default function MerchantInventory() {
         </div>
       </div>
 
-      {/* 库存统计 */}
+      {/* 库存统计卡片 */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card>
           <CardContent className="p-4">
@@ -167,7 +190,7 @@ export default function MerchantInventory() {
               </div>
               <div>
                 <div className="text-sm text-gray-500">总商品数</div>
-                <div className="text-xl font-bold">{products?.length || 0}</div>
+                <div className="text-xl font-bold">{totalProducts}</div>
               </div>
             </div>
           </CardContent>
@@ -176,13 +199,11 @@ export default function MerchantInventory() {
           <CardContent className="p-4">
             <div className="flex items-center space-x-3">
               <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-                <TrendingUp className="w-5 h-5 text-green-600" />
+                <CheckCircle2 className="w-5 h-5 text-green-600" />
               </div>
               <div>
                 <div className="text-sm text-gray-500">库存充足</div>
-                <div className="text-xl font-bold">
-                  {products?.filter((p: InventoryItem) => p.stock >= p.minStock).length || 0}
-                </div>
+                <div className="text-xl font-bold text-green-600">{inStockProducts}</div>
               </div>
             </div>
           </CardContent>
@@ -194,10 +215,8 @@ export default function MerchantInventory() {
                 <AlertTriangle className="w-5 h-5 text-yellow-600" />
               </div>
               <div>
-                <div className="text-sm text-gray-500">库存预警</div>
-                <div className="text-xl font-bold text-yellow-600">
-                  {lowStockAlerts.length}
-                </div>
+                <div className="text-sm text-gray-500">库存紧张</div>
+                <div className="text-xl font-bold text-yellow-600">{lowStockCount}</div>
               </div>
             </div>
           </CardContent>
@@ -206,13 +225,11 @@ export default function MerchantInventory() {
           <CardContent className="p-4">
             <div className="flex items-center space-x-3">
               <div className="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
-                <Package className="w-5 h-5 text-red-600" />
+                <XCircle className="w-5 h-5 text-red-600" />
               </div>
               <div>
-                <div className="text-sm text-gray-500">缺货</div>
-                <div className="text-xl font-bold text-red-600">
-                  {products?.filter((p: InventoryItem) => p.stock === 0).length || 0}
-                </div>
+                <div className="text-sm text-gray-500">已售罄</div>
+                <div className="text-xl font-bold text-red-600">{outOfStockCount}</div>
               </div>
             </div>
           </CardContent>
@@ -220,32 +237,43 @@ export default function MerchantInventory() {
       </div>
 
       {/* 库存预警 */}
-      {lowStockAlerts.length > 0 && (
-        <Card className="border-red-200 bg-red-50">
+      {alerts && alerts.length > 0 && (
+        <Card className="border-red-200 bg-red-50/50">
           <CardContent className="p-4">
             <div className="flex items-center space-x-2 mb-3">
               <AlertTriangle className="w-5 h-5 text-red-500" />
-              <h3 className="font-bold text-red-700">库存预警</h3>
+              <h3 className="font-bold text-red-700">库存预警 ({alerts.length})</h3>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-              {lowStockAlerts.slice(0, 6).map((alert: InventoryItem) => (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+              {alerts.map((alert: StockAlert) => (
                 <div
                   key={alert.id}
-                  className="bg-white rounded-lg p-3 flex items-center justify-between"
+                  className={`rounded-lg p-3 flex items-center justify-between ${
+                    alert.alertType === 'out_of_stock' 
+                      ? 'bg-red-100 border border-red-200' 
+                      : 'bg-yellow-100 border border-yellow-200'
+                  }`}
                 >
-                  <div className="flex items-center space-x-2">
-                    <img src={alert.image} alt={alert.name} className="w-8 h-8 rounded object-cover" />
-                    <div>
-                      <div className="font-medium text-sm">{alert.name}</div>
-                      <div className="text-xs text-red-500">
-                        库存：{alert.stock} / 预警：{alert.minStock}
-                      </div>
+                  <div>
+                    <div className="font-medium text-sm">{alert.productName}</div>
+                    <div className={`text-xs ${
+                      alert.alertType === 'out_of_stock' ? 'text-red-600' : 'text-yellow-700'
+                    }`}>
+                      {alert.alertType === 'out_of_stock' 
+                        ? `已售罄 (需${alert.minStock})` 
+                        : `库存紧张: ${alert.currentStock} / 建议${alert.minStock}`}
                     </div>
                   </div>
                   <Button 
                     size="sm" 
-                    className="bg-red-500 hover:bg-red-600"
-                    onClick={() => handleAdjustStock(alert)}
+                    className={alert.alertType === 'out_of_stock' 
+                      ? 'bg-red-500 hover:bg-red-600' 
+                      : 'bg-yellow-500 hover:bg-yellow-600'
+                    }
+                    onClick={() => {
+                      const product = products?.find((p: InventoryItem) => p.id === alert.productId);
+                      if (product) handleAdjustStock(product);
+                    }}
                   >
                     补货
                   </Button>
@@ -260,7 +288,7 @@ export default function MerchantInventory() {
       <div className="relative">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
         <Input
-          placeholder="搜索商品..."
+          placeholder="搜索商品名称..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           className="pl-10"
@@ -273,9 +301,9 @@ export default function MerchantInventory() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>商品</TableHead>
+                <TableHead>商品信息</TableHead>
                 <TableHead>当前库存</TableHead>
-                <TableHead>预警值</TableHead>
+                <TableHead>预警阈值</TableHead>
                 <TableHead>库存状态</TableHead>
                 <TableHead className="text-right">操作</TableHead>
               </TableRow>
@@ -283,17 +311,15 @@ export default function MerchantInventory() {
             <TableBody>
               {filteredProducts?.map((product: InventoryItem) => {
                 const stockPercent = (product.stock / product.minStock) * 100;
-                const isLow = stockPercent < 100;
-                const isOut = product.stock === 0;
                 
                 return (
-                  <TableRow key={product.id}>
+                  <TableRow key={product.id} className={product.isOut ? 'bg-red-50/50' : product.isLow ? 'bg-yellow-50/50' : ''}>
                     <TableCell>
                       <div className="flex items-center space-x-3">
                         <img
                           src={product.image}
                           alt={product.name}
-                          className="w-10 h-10 object-cover rounded"
+                          className="w-12 h-12 object-cover rounded-lg"
                         />
                         <div>
                           <div className="font-medium">{product.name}</div>
@@ -302,20 +328,33 @@ export default function MerchantInventory() {
                       </div>
                     </TableCell>
                     <TableCell>
-                      <div className={`font-medium text-lg ${isOut ? 'text-red-500' : isLow ? 'text-yellow-500' : 'text-green-600'}`}>
+                      <div className={`font-bold text-lg ${
+                        product.isOut ? 'text-red-600' : product.isLow ? 'text-yellow-600' : 'text-green-600'
+                      }`}>
                         {product.stock}
                       </div>
                       <div className="text-sm text-gray-500">{product.unit}</div>
                     </TableCell>
-                    <TableCell>{product.minStock}</TableCell>
+                    <TableCell>
+                      <div className="font-medium">{product.minStock}</div>
+                      <div className="text-sm text-gray-500">{product.unit}</div>
+                    </TableCell>
                     <TableCell>
                       <div className="w-32">
                         <Progress
                           value={Math.min(stockPercent, 100)}
-                          className={`h-2 ${isOut ? 'bg-red-100' : isLow ? 'bg-yellow-100' : 'bg-green-100'}`}
+                          className={`h-2 ${
+                            product.isOut ? 'bg-red-100 [&>div]:bg-red-500' : 
+                            product.isLow ? 'bg-yellow-100 [&>div]:bg-yellow-500' : 
+                            'bg-green-100 [&>div]:bg-green-500'
+                          }`}
                         />
-                        <div className={`text-xs mt-1 ${isOut ? 'text-red-500' : isLow ? 'text-yellow-500' : 'text-green-600'}`}>
-                          {isOut ? '缺货' : isLow ? '库存不足' : '库存充足'}
+                        <div className={`text-xs mt-1 font-medium ${
+                          product.isOut ? 'text-red-600' : 
+                          product.isLow ? 'text-yellow-600' : 
+                          'text-green-600'
+                        }`}>
+                          {product.isOut ? '已售罄' : product.isLow ? '库存紧张' : '库存充足'}
                         </div>
                       </div>
                     </TableCell>
@@ -325,7 +364,8 @@ export default function MerchantInventory() {
                           variant="outline"
                           size="sm"
                           onClick={() => handleAdjustStock(product)}
-                          className="text-green-600 hover:text-green-700"
+                          className="text-green-600 hover:text-green-700 hover:bg-green-50"
+                          disabled={updateStockMutation.isPending}
                         >
                           <TrendingUp className="w-4 h-4 mr-1" />
                           入库
@@ -334,7 +374,8 @@ export default function MerchantInventory() {
                           variant="outline"
                           size="sm"
                           onClick={() => handleAdjustStock(product)}
-                          className="text-orange-600 hover:text-orange-700"
+                          className="text-orange-600 hover:text-orange-700 hover:bg-orange-50"
+                          disabled={updateStockMutation.isPending}
                         >
                           <TrendingDown className="w-4 h-4 mr-1" />
                           出库
@@ -347,7 +388,7 @@ export default function MerchantInventory() {
               {filteredProducts?.length === 0 && (
                 <TableRow>
                   <TableCell colSpan={5} className="text-center py-8 text-gray-500">
-                    暂无库存数据
+                    {searchQuery ? '没有找到匹配的商品' : '暂无库存数据'}
                   </TableCell>
                 </TableRow>
               )}
@@ -365,20 +406,26 @@ export default function MerchantInventory() {
           <div className="py-4">
             <div className="text-center mb-4">
               <div className="text-sm text-gray-500">当前库存</div>
-              <div className="text-3xl font-bold">{selectedProduct?.stock}</div>
+              <div className={`text-3xl font-bold ${
+                selectedProduct?.isOut ? 'text-red-600' : 
+                selectedProduct?.isLow ? 'text-yellow-600' : 'text-green-600'
+              }`}>
+                {selectedProduct?.stock}
+              </div>
             </div>
             <div className="flex items-center justify-center space-x-4">
               <Button
                 variant="outline"
                 size="icon"
-                onClick={() => setAdjustAmount(prev => prev - 1)}
+                onClick={() => setAdjustAmount(prev => Math.max(0, prev - 1))}
               >
                 <Minus className="w-4 h-4" />
               </Button>
               <Input
                 type="number"
+                min={0}
                 value={adjustAmount}
-                onChange={(e) => setAdjustAmount(parseInt(e.target.value) || 0)}
+                onChange={(e) => setAdjustAmount(Math.max(0, parseInt(e.target.value) || 0))}
                 className="w-24 text-center text-xl"
               />
               <Button
@@ -392,9 +439,11 @@ export default function MerchantInventory() {
             <div className="text-center mt-4">
               <div className="text-sm text-gray-500">调整后库存</div>
               <div className={`text-2xl font-bold ${
-                (selectedProduct?.stock || 0) + adjustAmount < (selectedProduct?.minStock || 0)
-                  ? 'text-red-500'
-                  : 'text-green-600'
+                ((selectedProduct?.stock || 0) + adjustAmount) < (selectedProduct?.minStock || 0)
+                  ? 'text-yellow-600'
+                  : ((selectedProduct?.stock || 0) + adjustAmount) === 0
+                    ? 'text-red-600'
+                    : 'text-green-600'
               }`}>
                 {(selectedProduct?.stock || 0) + adjustAmount}
               </div>
@@ -408,7 +457,7 @@ export default function MerchantInventory() {
               variant="outline"
               className="text-orange-600 hover:text-orange-700"
               onClick={() => confirmAdjust('out')}
-              disabled={adjustAmount <= 0 || updateStockMutation.isPending}
+              disabled={adjustAmount <= 0 || updateStockMutation.isPending || (selectedProduct?.stock || 0) < adjustAmount}
             >
               <TrendingDown className="w-4 h-4 mr-1" />
               出库

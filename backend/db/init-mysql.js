@@ -254,44 +254,47 @@ async function initDatabase() {
     `, [hashedAdminPassword, hashedMerchantPassword, hashedUserPassword]);
     console.log('✓ 初始用户数据插入成功');
     
-    // 插入初始食材包
+    // 插入初始食材包（库存合理分布：充足、紧张、缺货）
     await connection.execute(`
       INSERT IGNORE INTO food_packages (id, name, description, level, price, original_price, image, tags, ingredients, recipes, seasonings, nutrition_info, is_limited, stock_quantity, merchant_id, status) VALUES
+      -- 库存充足的食材包
       (1, '健康减脂套餐', '低卡路里、高蛋白的健康食材组合，适合减脂期食用', 'basic', 89, 109, 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=800&auto=format&fit=crop', 
         '["减脂", "高蛋白", "低卡"]', 
         '[{"id": "1", "name": "鸡胸肉", "category": "肉类", "quantity": 500, "unit": "g", "origin": "山东"}, {"id": "2", "name": "西兰花", "category": "蔬菜", "quantity": 300, "unit": "g", "origin": "云南"}, {"id": "3", "name": "胡萝卜", "category": "蔬菜", "quantity": 200, "unit": "g", "origin": "山东"}, {"id": "4", "name": "糙米", "category": "主食", "quantity": 500, "unit": "g", "origin": "东北"}]',
         '[{"id": "1", "name": "香煎鸡胸肉配蔬菜", "description": "低脂高蛋白的经典减脂餐", "steps": [{"order": 1, "description": "鸡胸肉洗净切片，用盐和黑胡椒腌制15分钟", "duration": 15}, {"order": 2, "description": "西兰花和胡萝卜焯水备用", "duration": 5}, {"order": 3, "description": "平底锅少油煎鸡胸肉至两面金黄", "duration": 8}, {"order": 4, "description": "搭配蔬菜装盘即可", "duration": 2}], "tips": ["鸡胸肉不要煎太久，避免口感柴", "可以搭配低脂沙拉酱"]}]',
         '[{"id": "1", "name": "海盐", "quantity": "适量", "included": true}, {"id": "2", "name": "黑胡椒", "quantity": "适量", "included": true}, {"id": "3", "name": "橄榄油", "quantity": "30ml", "included": true}]',
         '{"calories": 450, "protein": 35, "carbs": 45, "fat": 12, "fiber": 8}',
-        false, 100, 2, 'active'),
+        false, 80, 2, 'active'),
       (2, '增肌能量套餐', '高蛋白、适量碳水的增肌食材组合', 'intermediate', 129, 159, 'https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?w=800&auto=format&fit=crop',
         '["增肌", "高蛋白", "健身"]',
         '[{"id": "5", "name": "牛肉", "category": "肉类", "quantity": 600, "unit": "g", "origin": "澳洲"}, {"id": "6", "name": "鸡蛋", "category": "蛋奶", "quantity": 12, "unit": "个", "origin": "本地"}, {"id": "7", "name": "红薯", "category": "主食", "quantity": 800, "unit": "g", "origin": "新疆"}, {"id": "8", "name": "菠菜", "category": "蔬菜", "quantity": 400, "unit": "g", "origin": "山东"}]',
         '[{"id": "2", "name": "黑椒牛柳配烤红薯", "description": "高蛋白增肌餐，搭配优质碳水", "steps": [{"order": 1, "description": "牛肉切条，用黑胡椒酱腌制20分钟", "duration": 20}, {"order": 2, "description": "红薯切块，烤箱200度烤30分钟", "duration": 30}, {"order": 3, "description": "热锅快炒牛柳至变色", "duration": 5}, {"order": 4, "description": "菠菜焯水后摆盘", "duration": 3}], "tips": ["牛肉逆纹切更嫩", "红薯烤后口感更佳"]}]',
         '[{"id": "4", "name": "黑胡椒酱", "quantity": "50g", "included": true}, {"id": "5", "name": "海盐", "quantity": "适量", "included": true}, {"id": "6", "name": "橄榄油", "quantity": "30ml", "included": true}]',
         '{"calories": 680, "protein": 55, "carbs": 65, "fat": 22, "fiber": 10}',
-        false, 100, 2, 'active'),
+        false, 45, 2, 'active'),
+      -- 库存紧张的食材包
       (3, '地中海风味套餐', '健康的地中海饮食风格，富含不饱和脂肪酸', 'advanced', 159, 199, 'https://images.unsplash.com/photo-1543339308-43e59d6b73a6?w=800&auto=format&fit=crop',
         '["地中海", "健康", "高端"]',
         '[{"id": "9", "name": "三文鱼", "category": "海鲜", "quantity": 400, "unit": "g", "origin": "挪威"}, {"id": "10", "name": "牛油果", "category": "水果", "quantity": 2, "unit": "个", "origin": "墨西哥"}, {"id": "11", "name": "藜麦", "category": "主食", "quantity": 300, "unit": "g", "origin": "秘鲁"}, {"id": "12", "name": "樱桃番茄", "category": "蔬菜", "quantity": 300, "unit": "g", "origin": "山东"}]',
         '[{"id": "3", "name": "香煎三文鱼藜麦碗", "description": "地中海经典健康餐", "steps": [{"order": 1, "description": "藜麦淘洗后煮15分钟至熟透", "duration": 15}, {"order": 2, "description": "三文鱼用盐和黑胡椒腌制", "duration": 10}, {"order": 3, "description": "平底锅煎三文鱼至两面金黄", "duration": 8}, {"order": 4, "description": "牛油果切片，番茄对半切", "duration": 5}, {"order": 5, "description": "组装成碗，淋上柠檬汁", "duration": 2}], "tips": ["三文鱼不要煎过头，保持嫩滑", "可额外加入坚果增加口感"]}]',
         '[{"id": "7", "name": "特级初榨橄榄油", "quantity": "50ml", "included": true}, {"id": "8", "name": "海盐", "quantity": "适量", "included": true}, {"id": "9", "name": "柠檬", "quantity": "1个", "included": true}]',
         '{"calories": 580, "protein": 42, "carbs": 48, "fat": 28, "fiber": 12}',
-        true, 50, 2, 'active'),
+        true, 8, 2, 'active'),
+      -- 库存严重短缺/缺货的食材包
       (4, '秦岭山珍野菌宴', '精选秦岭深处野生菌菇，搭配农家土鸡，汤鲜味美，营养丰富', 'advanced', 168, 208, 'https://images.unsplash.com/photo-1574484284002-952d92456975?w=800&auto=format&fit=crop',
         '["山珍", "野生菌", "滋补", "高端"]',
         '[{"id": "13", "name": "野生牛肝菌", "category": "菌菇", "quantity": 200, "unit": "g", "origin": "陕西秦岭"}, {"id": "14", "name": "农家土鸡", "category": "肉类", "quantity": 1, "unit": "只", "origin": "陕西商洛"}, {"id": "15", "name": "竹荪", "category": "菌菇", "quantity": 50, "unit": "g", "origin": "陕西安康"}, {"id": "16", "name": "枸杞", "category": "干货", "quantity": 30, "unit": "g", "origin": "宁夏中宁"}, {"id": "17", "name": "红枣", "category": "干货", "quantity": 100, "unit": "g", "origin": "陕西延安"}]',
         '[{"id": "4", "name": "野生菌土鸡汤", "description": "秦岭深处的美味，滋补养生", "steps": [{"order": 1, "description": "土鸡洗净切块，冷水焯水去血沫", "duration": 10}, {"order": 2, "description": "野生菌提前温水泡发30分钟", "duration": 30}, {"order": 3, "description": "砂锅加水，放入鸡块姜片大火煮开", "duration": 15}, {"order": 4, "description": "转小火炖煮40分钟后加入菌菇", "duration": 40}, {"order": 5, "description": "继续炖煮30分钟，加入枸杞红枣", "duration": 30}, {"order": 6, "description": "调味出锅，撒上葱花", "duration": 5}], "tips": ["菌菇要充分泡发，泡发水可入汤", "土鸡炖煮时间要够"]}]',
         '[{"id": "10", "name": "姜片", "quantity": "20g", "included": true}, {"id": "11", "name": "盐", "quantity": "适量", "included": true}, {"id": "12", "name": "料酒", "quantity": "30ml", "included": true}]',
         '{"calories": 520, "protein": 45, "carbs": 25, "fat": 28, "fiber": 8}',
-        true, 30, 2, 'active'),
+        true, 0, 2, 'active'),
       (5, '洞庭湖鲜鱼宴', '精选洞庭湖新鲜活鱼，搭配当地特色莲藕，鲜美可口', 'intermediate', 118, 148, 'https://images.unsplash.com/photo-1534939561126-855b8675edd7?w=800&auto=format&fit=crop',
         '["湖鲜", "水产", "鲜美", "地方特色"]',
         '[{"id": "18", "name": "鲜活草鱼", "category": "水产", "quantity": 1, "unit": "条", "origin": "湖南洞庭湖"}, {"id": "19", "name": "洪湖莲藕", "category": "蔬菜", "quantity": 500, "unit": "g", "origin": "湖北洪湖"}, {"id": "20", "name": "嫩豆腐", "category": "豆制品", "quantity": 300, "unit": "g", "origin": "本地"}, {"id": "21", "name": "香菜", "category": "蔬菜", "quantity": 50, "unit": "g", "origin": "本地"}]',
         '[{"id": "5", "name": "洞庭湖鱼头豆腐汤", "description": "汤色奶白，鱼头鲜嫩，豆腐滑嫩", "steps": [{"order": 1, "description": "鱼头洗净，盐和料酒腌制15分钟", "duration": 15}, {"order": 2, "description": "莲藕去皮切片，豆腐切块备用", "duration": 10}, {"order": 3, "description": "热锅凉油，鱼头两面煎至金黄", "duration": 8}, {"order": 4, "description": "加开水大火煮15分钟至汤色奶白", "duration": 15}, {"order": 5, "description": "加莲藕片煮10分钟", "duration": 10}, {"order": 6, "description": "加入豆腐调味，撒香菜出锅", "duration": 5}], "tips": ["一定要用大火煮，汤才会奶白", "鱼头要煎透去腥增香"]}]',
         '[{"id": "14", "name": "盐", "quantity": "适量", "included": true}, {"id": "15", "name": "料酒", "quantity": "30ml", "included": true}, {"id": "16", "name": "白胡椒粉", "quantity": "适量", "included": true}, {"id": "17", "name": "姜片", "quantity": "15g", "included": true}]',
         '{"calories": 380, "protein": 38, "carbs": 18, "fat": 16, "fiber": 4}',
-        false, 80, 2, 'active'),
+        false, 5, 2, 'active'),
       (6, '川西农家土菜组合', '正宗川西农家风味，郫县豆瓣、农家腊肉，地道巴蜀味道', 'basic', 98, 128, 'https://images.unsplash.com/photo-1563379926898-05f4575a45d8?w=800&auto=format&fit=crop',
         '["川菜", "农家", "腊肉", "地方特色"]',
         '[{"id": "22", "name": "川味腊肉", "category": "肉类", "quantity": 300, "unit": "g", "origin": "四川成都"}, {"id": "23", "name": "青蒜苗", "category": "蔬菜", "quantity": 200, "unit": "g", "origin": "本地"}, {"id": "24", "name": "土豆", "category": "蔬菜", "quantity": 400, "unit": "g", "origin": "四川凉山"}, {"id": "25", "name": "二荆条辣椒", "category": "蔬菜", "quantity": 100, "unit": "g", "origin": "四川"}]',
@@ -352,26 +355,29 @@ async function initDatabase() {
     `);
     console.log('✓ 初始供应商数据插入成功');
     
-    // 插入食材库存数据
+    // 插入食材库存数据（合理分布：有些充足、有些紧张、有些缺货）
     await connection.execute(`
       INSERT IGNORE INTO ingredients (id, name, category, origin, stock_quantity, unit, min_stock, supplier_id, status) VALUES
+      -- 库存充足的食材
       (1, '鸡胸肉', '肉类', '山东', 5000, 'g', 500, 2, 'active'),
-      (2, '西兰花', '蔬菜', '云南', 3000, 'g', 300, 1, 'active'),
-      (3, '胡萝卜', '蔬菜', '山东', 4000, 'g', 400, 1, 'active'),
       (4, '糙米', '主食', '东北', 10000, 'g', 1000, 1, 'active'),
-      (5, '牛肉', '肉类', '澳洲', 3000, 'g', 300, 2, 'active'),
-      (6, '鸡蛋', '蛋奶', '本地', 1000, '个', 100, 1, 'active'),
-      (7, '红薯', '主食', '新疆', 5000, 'g', 500, 1, 'active'),
-      (8, '菠菜', '蔬菜', '山东', 2000, 'g', 200, 1, 'active'),
-      (9, '三文鱼', '海鲜', '挪威', 2000, 'g', 200, 2, 'active'),
-      (10, '牛油果', '水果', '墨西哥', 500, '个', 50, 1, 'active'),
-      (11, '藜麦', '主食', '秘鲁', 3000, 'g', 300, 1, 'active'),
-      (12, '樱桃番茄', '蔬菜', '山东', 2500, 'g', 250, 1, 'active'),
-      (13, '野生牛肝菌', '菌菇', '陕西秦岭', 500, 'g', 50, 1, 'active'),
-      (14, '农家土鸡', '肉类', '陕西商洛', 50, '只', 10, 2, 'active'),
-      (15, '竹荪', '菌菇', '陕西安康', 300, 'g', 30, 1, 'active'),
-      (16, '枸杞', '干货', '宁夏中宁', 1000, 'g', 100, 1, 'active'),
-      (17, '红枣', '干货', '陕西延安', 2000, 'g', 200, 1, 'active')
+      (5, '牛肉', '肉类', '澳洲', 8000, 'g', 300, 2, 'active'),
+      (6, '鸡蛋', '蛋奶', '本地', 2000, '个', 100, 1, 'active'),
+      (7, '红薯', '主食', '新疆', 6000, 'g', 500, 1, 'active'),
+      (11, '藜麦', '主食', '秘鲁', 5000, 'g', 300, 1, 'active'),
+      (16, '枸杞', '干货', '宁夏中宁', 3000, 'g', 100, 1, 'active'),
+      (17, '红枣', '干货', '陕西延安', 4000, 'g', 200, 1, 'active'),
+      -- 库存紧张的食材
+      (2, '西兰花', '蔬菜', '云南', 250, 'g', 300, 1, 'active'),
+      (3, '胡萝卜', '蔬菜', '山东', 320, 'g', 400, 1, 'active'),
+      (8, '菠菜', '蔬菜', '山东', 150, 'g', 200, 1, 'active'),
+      (9, '三文鱼', '海鲜', '挪威', 180, 'g', 200, 2, 'active'),
+      (10, '牛油果', '水果', '墨西哥', 35, '个', 50, 1, 'active'),
+      (12, '樱桃番茄', '蔬菜', '山东', 200, 'g', 250, 1, 'active'),
+      (15, '竹荪', '菌菇', '陕西安康', 25, 'g', 30, 1, 'active'),
+      -- 库存严重短缺/缺货的食材
+      (13, '野生牛肝菌', '菌菇', '陕西秦岭', 0, 'g', 50, 1, 'active'),
+      (14, '农家土鸡', '肉类', '陕西商洛', 2, '只', 10, 2, 'active')
     `);
     console.log('✓ 初始食材库存数据插入成功');
     

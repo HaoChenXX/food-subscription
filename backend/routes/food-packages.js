@@ -291,6 +291,94 @@ router.get('/:id/inventory-logs', authMiddleware, merchantMiddleware, async (req
   }
 });
 
+// 获取商家的库存数据（商家/管理员）
+router.get('/merchant/inventory', authMiddleware, merchantMiddleware, async (req, res) => {
+  try {
+    const merchantId = req.user.id;
+    
+    // 获取商家的所有食材包及其库存
+    const packages = await query(
+      `SELECT id, name, image, level, price, stock_quantity, status,
+              CASE 
+                WHEN level = 'basic' THEN 20
+                WHEN level = 'intermediate' THEN 15
+                WHEN level = 'advanced' THEN 10
+                ELSE 20
+              END as min_stock
+       FROM food_packages 
+       WHERE merchant_id = ? AND status != 'deleted'
+       ORDER BY stock_quantity ASC`,
+      [merchantId]
+    );
+    
+    // 格式化数据
+    const inventory = packages.map(pkg => ({
+      id: pkg.id.toString(),
+      name: pkg.name,
+      image: pkg.image || 'https://via.placeholder.com/40',
+      category: pkg.level === 'basic' ? '基础套餐' : 
+                pkg.level === 'intermediate' ? '进阶套餐' : '精品套餐',
+      stock: pkg.stock_quantity,
+      minStock: pkg.min_stock,
+      unit: '份',
+      price: parseFloat(pkg.price),
+      status: pkg.status,
+      isLow: pkg.stock_quantity < pkg.min_stock,
+      isOut: pkg.stock_quantity === 0
+    }));
+    
+    res.json(inventory);
+  } catch (error) {
+    console.error('获取商家库存错误:', error);
+    res.status(500).json({ message: '获取库存失败' });
+  }
+});
+
+// 获取库存预警数据
+router.get('/merchant/stock-alerts', authMiddleware, merchantMiddleware, async (req, res) => {
+  try {
+    const merchantId = req.user.id;
+    
+    // 获取低库存和缺货的食材包
+    const packages = await query(
+      `SELECT id, name, image, level, price, stock_quantity, status,
+              CASE 
+                WHEN level = 'basic' THEN 20
+                WHEN level = 'intermediate' THEN 15
+                WHEN level = 'advanced' THEN 10
+                ELSE 20
+              END as min_stock
+       FROM food_packages 
+       WHERE merchant_id = ? 
+         AND status = 'active'
+         AND stock_quantity < CASE 
+                WHEN level = 'basic' THEN 20
+                WHEN level = 'intermediate' THEN 15
+                WHEN level = 'advanced' THEN 10
+                ELSE 20
+              END
+       ORDER BY stock_quantity ASC`,
+      [merchantId]
+    );
+    
+    // 格式化为预警数据
+    const alerts = packages.map(pkg => ({
+      id: `alert-${pkg.id}`,
+      productId: pkg.id.toString(),
+      productName: pkg.name,
+      currentStock: pkg.stock_quantity,
+      minStock: pkg.min_stock,
+      alertType: pkg.stock_quantity === 0 ? 'out_of_stock' : 'low_stock',
+      resolved: false
+    }));
+    
+    res.json(alerts);
+  } catch (error) {
+    console.error('获取库存预警错误:', error);
+    res.status(500).json({ message: '获取库存预警失败' });
+  }
+});
+
 // 获取商家的所有订单（商家/管理员）
 router.get('/merchant/orders', authMiddleware, merchantMiddleware, async (req, res) => {
   try {

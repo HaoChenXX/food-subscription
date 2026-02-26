@@ -228,6 +228,36 @@ const realApi = {
     getOrders: async () => {
       return fetchWithAuth<Order[]>('/food-packages/merchant/orders');
     },
+    
+    // 获取商家库存数据
+    getInventory: async () => {
+      return fetchWithAuth<{
+        id: string;
+        name: string;
+        image: string;
+        category: string;
+        stock: number;
+        minStock: number;
+        unit: string;
+        price: number;
+        status: string;
+        isLow: boolean;
+        isOut: boolean;
+      }[]>('/food-packages/merchant/inventory');
+    },
+    
+    // 获取库存预警
+    getStockAlerts: async () => {
+      return fetchWithAuth<{
+        id: string;
+        productId: string;
+        productName: string;
+        currentStock: number;
+        minStock: number;
+        alertType: 'low_stock' | 'out_of_stock';
+        resolved: boolean;
+      }[]>('/food-packages/merchant/stock-alerts');
+    },
   },
   
   // 管理员接口
