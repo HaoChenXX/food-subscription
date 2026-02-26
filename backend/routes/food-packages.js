@@ -13,15 +13,34 @@ const router = express.Router();
 router.get('/recommended', async (req, res) => {
   try {
     const { profileId } = req.query;
-    // 简单推荐逻辑：根据用户画像返回不同的推荐
-    // 实际项目中可以使用更复杂的推荐算法
-    let sql = 'SELECT * FROM food_packages WHERE status = "active"';
+    console.log('获取推荐食材包 - profileId:', profileId);
+    
+    // 推荐逻辑：优先返回有库存的活跃商品
+    let sql = 'SELECT * FROM food_packages WHERE status = "active" AND stock_quantity > 0';
     
     // 这里可以根据 profileId 查询用户画像，然后个性化推荐
-    // 暂时返回所有食材包作为推荐
-    sql += ' ORDER BY created_at DESC LIMIT 4';
+    // 暂时按评分和销量排序返回推荐
+    sql += ' ORDER BY rating DESC, sold_count DESC LIMIT 4';
     
     const packages = await query(sql);
+    console.log('推荐商品数量:', packages.length);
+    
+    // 如果不够4个，补充其他活跃商品
+    if (packages.length < 4) {
+      const existingIds = packages.map(p => p.id);
+      const placeholders = existingIds.length > 0 ? existingIds.map(() => '?').join(',') : '0';
+      const morePackages = await query(
+        `SELECT * FROM food_packages 
+         WHERE status = "active" 
+         AND stock_quantity > 0
+         ${existingIds.length > 0 ? `AND id NOT IN (${placeholders})` : ''}
+         ORDER BY created_at DESC 
+         LIMIT ${4 - packages.length}`,
+        existingIds
+      );
+      packages.push(...morePackages);
+    }
+    
     res.json(packages.map(formatFoodPackage));
   } catch (error) {
     console.error('获取推荐食材包错误:', error);

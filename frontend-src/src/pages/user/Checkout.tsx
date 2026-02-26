@@ -65,42 +65,47 @@ export default function Checkout() {
 
   const totalAmount = getTotalAmount();
 
-  // 创建订单
+  // 创建订单 - 支持多个商品
   const createOrderMutation = useMutation({
     mutationFn: async () => {
       const address = addresses.find(a => a.id === selectedAddress);
       if (!address) throw new Error('请选择配送地址');
 
-      // 为第一个购物车商品创建订单（简化流程）
-      const firstItem = items[0];
+      // 为每个购物车商品创建订单
+      const createdOrders: Order[] = [];
+      
+      for (const item of items) {
+        const order = await api.orders.create({
+          packageId: item.packageId,
+          quantity: item.quantity,
+          deliveryAddress: address,
+          contactName: address?.name || '',
+          contactPhone: address?.phone || '',
+          remark: `${item.subscriptionType}|${deliveryDate}|${selectedTimeSlot}`
+        } as Partial<Order>);
+        createdOrders.push(order);
+      }
 
-      const order = await api.orders.create({
-        packageId: firstItem.packageId,
-        quantity: firstItem.quantity,
-        deliveryAddress: address,
-        contactName: address?.name || '',
-        contactPhone: address?.phone || '',
-        remark: firstItem.subscriptionType
-      } as Partial<Order>);
-
-      return [order]; // 返回数组以保持兼容性
+      return createdOrders;
     },
     onSuccess: async (orders) => {
       orders.forEach(order => addOrder(order));
       setCreatedOrderId(orders[0].id);
       clearCart();
 
-      // 直接支付第一个订单（简化流程）
+      // 支付所有订单
       try {
-        await api.orders.pay(orders[0].id, 'mock');
-        toast.success('订单创建并支付成功！');
+        for (const order of orders) {
+          await api.orders.pay(order.id, selectedPayment);
+        }
+        toast.success(`成功创建并支付 ${orders.length} 个订单！`);
         localStorage.setItem('shouldRefreshOrders', 'true');
         // 跳转到订单列表页
         setTimeout(() => {
           navigate('/orders', { state: { refresh: true } });
         }, 1500);
       } catch (error: any) {
-        toast.error(error.message || '支付失败，但订单已创建');
+        toast.error(error.message || '部分订单支付失败');
         setShowSuccessDialog(true);
       }
     },
@@ -114,11 +119,6 @@ export default function Checkout() {
       toast.error('购物车为空');
       navigate('/packages');
       return;
-    }
-
-    // 如果购物车有多个商品，显示提示
-    if (items.length > 1) {
-      toast.info('购物车有多个商品，目前只支持逐个结算', { duration: 3000 });
     }
 
     createOrderMutation.mutate();

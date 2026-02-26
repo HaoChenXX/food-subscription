@@ -12,15 +12,20 @@ const router = express.Router();
 // 获取用户的所有订单
 router.get('/', authMiddleware, async (req, res) => {
   try {
+    console.log('获取订单列表 - 用户ID:', req.user.id);
+
     const orders = await query(
-      `SELECT o.*, fp.name as package_name, fp.image as package_image 
-       FROM orders o 
-       LEFT JOIN food_packages fp ON o.package_id = fp.id 
-       WHERE o.user_id = ? 
+      `SELECT o.*, fp.name as package_name, fp.image as package_image
+       FROM orders o
+       LEFT JOIN food_packages fp ON o.package_id = fp.id
+       WHERE o.user_id = ?
        ORDER BY o.created_at DESC`,
       [req.user.id]
     );
-    
+
+    console.log('查询到的订单数量:', orders.length);
+    console.log('订单数据:', JSON.stringify(orders, null, 2));
+
     res.json(orders.map(order => ({
       ...order,
       delivery_address: safeJsonParse(order.delivery_address, {})
@@ -61,31 +66,48 @@ router.get('/:id', authMiddleware, async (req, res) => {
 router.post('/', authMiddleware, async (req, res) => {
   try {
     const { packageId, quantity, deliveryAddress, contactName, contactPhone, remark } = req.body;
-    
+
+    console.log('创建订单 - 用户ID:', req.user.id);
+    console.log('订单数据:', { packageId, quantity, deliveryAddress, contactName, contactPhone, remark });
+
+    // 参数校验和默认值处理
+    if (!packageId) {
+      return res.status(400).json({ message: 'packageId 不能为空' });
+    }
+
     // 获取食材包信息
     const packages = await query('SELECT * FROM food_packages WHERE id = ? AND status = "active"', [packageId]);
     if (packages.length === 0) {
       return res.status(404).json({ message: '食材包不存在或已下架' });
     }
-    
+
     const pkg = packages[0];
-    
+    const qty = parseInt(quantity) || 1;
+
     // 检查库存
-    if (pkg.stock_quantity < quantity) {
+    if (pkg.stock_quantity < qty) {
       return res.status(400).json({ message: '库存不足' });
     }
-    
+
     const orderId = generateOrderId();
-    const totalAmount = pkg.price * quantity;
-    
+    const totalAmount = parseFloat(pkg.price) * qty;
+
+    console.log('生成的订单ID:', orderId);
+
+    // 处理可能为 undefined 的参数
+    const safeContactName = contactName || '';
+    const safeContactPhone = contactPhone || '';
+    const safeRemark = remark || '';
+    const safeDeliveryAddress = deliveryAddress || {};
+
     // 创建订单
     await query(
-      `INSERT INTO orders 
-       (id, user_id, package_id, quantity, total_amount, status, 
+      `INSERT INTO orders
+       (id, user_id, package_id, quantity, total_amount, status,
         delivery_address, contact_name, contact_phone, remark)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [orderId, req.user.id, packageId, quantity, totalAmount, 'pending_payment',
-       JSON.stringify(deliveryAddress), contactName, contactPhone, remark]
+      [orderId, req.user.id, packageId, qty, totalAmount, 'pending_payment',
+       JSON.stringify(safeDeliveryAddress), safeContactName, safeContactPhone, safeRemark]
     );
     
     // 扣减库存
@@ -120,9 +142,11 @@ router.post('/', authMiddleware, async (req, res) => {
 router.post('/:id/pay', authMiddleware, async (req, res) => {
   try {
     const { paymentMethod = 'mock' } = req.body;
-    
+
+    console.log('支付订单 - 订单ID:', req.params.id, '用户ID:', req.user.id);
+
     // 获取订单
-    const orders = await query('SELECT * FROM orders WHERE id = ? AND user_id = ?', 
+    const orders = await query('SELECT * FROM orders WHERE id = ? AND user_id = ?',
       [req.params.id, req.user.id]);
     
     if (orders.length === 0) {
