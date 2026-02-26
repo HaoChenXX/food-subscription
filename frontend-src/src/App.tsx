@@ -77,6 +77,19 @@ const AuthInitializer = ({ children }: { children: React.ReactNode }) => {
     };
     
     validateToken();
+  }, [token]); // 添加 token 依赖，确保 token 变化时重新验证
+  
+  // 监听存储变化（处理多标签页登录状态同步）
+  useEffect(() => {
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'auth-storage') {
+        // 强制刷新页面以同步登录状态
+        window.location.reload();
+      }
+    };
+    
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
   }, []);
   
   if (isChecking) {
@@ -94,6 +107,21 @@ const AuthInitializer = ({ children }: { children: React.ReactNode }) => {
 const ProtectedRoute = ({ children, allowedRoles }: { children: React.ReactNode; allowedRoles?: string[] }) => {
   const { isAuthenticated, user } = useAuthStore();
   const location = useLocation();
+  const [isReady, setIsReady] = useState(false);
+  
+  useEffect(() => {
+    // 短暂延迟确保状态已同步
+    const timer = setTimeout(() => setIsReady(true), 100);
+    return () => clearTimeout(timer);
+  }, [isAuthenticated, user]);
+  
+  if (!isReady) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
+      </div>
+    );
+  }
   
   if (!isAuthenticated) {
     return <Navigate to="/login" replace state={{ from: location }} />;

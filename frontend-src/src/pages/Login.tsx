@@ -43,14 +43,19 @@ export default function Login() {
       login(data.user, data.token);
       toast.success('登录成功！');
       
-      // 根据角色跳转到不同页面
-      if (data.user.role === 'admin') {
-        navigate('/admin');
-      } else if (data.user.role === 'merchant') {
-        navigate('/merchant');
-      } else {
-        navigate('/');
-      }
+      // 根据角色跳转到不同页面，使用 replace 避免返回问题
+      // 添加小延迟确保状态已同步
+      setTimeout(() => {
+        if (data.user.role === 'admin') {
+          navigate('/admin', { replace: true });
+        } else if (data.user.role === 'merchant') {
+          navigate('/merchant', { replace: true });
+        } else {
+          navigate('/', { replace: true });
+        }
+        // 强制刷新以确保状态同步
+        window.location.reload();
+      }, 100);
     },
     onError: (error: Error) => {
       toast.error(error.message || '登录失败');
