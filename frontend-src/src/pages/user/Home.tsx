@@ -20,7 +20,8 @@ import {
   Calendar,
   CheckCircle2,
   Truck,
-  Heart
+  Heart,
+  Loader2
 } from 'lucide-react';
 
 export default function UserHome() {
@@ -31,14 +32,14 @@ export default function UserHome() {
   const { subscriptions } = useSubscriptionStore();
 
   // 获取推荐食材包
-  const { data: recommendedData } = useQuery({
+  const { data: recommendedData, isLoading: isLoadingRecommended } = useQuery({
     queryKey: ['recommendedPackages', user?.id],
     queryFn: () => api.foodPackages.getRecommended(user?.id || ''),
     enabled: !!user
   });
 
   // 获取限时特惠
-  const { data: limitedData } = useQuery({
+  const { data: limitedData, isLoading: isLoadingLimited } = useQuery({
     queryKey: ['limitedPackages'],
     queryFn: () => api.foodPackages.getLimited()
   });
@@ -156,17 +157,21 @@ export default function UserHome() {
       </div>
 
       {/* 限时特惠 */}
-      {limitedPackages.length > 0 && (
-        <div>
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-bold flex items-center">
-              <TrendingUp className="w-5 h-5 mr-2 text-red-500" />
-              限时特惠
-            </h2>
-            <Link to="/packages" className="text-green-600 hover:text-green-700 flex items-center text-sm">
-              查看全部 <ArrowRight className="w-4 h-4 ml-1" />
-            </Link>
+      <div>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-bold flex items-center">
+            <TrendingUp className="w-5 h-5 mr-2 text-red-500" />
+            限时特惠
+          </h2>
+          <Link to="/packages" className="text-green-600 hover:text-green-700 flex items-center text-sm">
+            查看全部 <ArrowRight className="w-4 h-4 ml-1" />
+          </Link>
+        </div>
+        {isLoadingLimited ? (
+          <div className="flex items-center justify-center h-32">
+            <Loader2 className="w-8 h-8 animate-spin text-green-600" />
           </div>
+        ) : limitedPackages.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {limitedPackages.map((pkg) => (
               <Link key={pkg.id} to={`/packages/${pkg.id}`}>
@@ -207,21 +212,35 @@ export default function UserHome() {
               </Link>
             ))}
           </div>
-        </div>
-      )}
+        ) : (
+          <Card className="bg-gray-50">
+            <CardContent className="p-8 text-center">
+              <Package className="w-12 h-12 mx-auto mb-3 text-gray-400" />
+              <p className="text-gray-500">暂无限时特惠商品</p>
+              <Button variant="link" asChild className="mt-2">
+                <Link to="/packages">去浏览全部食材包</Link>
+              </Button>
+            </CardContent>
+          </Card>
+        )}
+      </div>
 
       {/* 个性化推荐 */}
-      {recommendedPackages.length > 0 && (
-        <div>
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-bold flex items-center">
-              <Sparkles className="w-5 h-5 mr-2 text-yellow-500" />
-              为您推荐
-            </h2>
-            <Link to="/packages" className="text-green-600 hover:text-green-700 flex items-center text-sm">
-              查看全部 <ArrowRight className="w-4 h-4 ml-1" />
-            </Link>
+      <div>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-bold flex items-center">
+            <Sparkles className="w-5 h-5 mr-2 text-yellow-500" />
+            为您推荐
+          </h2>
+          <Link to="/packages" className="text-green-600 hover:text-green-700 flex items-center text-sm">
+            查看全部 <ArrowRight className="w-4 h-4 ml-1" />
+          </Link>
+        </div>
+        {isLoadingRecommended ? (
+          <div className="flex items-center justify-center h-32">
+            <Loader2 className="w-8 h-8 animate-spin text-green-600" />
           </div>
+        ) : recommendedPackages.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {recommendedPackages.map((pkg) => (
               <Link key={pkg.id} to={`/packages/${pkg.id}`}>
@@ -267,8 +286,19 @@ export default function UserHome() {
               </Link>
             ))}
           </div>
-        </div>
-      )}
+        ) : (
+          <Card className="bg-gray-50">
+            <CardContent className="p-8 text-center">
+              <Sparkles className="w-12 h-12 mx-auto mb-3 text-gray-400" />
+              <p className="text-gray-500">暂无推荐商品</p>
+              <p className="text-sm text-gray-400 mt-1">完善饮食画像，获取个性化推荐</p>
+              <Button variant="link" asChild className="mt-2">
+                <Link to="/diet-profile">创建饮食画像</Link>
+              </Button>
+            </CardContent>
+          </Card>
+        )}
+      </div>
 
       {/* 最近订单 */}
       {recentOrders.length > 0 && (
