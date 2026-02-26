@@ -25,7 +25,9 @@ import {
   Minus,
   Plus,
   Heart,
-  Flame
+  Flame,
+  AlertCircle,
+  Package
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -275,15 +277,17 @@ export default function PackageDetail() {
               variant="outline"
               className="flex-1 h-12"
               onClick={handleAddToCart}
+              disabled={!pkg.stockStatus?.canOrder}
             >
               <ShoppingCart className="w-5 h-5 mr-2" />
-              加入购物车
+              {pkg.stockStatus?.canOrder ? '加入购物车' : '暂时缺货'}
             </Button>
             <Button
               className="flex-1 h-12 bg-green-600 hover:bg-green-700"
               onClick={handleBuyNow}
+              disabled={!pkg.stockStatus?.canOrder}
             >
-              立即购买
+              {pkg.stockStatus?.canOrder ? '立即购买' : '暂时缺货'}
             </Button>
           </div>
         </div>
@@ -301,30 +305,130 @@ export default function PackageDetail() {
           <TabsContent value="ingredients" className="mt-6">
             <Card>
               <CardContent className="p-6">
-                <h3 className="text-lg font-bold mb-4">包含食材</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {pkg.ingredients.map((ingredient) => (
-                    <div
-                      key={ingredient.id}
-                      className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
-                    >
-                      <div className="flex items-center space-x-3">
-                        <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-                          <Leaf className="w-5 h-5 text-green-600" />
-                        </div>
-                        <div>
-                          <div className="font-medium">{ingredient.name}</div>
-                          <div className="text-sm text-gray-500">{ingredient.category}</div>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <div className="font-medium">{ingredient.quantity}{ingredient.unit}</div>
-                        {ingredient.origin && (
-                          <div className="text-sm text-gray-500">产地：{ingredient.origin}</div>
-                        )}
-                      </div>
+                {/* 库存状态提示 */}
+                {pkg.stockStatus && (
+                  <div className={`mb-6 p-4 rounded-lg ${
+                    pkg.stockStatus.allSufficient 
+                      ? 'bg-green-50 border border-green-200' 
+                      : pkg.stockStatus.hasStock 
+                        ? 'bg-yellow-50 border border-yellow-200' 
+                        : 'bg-red-50 border border-red-200'
+                  }`}>
+                    <div className="flex items-center space-x-2">
+                      {pkg.stockStatus.allSufficient ? (
+                        <CheckCircle2 className="w-5 h-5 text-green-600" />
+                      ) : (
+                        <AlertCircle className={`w-5 h-5 ${pkg.stockStatus.hasStock ? 'text-yellow-600' : 'text-red-600'}`} />
+                      )}
+                      <span className={`font-medium ${
+                        pkg.stockStatus.allSufficient 
+                          ? 'text-green-800' 
+                          : pkg.stockStatus.hasStock 
+                            ? 'text-yellow-800' 
+                            : 'text-red-800'
+                      }`}>
+                        食材库存：{pkg.stockStatus.status}
+                      </span>
                     </div>
-                  ))}
+                    {!pkg.stockStatus.canOrder && (
+                      <p className="text-sm mt-1 text-red-600">
+                        部分食材库存不足，暂时无法购买
+                      </p>
+                    )}
+                  </div>
+                )}
+
+                <h3 className="text-lg font-bold mb-4">包含食材</h3>
+                
+                {/* 数据库关联的食材库存信息 */}
+                {pkg.ingredientStocks && pkg.ingredientStocks.length > 0 ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                    {pkg.ingredientStocks.map((ingredient) => (
+                      <div
+                        key={ingredient.id}
+                        className={`flex items-center justify-between p-3 rounded-lg border ${
+                          ingredient.isStockSufficient 
+                            ? 'bg-green-50/50 border-green-100' 
+                            : 'bg-red-50/50 border-red-100'
+                        }`}
+                      >
+                        <div className="flex items-center space-x-3">
+                          <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
+                            ingredient.isStockSufficient 
+                              ? 'bg-green-100' 
+                              : 'bg-red-100'
+                          }`}>
+                            {ingredient.isStockSufficient ? (
+                              <Leaf className="w-5 h-5 text-green-600" />
+                            ) : (
+                              <AlertCircle className="w-5 h-5 text-red-600" />
+                            )}
+                          </div>
+                          <div>
+                            <div className="font-medium flex items-center space-x-2">
+                              <span>{ingredient.name}</span>
+                              {!ingredient.isStockSufficient && (
+                                <span className="text-xs px-2 py-0.5 bg-red-100 text-red-600 rounded-full">
+                                  库存不足
+                                </span>
+                              )}
+                            </div>
+                            <div className="text-sm text-gray-500">
+                              {ingredient.category} · 产地：{ingredient.origin || '未知'}
+                            </div>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <div className="font-medium">
+                            需{ingredient.required_quantity}{ingredient.required_unit}
+                          </div>
+                          <div className={`text-sm ${
+                            ingredient.isStockSufficient ? 'text-green-600' : 'text-red-600'
+                          }`}>
+                            库存{ingredient.stock_quantity}{ingredient.unit}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  /* 静态食材信息（当没有数据库关联时） */
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                    {pkg.ingredients.map((ingredient) => (
+                      <div
+                        key={ingredient.id}
+                        className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+                      >
+                        <div className="flex items-center space-x-3">
+                          <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+                            <Leaf className="w-5 h-5 text-green-600" />
+                          </div>
+                          <div>
+                            <div className="font-medium">{ingredient.name}</div>
+                            <div className="text-sm text-gray-500">{ingredient.category}</div>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <div className="font-medium">{ingredient.quantity}{ingredient.unit}</div>
+                          {ingredient.origin && (
+                            <div className="text-sm text-gray-500">产地：{ingredient.origin}</div>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                
+                {/* 食材溯源说明 */}
+                <div className="bg-blue-50 rounded-lg p-4 mb-6">
+                  <h4 className="font-medium text-blue-800 mb-2 flex items-center">
+                    <Package className="w-4 h-4 mr-2" />
+                    食材溯源
+                  </h4>
+                  <p className="text-sm text-blue-700">
+                    所有食材均来自认证供应商，经过严格质检。我们实时追踪库存状态，
+                    确保您收到的每一份食材都是最新鲜的。
+                  </p>
                 </div>
 
                 <h3 className="text-lg font-bold mb-4 mt-8">调味品</h3>

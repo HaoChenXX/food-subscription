@@ -186,6 +186,38 @@ CREATE TABLE IF NOT EXISTS uploads (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   INDEX idx_uploaded_by (uploaded_by)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 食材库存表（独立管理各食材库存）
+CREATE TABLE IF NOT EXISTS ingredients (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(100) NOT NULL,
+  category VARCHAR(50),
+  origin VARCHAR(100),
+  stock_quantity INT DEFAULT 0,
+  unit VARCHAR(20) DEFAULT 'g',
+  min_stock INT DEFAULT 10,
+  supplier_id INT,
+  status ENUM('active', 'inactive') DEFAULT 'active',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  INDEX idx_category (category),
+  INDEX idx_status (status)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 食材包与食材关联表（记录每个食材包需要哪些食材及数量）
+CREATE TABLE IF NOT EXISTS package_ingredients (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  package_id INT NOT NULL,
+  ingredient_id INT NOT NULL,
+  quantity INT NOT NULL,
+  unit VARCHAR(20) DEFAULT 'g',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE KEY unique_package_ingredient (package_id, ingredient_id),
+  INDEX idx_package_id (package_id),
+  INDEX idx_ingredient_id (ingredient_id),
+  FOREIGN KEY (package_id) REFERENCES food_packages(id) ON DELETE CASCADE,
+  FOREIGN KEY (ingredient_id) REFERENCES ingredients(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 `;
 
 async function initDatabase() {
@@ -319,6 +351,47 @@ async function initDatabase() {
       (2, '优质肉业', '李经理', '13800138002', 'meat@example.com', '河北省唐山市', '["肉类"]', 4.6, 'active')
     `);
     console.log('✓ 初始供应商数据插入成功');
+    
+    // 插入食材库存数据
+    await connection.execute(`
+      INSERT IGNORE INTO ingredients (id, name, category, origin, stock_quantity, unit, min_stock, supplier_id, status) VALUES
+      (1, '鸡胸肉', '肉类', '山东', 5000, 'g', 500, 2, 'active'),
+      (2, '西兰花', '蔬菜', '云南', 3000, 'g', 300, 1, 'active'),
+      (3, '胡萝卜', '蔬菜', '山东', 4000, 'g', 400, 1, 'active'),
+      (4, '糙米', '主食', '东北', 10000, 'g', 1000, 1, 'active'),
+      (5, '牛肉', '肉类', '澳洲', 3000, 'g', 300, 2, 'active'),
+      (6, '鸡蛋', '蛋奶', '本地', 1000, '个', 100, 1, 'active'),
+      (7, '红薯', '主食', '新疆', 5000, 'g', 500, 1, 'active'),
+      (8, '菠菜', '蔬菜', '山东', 2000, 'g', 200, 1, 'active'),
+      (9, '三文鱼', '海鲜', '挪威', 2000, 'g', 200, 2, 'active'),
+      (10, '牛油果', '水果', '墨西哥', 500, '个', 50, 1, 'active'),
+      (11, '藜麦', '主食', '秘鲁', 3000, 'g', 300, 1, 'active'),
+      (12, '樱桃番茄', '蔬菜', '山东', 2500, 'g', 250, 1, 'active'),
+      (13, '野生牛肝菌', '菌菇', '陕西秦岭', 500, 'g', 50, 1, 'active'),
+      (14, '农家土鸡', '肉类', '陕西商洛', 50, '只', 10, 2, 'active'),
+      (15, '竹荪', '菌菇', '陕西安康', 300, 'g', 30, 1, 'active'),
+      (16, '枸杞', '干货', '宁夏中宁', 1000, 'g', 100, 1, 'active'),
+      (17, '红枣', '干货', '陕西延安', 2000, 'g', 200, 1, 'active')
+    `);
+    console.log('✓ 初始食材库存数据插入成功');
+    
+    // 插入食材包与食材关联数据（示例：健康减脂套餐的食材）
+    await connection.execute(`
+      INSERT IGNORE INTO package_ingredients (package_id, ingredient_id, quantity, unit) VALUES
+      (1, 1, 500, 'g'),
+      (1, 2, 300, 'g'),
+      (1, 3, 200, 'g'),
+      (1, 4, 500, 'g'),
+      (2, 5, 600, 'g'),
+      (2, 6, 12, '个'),
+      (2, 7, 800, 'g'),
+      (2, 8, 400, 'g'),
+      (3, 9, 400, 'g'),
+      (3, 10, 2, '个'),
+      (3, 11, 300, 'g'),
+      (3, 12, 300, 'g')
+    `);
+    console.log('✓ 食材包关联数据插入成功');
     
     await connection.end();
     

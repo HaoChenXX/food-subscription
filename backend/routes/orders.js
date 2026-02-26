@@ -84,9 +84,29 @@ router.post('/', authMiddleware, async (req, res) => {
     const pkg = packages[0];
     const qty = parseInt(quantity) || 1;
 
-    // 检查库存
+    // 检查食材包库存
     if (pkg.stock_quantity < qty) {
-      return res.status(400).json({ message: '库存不足' });
+      return res.status(400).json({ message: '食材包库存不足' });
+    }
+
+    // 检查各食材库存是否充足
+    const packageIngredients = await query(`
+      SELECT i.id, i.name, i.stock_quantity, i.unit, pi.quantity as required_qty, pi.unit as required_unit
+      FROM package_ingredients pi
+      JOIN ingredients i ON pi.ingredient_id = i.id
+      WHERE pi.package_id = ? AND i.status = 'active'
+    `, [packageId]);
+
+    // 如果有食材库存不足，返回错误
+    const insufficientIngredients = packageIngredients.filter(
+      pi => pi.stock_quantity < pi.required_qty * qty
+    );
+    
+    if (insufficientIngredients.length > 0) {
+      const names = insufficientIngredients.map(i => i.name).join('、');
+      return res.status(400).json({ 
+        message: `食材库存不足: ${names}，无法创建订单` 
+      });
     }
 
     const orderId = generateOrderId();
@@ -110,14 +130,21 @@ router.post('/', authMiddleware, async (req, res) => {
        JSON.stringify(safeDeliveryAddress), safeContactName, safeContactPhone, safeRemark]
     );
     
-    // 扣减库存
+    // 扣减食材包库存
     await query('UPDATE food_packages SET stock_quantity = stock_quantity - ? WHERE id = ?', 
-      [quantity, packageId]);
+      [qty, packageId]);
     
-    // 记录库存变动
+    // 扣减各食材库存
+    for (const pi of packageIngredients) {
+      const deductQty = pi.required_qty * qty;
+      await query('UPDATE ingredients SET stock_quantity = stock_quantity - ? WHERE id = ?',
+        [deductQty, pi.id]);
+    }
+    
+    // 记录食材包库存变动
     await query(
       'INSERT INTO inventory_logs (package_id, merchant_id, change_quantity, current_quantity, type, remark) VALUES (?, ?, ?, ?, ?, ?)',
-      [packageId, pkg.merchant_id, -quantity, pkg.stock_quantity - quantity, 'sale', `订单: ${orderId}`]
+      [packageId, pkg.merchant_id, -qty, pkg.stock_quantity - qty, 'sale', `订单: ${orderId}`]
     );
     
     const orders = await query(
@@ -212,14 +239,28 @@ router.post('/:id/cancel', authMiddleware, async (req, res) => {
       return res.status(400).json({ message: '订单状态不允许取消' });
     }
     
-    // 恢复库存
+    // 恢复食材包库存
     await query('UPDATE food_packages SET stock_quantity = stock_quantity + ? WHERE id = ?',
       [order.quantity, order.package_id]);
+    
+    // 恢复各食材库存
+    const packageIngredients = await query(`
+      SELECT i.id, pi.quantity as required_qty
+      FROM package_ingredients pi
+      JOIN ingredients i ON pi.ingredient_id = i.id
+      WHERE pi.package_id = ?
+    `, [order.package_id]);
+    
+    for (const pi of packageIngredients) {
+      const restoreQty = pi.required_qty * order.quantity;
+      await query('UPDATE ingredients SET stock_quantity = stock_quantity + ? WHERE id = ?',
+        [restoreQty, pi.id]);
+    }
     
     // 更新订单状态
     await query('UPDATE orders SET status = ? WHERE id = ?', ['cancelled', req.params.id]);
     
-    res.json({ message: '订单已取消' });
+    res.json({ message: '订单已取消，库存已恢复' });
   } catch (error) {
     console.error('取消订单错误:', error);
     res.status(500).json({ message: '取消订单失败' });

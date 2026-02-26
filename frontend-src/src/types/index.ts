@@ -57,6 +57,32 @@ export interface FoodPackage {
   soldCount: number;
   isLimited: boolean;
   limitedTime?: string;
+  // 库存相关字段
+  stockQuantity?: number;
+  ingredientStocks?: IngredientStock[];
+  stockStatus?: StockStatus;
+}
+
+// 食材库存状态
+export interface IngredientStock {
+  id: string;
+  name: string;
+  category: string;
+  origin: string;
+  stock_quantity: number;
+  unit: string;
+  required_quantity: number;
+  required_unit: string;
+  isStockSufficient: boolean;
+  stockStatus: string;
+}
+
+// 整体库存状态
+export interface StockStatus {
+  allSufficient: boolean;
+  hasStock: boolean;
+  status: string;
+  canOrder: boolean;
 }
 
 export interface PackageIngredient {

@@ -88,7 +88,7 @@ router.get('/', async (req, res) => {
   }
 });
 
-// 获取单个食材包
+// 获取单个食材包（包含食材库存信息）
 router.get('/:id', async (req, res) => {
   try {
     const packages = await query('SELECT * FROM food_packages WHERE id = ?', [req.params.id]);
@@ -97,7 +97,38 @@ router.get('/:id', async (req, res) => {
       return res.status(404).json({ message: '食材包不存在' });
     }
     
-    res.json(formatFoodPackage(packages[0]));
+    const packageData = formatFoodPackage(packages[0]);
+    
+    // 获取食材包的食材库存信息
+    const ingredientStocks = await query(`
+      SELECT i.id, i.name, i.category, i.origin, i.stock_quantity, i.unit, i.status,
+             pi.quantity as required_quantity, pi.unit as required_unit
+      FROM package_ingredients pi
+      JOIN ingredients i ON pi.ingredient_id = i.id
+      WHERE pi.package_id = ? AND i.status = 'active'
+    `, [req.params.id]);
+    
+    // 检查每种食材的库存是否充足
+    const ingredientsWithStock = ingredientStocks.map(ing => ({
+      ...ing,
+      isStockSufficient: ing.stock_quantity >= ing.required_quantity,
+      stockStatus: ing.stock_quantity >= ing.required_quantity ? '充足' : 
+                   ing.stock_quantity > 0 ? '紧张' : '缺货'
+    }));
+    
+    // 判断整体库存状态
+    const allSufficient = ingredientsWithStock.every(ing => ing.isStockSufficient);
+    const hasStock = ingredientsWithStock.some(ing => ing.stock_quantity > 0);
+    
+    packageData.ingredientStocks = ingredientsWithStock;
+    packageData.stockStatus = {
+      allSufficient,
+      hasStock,
+      status: allSufficient ? '充足' : hasStock ? '部分缺货' : '缺货',
+      canOrder: allSufficient && packageData.stockQuantity > 0
+    };
+    
+    res.json(packageData);
   } catch (error) {
     console.error('获取食材包错误:', error);
     res.status(500).json({ message: '获取食材包失败' });
