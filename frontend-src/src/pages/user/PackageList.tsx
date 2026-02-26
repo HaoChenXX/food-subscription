@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -43,6 +43,7 @@ const sortOptions = [
 ];
 
 export default function PackageList() {
+  const navigate = useNavigate();
   const { packages, setPackages } = useFoodPackageStore();
   const { addItem, setIsOpen } = useCartStore();
   const [searchQuery, setSearchQuery] = useState('');
@@ -223,99 +224,98 @@ export default function PackageList() {
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {filteredPackages.map((pkg: FoodPackage) => (
-                  <Card key={pkg.id} className="overflow-hidden hover:shadow-xl transition-shadow group">
-                    <Link to={`/packages/${pkg.id}`} className="block">
-                      <div className="relative">
-                        <img
-                          src={pkg.image}
-                          alt={pkg.name}
-                          className="w-full h-48 object-cover group-hover:scale-105 transition-transform"
-                        />
-                        {pkg.isLimited && (
-                          <Badge className="absolute top-3 left-3 bg-red-500">
-                            <Flame className="w-3 h-3 mr-1" />
-                            限时特惠
-                          </Badge>
-                        )}
-                        <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm rounded-full px-2 py-1 text-sm font-bold text-green-600">
-                          {formatPrice(pkg.price)}
-                        </div>
-                        {pkg.originalPrice > pkg.price && (
-                          <div className="absolute bottom-3 right-3 bg-red-500 text-white rounded-full px-2 py-1 text-xs font-bold">
-                            省¥{pkg.originalPrice - pkg.price}
-                          </div>
-                        )}
+                  <Card 
+                    key={pkg.id} 
+                    className="overflow-hidden hover:shadow-xl transition-shadow group cursor-pointer"
+                    onClick={() => navigate(`/packages/${pkg.id}`)}
+                  >
+                    <div className="relative">
+                      <img
+                        src={pkg.image}
+                        alt={pkg.name}
+                        className="w-full h-48 object-cover group-hover:scale-105 transition-transform"
+                      />
+                      {pkg.isLimited && (
+                        <Badge className="absolute top-3 left-3 bg-red-500">
+                          <Flame className="w-3 h-3 mr-1" />
+                          限时特惠
+                        </Badge>
+                      )}
+                      <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm rounded-full px-2 py-1 text-sm font-bold text-green-600">
+                        {formatPrice(pkg.price)}
                       </div>
-                    
-                      <CardContent className="p-4">
-                        <div className="flex items-center space-x-2 mb-2">
-                          <Badge variant="secondary" className="text-xs">
-                            {pkg.level === 'basic' && '基础'}
-                            {pkg.level === 'advanced' && '进阶'}
-                            {pkg.level === 'premium' && '精品'}
-                          </Badge>
-                          <div className="flex items-center text-yellow-500 text-xs">
-                            <Star className="w-3 h-3 fill-current" />
-                            <span className="ml-1">{pkg.rating}</span>
-                            <span className="text-gray-400 ml-1">({pkg.reviewCount})</span>
-                          </div>
+                      {pkg.originalPrice > pkg.price && (
+                        <div className="absolute bottom-3 right-3 bg-red-500 text-white rounded-full px-2 py-1 text-xs font-bold">
+                          省¥{pkg.originalPrice - pkg.price}
                         </div>
-                        
-                        <h3 className="font-bold text-lg mb-1 group-hover:text-green-600 transition-colors">
-                          {pkg.name}
-                        </h3>
-                        
-                        <p className="text-gray-500 text-sm line-clamp-2 mb-3">
-                          {pkg.description}
-                        </p>
-                        
-                        <div className="flex items-center space-x-3 text-sm text-gray-500 mb-3">
-                          <span className="flex items-center">
-                            <Clock className="w-4 h-4 mr-1" />
-                            {pkg.cookTime}分钟
-                          </span>
-                          <span className="flex items-center">
-                            <Users className="w-4 h-4 mr-1" />
-                            {pkg.servingSize}人份
-                          </span>
-                          <span className="flex items-center">
-                            <ChefHat className="w-4 h-4 mr-1" />
-                            {getDifficultyText(pkg.difficulty)}
-                          </span>
+                      )}
+                    </div>
+                  
+                    <CardContent className="p-4">
+                      <div className="flex items-center space-x-2 mb-2">
+                        <Badge variant="secondary" className="text-xs">
+                          {pkg.level === 'basic' && '基础'}
+                          {pkg.level === 'advanced' && '进阶'}
+                          {pkg.level === 'premium' && '精品'}
+                        </Badge>
+                        <div className="flex items-center text-yellow-500 text-xs">
+                          <Star className="w-3 h-3 fill-current" />
+                          <span className="ml-1">{pkg.rating}</span>
+                          <span className="text-gray-400 ml-1">({pkg.reviewCount})</span>
                         </div>
-                        
-                        <div className="flex flex-wrap gap-1 mb-4">
-                          {pkg.tags.slice(0, 3).map((tag) => (
-                            <span
-                              key={tag}
-                              className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded"
-                            >
-                              {tag}
+                      </div>
+                      
+                      <h3 className="font-bold text-lg mb-1 group-hover:text-green-600 transition-colors">
+                        {pkg.name}
+                      </h3>
+                      
+                      <p className="text-gray-500 text-sm line-clamp-2 mb-3">
+                        {pkg.description}
+                      </p>
+                      
+                      <div className="flex items-center space-x-3 text-sm text-gray-500 mb-3">
+                        <span className="flex items-center">
+                          <Clock className="w-4 h-4 mr-1" />
+                          {pkg.cookTime}分钟
+                        </span>
+                        <span className="flex items-center">
+                          <Users className="w-4 h-4 mr-1" />
+                          {pkg.servingSize}人份
+                        </span>
+                        <span className="flex items-center">
+                          <ChefHat className="w-4 h-4 mr-1" />
+                          {getDifficultyText(pkg.difficulty)}
+                        </span>
+                      </div>
+                      
+                      <div className="flex flex-wrap gap-1 mb-4">
+                        {pkg.tags.slice(0, 3).map((tag) => (
+                          <span
+                            key={tag}
+                            className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded"
+                          >
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                      
+                      <div className="flex items-center justify-between mb-3">
+                        <div>
+                          <span className="text-2xl font-bold text-green-600">
+                            {formatPrice(pkg.price)}
+                          </span>
+                          {pkg.originalPrice > pkg.price && (
+                            <span className="text-sm text-gray-400 line-through ml-2">
+                              {formatPrice(pkg.originalPrice)}
                             </span>
-                          ))}
+                          )}
                         </div>
-                        
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <span className="text-2xl font-bold text-green-600">
-                              {formatPrice(pkg.price)}
-                            </span>
-                            {pkg.originalPrice > pkg.price && (
-                              <span className="text-sm text-gray-400 line-through ml-2">
-                                {formatPrice(pkg.originalPrice)}
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Link>
-                    
-                    <div className="px-4 pb-4">
+                      </div>
+                      
                       <Button
                         size="sm"
                         className="w-full bg-green-600 hover:bg-green-700"
                         onClick={(e) => {
-                          e.preventDefault();
                           e.stopPropagation();
                           handleAddToCart(pkg);
                         }}
@@ -323,7 +323,7 @@ export default function PackageList() {
                         <ShoppingCart className="w-4 h-4 mr-1" />
                         加入购物车
                       </Button>
-                    </div>
+                    </CardContent>
                   </Card>
                 ))}
               </div>
