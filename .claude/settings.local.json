@@ -1,7 +1,24 @@
 {
   "permissions": {
     "allow": [
-      "Bash(dir:*)"
+      "Bash(dir:*)",
+      "Bash(npm run dev)",
+      "Bash(npm run build)",
+      "Bash(npm start)",
+      "Bash(npm install)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push)",
+      "Bash(sudo systemctl:*)",
+      "Bash(TaskStop b4770c1)",
+      "Bash(netstat:*)",
+      "Bash(findstr:*)",
+      "Bash(taskkill:*)",
+      "Bash(mysql:*)",
+      "Bash(curl:*)",
+      "Bash(node:*)",
+      "Bash(sc query:*)",
+      "Bash(tasklist:*)"
     ]
   }
 }

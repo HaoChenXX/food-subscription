@@ -98,7 +98,7 @@ function formatFoodPackage(pkg) {
     id: pkg.id.toString(),
     name: pkg.name,
     description: pkg.description,
-    level: pkg.level === 'intermediate' ? 'advanced' : pkg.level, // 前端只有 basic/advanced/premium
+    level: pkg.level === 'basic' ? 'basic' : (pkg.level === 'intermediate' ? 'advanced' : 'premium'), // 映射到前端格式
     price: parseFloat(pkg.price),
     originalPrice: parseFloat(pkg.original_price || pkg.price),
     image: pkg.image,

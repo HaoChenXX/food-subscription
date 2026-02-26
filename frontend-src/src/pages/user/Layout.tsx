@@ -33,7 +33,11 @@ import {
   ChevronRight,
   Heart,
   Bell,
-  Search
+  Search,
+  Trash2,
+  Plus,
+  Minus,
+  X
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -262,11 +266,27 @@ export default function UserLayout() {
       {/* 购物车侧边栏 */}
       <Sheet open={useCartStore.getState().isOpen} onOpenChange={setIsOpen}>
         <SheetContent side="right" className="w-full sm:w-96">
-          <SheetHeader>
+          <SheetHeader className="flex flex-row items-center justify-between">
             <SheetTitle className="flex items-center">
               <ShoppingCart className="w-5 h-5 mr-2" />
               购物车 ({getTotalCount()})
             </SheetTitle>
+            {items.length > 0 && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-red-600 hover:text-red-700"
+                onClick={() => {
+                  if (confirm('确定要清空购物车吗？')) {
+                    useCartStore.getState().clearCart();
+                    toast.success('购物车已清空');
+                  }
+                }}
+              >
+                <Trash2 className="w-4 h-4 mr-1" />
+                清空
+              </Button>
+            )}
           </SheetHeader>
           <div className="mt-6 flex flex-col h-[calc(100vh-180px)]">
             {items.length === 0 ? (
@@ -286,27 +306,65 @@ export default function UserLayout() {
               </div>
             ) : (
               <>
-                <div className="flex-1 overflow-auto space-y-4">
+                <div className="flex-1 overflow-auto space-y-3">
                   {items.map((item) => (
                     <div
                       key={item.packageId}
-                      className="flex items-center space-x-4 p-3 bg-gray-50 rounded-lg"
+                      className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg group"
                     >
                       <img
                         src={item.packageImage}
                         alt={item.packageName}
-                        className="w-16 h-16 object-cover rounded-lg"
+                        className="w-16 h-16 object-cover rounded-lg flex-shrink-0"
                       />
-                      <div className="flex-1">
-                        <h4 className="font-medium text-sm">{item.packageName}</h4>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-start justify-between">
+                          <h4 className="font-medium text-sm truncate pr-2">{item.packageName}</h4>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-6 w-6 text-gray-400 hover:text-red-600 flex-shrink-0"
+                            onClick={() => {
+                              useCartStore.getState().removeItem(item.packageId);
+                              toast.success('已从购物车移除');
+                            }}
+                          >
+                            <X className="w-4 h-4" />
+                          </Button>
+                        </div>
                         <p className="text-gray-500 text-xs">
                           {item.subscriptionType === 'weekly' && '周订阅'}
                           {item.subscriptionType === 'monthly' && '月订阅'}
                           {item.subscriptionType === 'quarterly' && '季订阅'}
                         </p>
-                        <p className="text-green-600 font-medium">
-                          ¥{item.price} × {item.quantity}
-                        </p>
+                        <div className="flex items-center justify-between mt-2">
+                          <div className="flex items-center space-x-1">
+                            <Button
+                              variant="outline"
+                              size="icon"
+                              className="h-6 w-6"
+                              onClick={() =>
+                                useCartStore.getState().updateQuantity(item.packageId, Math.max(1, item.quantity - 1))
+                              }
+                            >
+                              <Minus className="w-3 h-3" />
+                            </Button>
+                            <span className="w-8 text-center text-sm font-medium">{item.quantity}</span>
+                            <Button
+                              variant="outline"
+                              size="icon"
+                              className="h-6 w-6"
+                              onClick={() =>
+                                useCartStore.getState().updateQuantity(item.packageId, Math.min(10, item.quantity + 1))
+                              }
+                            >
+                              <Plus className="w-3 h-3" />
+                            </Button>
+                          </div>
+                          <span className="text-green-600 font-medium text-sm">
+                            ¥{item.price * item.quantity}
+                          </span>
+                        </div>
                       </div>
                     </div>
                   ))}
