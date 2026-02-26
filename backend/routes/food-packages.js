@@ -4,7 +4,7 @@
 
 const express = require('express');
 const { query } = require('../db/connection');
-const { authMiddleware, merchantMiddleware } = require('../middleware/auth');
+const { authMiddleware, merchantMiddleware, adminMiddleware } = require('../middleware/auth');
 const { formatFoodPackage, safeJsonParse } = require('../utils/helpers');
 
 const router = express.Router();
@@ -288,6 +288,80 @@ router.get('/:id/inventory-logs', authMiddleware, merchantMiddleware, async (req
   } catch (error) {
     console.error('获取库存记录错误:', error);
     res.status(500).json({ message: '获取库存记录失败' });
+  }
+});
+
+// 获取所有库存数据（管理员）
+router.get('/admin/inventory', authMiddleware, adminMiddleware, async (req, res) => {
+  try {
+    // 获取所有食材包库存
+    const packages = await query(
+      `SELECT id, name, image, level, price, stock_quantity, status,
+              CASE 
+                WHEN level = 'basic' THEN 20
+                WHEN level = 'intermediate' THEN 15
+                WHEN level = 'advanced' THEN 10
+                ELSE 20
+              END as min_stock
+       FROM food_packages 
+       WHERE status != 'deleted'
+       ORDER BY stock_quantity ASC`
+    );
+    
+    // 获取所有食材库存
+    const ingredients = await query(
+      `SELECT i.*, s.name as supplier_name 
+       FROM ingredients i 
+       LEFT JOIN suppliers s ON i.supplier_id = s.id 
+       WHERE i.status = 'active'
+       ORDER BY i.stock_quantity ASC`
+    );
+    
+    // 获取库存统计
+    const totalValue = packages.reduce((sum, pkg) => sum + (parseFloat(pkg.price) * pkg.stock_quantity), 0);
+    const lowStockCount = packages.filter(pkg => pkg.stock_quantity < 20).length;
+    
+    // 格式化数据
+    const inventory = {
+      packages: packages.map(pkg => ({
+        id: pkg.id.toString(),
+        name: pkg.name,
+        image: pkg.image || 'https://via.placeholder.com/40',
+        category: pkg.level === 'basic' ? '基础套餐' : 
+                  pkg.level === 'intermediate' ? '进阶套餐' : '精品套餐',
+        stock: pkg.stock_quantity,
+        minStock: pkg.min_stock,
+        unit: '份',
+        price: parseFloat(pkg.price),
+        status: pkg.status,
+        isLow: pkg.stock_quantity < pkg.min_stock,
+        isOut: pkg.stock_quantity === 0
+      })),
+      ingredients: ingredients.map(ing => ({
+        id: ing.id.toString(),
+        name: ing.name,
+        category: ing.category,
+        stock: ing.stock_quantity,
+        minStock: ing.min_stock,
+        unit: ing.unit,
+        origin: ing.origin,
+        supplier: ing.supplier_name,
+        isLow: ing.stock_quantity < ing.min_stock,
+        isOut: ing.stock_quantity === 0
+      })),
+      stats: {
+        totalPackages: packages.length,
+        totalIngredients: ingredients.length,
+        totalValue: Math.round(totalValue),
+        lowStockCount,
+        outOfStockCount: packages.filter(p => p.stock_quantity === 0).length
+      }
+    };
+    
+    res.json(inventory);
+  } catch (error) {
+    console.error('获取管理员库存错误:', error);
+    res.status(500).json({ message: '获取库存失败' });
   }
 });
 

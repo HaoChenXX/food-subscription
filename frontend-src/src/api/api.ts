@@ -316,6 +316,44 @@ const realApi = {
     getAllSubscriptions: async () => {
       return fetchWithAuth<Subscription[]>('/admin/subscriptions');
     },
+    
+    // 获取管理员库存数据
+    getInventory: async () => {
+      return fetchWithAuth<{
+        packages: {
+          id: string;
+          name: string;
+          image: string;
+          category: string;
+          stock: number;
+          minStock: number;
+          unit: string;
+          price: number;
+          status: string;
+          isLow: boolean;
+          isOut: boolean;
+        }[];
+        ingredients: {
+          id: string;
+          name: string;
+          category: string;
+          stock: number;
+          minStock: number;
+          unit: string;
+          origin: string;
+          supplier: string;
+          isLow: boolean;
+          isOut: boolean;
+        }[];
+        stats: {
+          totalPackages: number;
+          totalIngredients: number;
+          totalValue: number;
+          lowStockCount: number;
+          outOfStockCount: number;
+        };
+      }>('/food-packages/admin/inventory');
+    },
   },
 };
 
