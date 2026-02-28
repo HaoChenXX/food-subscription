@@ -64,8 +64,75 @@ def backup_current():
         os.makedirs(os.path.dirname(BACKUP_DIR), exist_ok=True)
         shutil.copytree(PROJECT_DIR, BACKUP_DIR)
         print(f"  ✓ 备份完成: {BACKUP_DIR}")
+
+        # 清理旧备份，只保留最近5个版本
+        print("  清理旧备份...")
+        cleanup_old_backups(keep_count=5)
     else:
         raise RuntimeError(f"项目目录不存在: {PROJECT_DIR}")
+
+def cleanup_old_backups(keep_count=5):
+    """清理旧的备份，只保留指定数量的最新备份"""
+    backup_parent = os.path.dirname(BACKUP_DIR)  # /var/www/backups
+    if not os.path.exists(backup_parent):
+        print(f"  ! 备份目录不存在: {backup_parent}")
+        return
+
+    # 查找所有 food-subscription- 开头的备份目录
+    backup_dirs = []
+    try:
+        for item in os.listdir(backup_parent):
+            if item.startswith("food-subscription-") and os.path.isdir(os.path.join(backup_parent, item)):
+                backup_path = os.path.join(backup_parent, item)
+                backup_dirs.append(backup_path)
+    except Exception as e:
+        print(f"  ! 读取备份目录失败: {e}")
+        return
+
+    if not backup_dirs:
+        print(f"  ! 未找到备份目录")
+        return
+
+    # 按目录名中的时间戳排序（最新的在前）
+    def get_backup_timestamp(backup_path):
+        """从备份目录名中提取时间戳，返回 datetime 对象"""
+        dir_name = os.path.basename(backup_path)
+        try:
+            # 目录名格式: food-subscription-YYYYMMDD-HHMMSS
+            if dir_name.startswith("food-subscription-"):
+                timestamp_str = dir_name[len("food-subscription-"):]
+                # 格式: YYYYMMDD-HHMMSS
+                return datetime.datetime.strptime(timestamp_str, "%Y%m%d-%H%M%S")
+        except (ValueError, IndexError):
+            pass
+        # 如果解析失败，使用文件修改时间
+        return datetime.datetime.fromtimestamp(os.path.getmtime(backup_path))
+
+    backup_dirs.sort(key=get_backup_timestamp, reverse=True)
+
+    total_backups = len(backup_dirs)
+    if total_backups <= keep_count:
+        print(f"  ✓ 备份数量 ({total_backups}) 未超过保留限制 ({keep_count})")
+        return
+
+    # 需要删除的旧备份（排除当前备份目录）
+    backups_to_delete = [
+        backup_dir for backup_dir in backup_dirs[keep_count:]
+        if os.path.normpath(backup_dir) != os.path.normpath(BACKUP_DIR)
+    ]
+    print(f"  ! 发现 {total_backups} 个备份，保留最新的 {keep_count} 个")
+
+    deleted_count = 0
+    for backup_dir in backups_to_delete:
+        try:
+            shutil.rmtree(backup_dir)
+            print(f"    删除旧备份: {os.path.basename(backup_dir)}")
+            deleted_count += 1
+        except Exception as e:
+            print(f"    ! 删除失败 {os.path.basename(backup_dir)}: {e}")
+
+    print(f"  ✓ 已清理 {deleted_count} 个旧备份")
+    return deleted_count
 
 def fix_git_ownership():
     """修复 Git 目录所有权问题"""
