@@ -21,6 +21,7 @@ npm install              # Install dependencies
 npm run dev             # Start dev server (Vite)
 npm run build           # Build for production
 npm run lint            # Run ESLint
+npm run preview         # Preview production build
 ```
 
 ### Backend Development
@@ -41,6 +42,9 @@ sudo bash deploy.sh
 sudo bash v1_2.sh
 ```
 
+### Testing
+This project currently has no automated testing infrastructure. No test files, test directories, or testing frameworks are configured.
+
 ## Architecture Overview
 
 ### Directory Structure
@@ -56,6 +60,13 @@ sudo bash v1_2.sh
   - `src/store/` - Zustand state management
 - `frontend/dist/` - Production build output (served by Nginx)
 - `nginx/` - Nginx configuration
+
+### Configuration Files
+Key configuration files:
+- `backend/db/config.js` - MySQL database configuration with environment variable support
+- `nginx/food-subscription.conf` - Nginx reverse proxy configuration for production
+- `backend/package.json` / `frontend-src/package.json` - Dependencies and scripts
+- `update-server.py` - Python script for server updates (used in production)
 
 ### API Architecture
 The backend follows RESTful conventions with these main endpoints:
@@ -79,6 +90,13 @@ MySQL database with tables for:
 - addresses
 - payments
 - inventory_logs
+
+### Database Architecture
+The project initially used JSON file storage (`backend/scripts/init-db.js`) but now uses MySQL as the primary database. Both initialization scripts exist:
+- `backend/db/init-mysql.js` - MySQL database initialization (creates tables and inserts seed data)
+- `backend/scripts/init-db.js` - Legacy JSON file initialization (no longer used)
+
+Database configuration is in `backend/db/config.js` with environment variable support. No database migration system exists; only initialization scripts.
 
 ### Frontend Routing
 React Router with role-based route protection:
@@ -118,9 +136,54 @@ Zustand stores in `frontend-src/src/store/`:
 4. systemd service for automatic startup
 5. GitHub Actions for automated deployment
 
+### Environment Variables
+The backend supports the following environment variables (configured in `backend/db/config.js`):
+- `DB_HOST` - MySQL host (default: localhost)
+- `DB_USER` - MySQL user (default: food_user)
+- `DB_PASSWORD` - MySQL password (default: food123456)
+- `DB_NAME` - Database name (default: food_subscription)
+- `PORT` - Backend server port (default: 3001)
+- `JWT_SECRET` - Secret for JWT signing
+- `NODE_ENV` - Node environment (production/development)
+
+Note: No `.env.example` file exists; environment variables must be set directly or hardcoded in config.js.
+
+### Deployment Scripts
+Multiple shell scripts are available for deployment and maintenance:
+- `deploy.sh` - Main deployment script for v1.1 (JSON-based database)
+- `deploy-v1.1.sh` - Similar to deploy.sh with version-specific naming
+- `v1_2.sh` - v1.2 upgrade script (adds MySQL support)
+- `fix-v1.2.sh` - Fix script for v1.2 issues
+- `auto-deploy.sh` - Automated deployment script
+- `update-server.sh` - Server update script
+- `fix-login.sh` - Login issue fix script
+
+These scripts are intended for production deployment and require sudo privileges.
+
 ## Default Test Accounts
 | Role | Email | Password |
 |------|-------|----------|
 | Admin | admin@example.com | admin123 |
 | Merchant | merchant@example.com | merchant123 |
 | User | user@example.com | user123 |
+
+## Known Issues
+Refer to README.md for detailed known issues. Key ongoing issues include:
+- Clicking food package cards may not navigate to details page
+- Homepage recommendations may not display
+- Shopping cart management may have lingering issues
+- Payment order creation may fail
+- Orders may disappear after payment
+
+These issues are documented in README.md with status and possible workarounds.
+
+## Dual Repository Configuration
+The project is synchronized between two Git repositories:
+- **GitHub**: https://github.com/HaoChenXX/food-subscription (public backup)
+- **Huawei CodeArts**: git@codehub.devcloud.cn-north-4.huaweicloud.com:a384bf0b99f140dbaa16281939ab38b1/huawei_food_subscription.git (primary production repository)
+
+Use `git remote -v` to see both remotes. Deployment scripts pull from CodeArts. For local development, you can push to both remotes with:
+```bash
+git push origin main  # CodeArts
+git push github main # GitHub
+```
