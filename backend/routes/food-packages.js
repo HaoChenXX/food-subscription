@@ -141,20 +141,22 @@ router.post('/', authMiddleware, merchantMiddleware, async (req, res) => {
     const {
       name, description, level, price, originalPrice, image,
       tags, ingredients, recipes, seasonings, nutritionInfo,
-      stockQuantity
+      stockQuantity, cookTime, servingSize, difficulty, rating, reviewCount, soldCount, isLimited, limitedTime
     } = req.body;
-    
+
     const result = await query(
-      `INSERT INTO food_packages 
-       (name, description, level, price, original_price, image, tags, 
-        ingredients, recipes, seasonings, nutrition_info, stock_quantity, merchant_id)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO food_packages
+       (name, description, level, price, original_price, image, tags,
+        ingredients, recipes, seasonings, nutrition_info, stock_quantity, merchant_id,
+        cook_time, serving_size, difficulty, rating, review_count, sold_count, is_limited, limited_time)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [name, description, level, price, originalPrice, image,
        JSON.stringify(tags || []), JSON.stringify(ingredients || []),
        JSON.stringify(recipes || []), JSON.stringify(seasonings || []),
-       JSON.stringify(nutritionInfo || {}), stockQuantity || 100, req.user.id]
+       JSON.stringify(nutritionInfo || {}), stockQuantity || 100, req.user.id,
+       cookTime || 0, servingSize || 2, difficulty || 'medium', rating || 4.5, reviewCount || 0, soldCount || 0, isLimited ? 1 : 0, limitedTime || null]
     );
-    
+
     const packages = await query('SELECT * FROM food_packages WHERE id = ?', [result.insertId]);
     res.status(201).json(formatFoodPackage(packages[0]));
   } catch (error) {
@@ -169,31 +171,34 @@ router.put('/:id', authMiddleware, merchantMiddleware, async (req, res) => {
     const {
       name, description, level, price, originalPrice, image,
       tags, ingredients, recipes, seasonings, nutritionInfo,
-      stockQuantity, status
+      stockQuantity, status, cookTime, servingSize, difficulty, rating, reviewCount, soldCount, isLimited, limitedTime
     } = req.body;
-    
+
     // 检查权限
     const existing = await query('SELECT * FROM food_packages WHERE id = ?', [req.params.id]);
     if (existing.length === 0) {
       return res.status(404).json({ message: '食材包不存在' });
     }
-    
+
     if (req.user.role !== 'admin' && existing[0].merchant_id !== req.user.id) {
       return res.status(403).json({ message: '无权修改此食材包' });
     }
-    
+
     await query(
-      `UPDATE food_packages SET 
+      `UPDATE food_packages SET
         name = ?, description = ?, level = ?, price = ?, original_price = ?,
         image = ?, tags = ?, ingredients = ?, recipes = ?, seasonings = ?,
-        nutrition_info = ?, stock_quantity = ?, status = ?
+        nutrition_info = ?, stock_quantity = ?, status = ?,
+        cook_time = ?, serving_size = ?, difficulty = ?, rating = ?, review_count = ?, sold_count = ?, is_limited = ?, limited_time = ?
        WHERE id = ?`,
       [name, description, level, price, originalPrice, image,
        JSON.stringify(tags || []), JSON.stringify(ingredients || []),
        JSON.stringify(recipes || []), JSON.stringify(seasonings || []),
-       JSON.stringify(nutritionInfo || {}), stockQuantity, status, req.params.id]
+       JSON.stringify(nutritionInfo || {}), stockQuantity, status,
+       cookTime || 0, servingSize || 2, difficulty || 'medium', rating || 4.5, reviewCount || 0, soldCount || 0, isLimited ? 1 : 0, limitedTime || null,
+       req.params.id]
     );
-    
+
     const packages = await query('SELECT * FROM food_packages WHERE id = ?', [req.params.id]);
     res.json(formatFoodPackage(packages[0]));
   } catch (error) {

@@ -73,27 +73,29 @@ function formatUser(user) {
 // 格式化食材包数据 - 转换为前端期望的格式
 function formatFoodPackage(pkg) {
   if (!pkg) return null;
-  
+
   // 解析 JSON 字段
   const tags = safeJsonParse(pkg.tags, []);
   const ingredients = safeJsonParse(pkg.ingredients, []);
   const recipes = safeJsonParse(pkg.recipes, []);
   const seasonings = safeJsonParse(pkg.seasonings, []);
   const nutritionInfo = safeJsonParse(pkg.nutrition_info, {});
-  
-  // 计算总烹饪时间（从食谱步骤中累加）
-  let cookTime = 0;
-  if (recipes && recipes.length > 0 && recipes[0].steps) {
+
+  // 使用数据库字段，如果不存在则使用计算值（向后兼容）
+  let cookTime = pkg.cook_time || 0;
+  if (cookTime === 0 && recipes && recipes.length > 0 && recipes[0].steps) {
     cookTime = recipes[0].steps.reduce((sum, step) => sum + (step.duration || 0), 0);
   }
-  
-  // 估算份量（根据食材数量估算，或默认2人份）
-  const servingSize = ingredients.length > 0 ? Math.min(2 + Math.floor(ingredients.length / 3), 6) : 2;
-  
-  // 根据等级判断难度
+
+  let servingSize = pkg.serving_size || 2;
+  if (servingSize === 2 && ingredients.length > 0) {
+    servingSize = Math.min(2 + Math.floor(ingredients.length / 3), 6);
+  }
+
+  // 根据等级判断难度（如果数据库没有difficulty字段）
   const difficultyMap = { basic: 'easy', intermediate: 'medium', advanced: 'hard' };
-  const difficulty = difficultyMap[pkg.level] || 'medium';
-  
+  const difficulty = pkg.difficulty || difficultyMap[pkg.level] || 'medium';
+
   return {
     id: pkg.id.toString(),
     name: pkg.name,
@@ -107,15 +109,16 @@ function formatFoodPackage(pkg) {
     recipes: recipes,
     seasonings: seasonings,
     nutritionInfo: nutritionInfo,
-    // 前端需要的额外字段（默认值或计算）
+    // 前端需要的额外字段（优先使用数据库值）
     servingSize: servingSize,
     cookTime: cookTime,
     difficulty: difficulty,
-    rating: 4.5 + Math.random() * 0.5, // 临时：随机评分 4.5-5.0
-    reviewCount: Math.floor(Math.random() * 200) + 50, // 临时：随机评论数 50-250
-    soldCount: Math.floor(Math.random() * 500) + 100, // 临时：随机销量 100-600
+    rating: parseFloat(pkg.rating) || 4.5, // 使用数据库值，默认4.5
+    reviewCount: pkg.review_count || 0, // 使用数据库值，默认0
+    soldCount: pkg.sold_count || 0, // 使用数据库值，默认0
     isLimited: pkg.is_limited === 1,
-    limitedTime: pkg.is_limited ? new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString() : undefined,
+    limitedTime: pkg.limited_time ? new Date(pkg.limited_time).toISOString() :
+                (pkg.is_limited ? new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString() : undefined),
     // 保留原始字段
     stockQuantity: pkg.stock_quantity,
     status: pkg.status,

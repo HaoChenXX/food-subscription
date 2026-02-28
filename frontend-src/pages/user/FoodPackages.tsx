@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useFoodPackageStore, useCartStore } from '@/store';
-import { mockApi } from '@/api/mock';
+import api from '@/api';
 import {
   Search,
   ShoppingCart,
@@ -32,6 +32,7 @@ const tagFilters = [
 ];
 
 export default function FoodPackages() {
+  const navigate = useNavigate();
   const { packages, setPackages } = useFoodPackageStore();
   const { addItem, setIsOpen } = useCartStore();
   const [searchQuery, setSearchQuery] = useState('');
@@ -42,7 +43,7 @@ export default function FoodPackages() {
   // 获取所有食材包
   const { data, isLoading } = useQuery({
     queryKey: ['foodPackages'],
-    queryFn: () => mockApi.foodPackages.getAll()
+    queryFn: () => api.foodPackages.getAll()
   });
 
   useEffect(() => {
@@ -189,8 +190,11 @@ export default function FoodPackages() {
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {filteredPackages.map((pkg) => (
-                  <Card key={pkg.id} className="overflow-hidden hover:shadow-xl transition-shadow group">
-                    <Link to={`/packages/${pkg.id}`}>
+                  <Card
+                    key={pkg.id}
+                    className="overflow-hidden hover:shadow-xl transition-shadow group cursor-pointer"
+                    onClick={() => navigate(`/packages/${pkg.id}`)}
+                  >
                       <div className="relative">
                         <img
                           src={pkg.image}
@@ -212,7 +216,6 @@ export default function FoodPackages() {
                           </div>
                         )}
                       </div>
-                    </Link>
                     
                     <CardContent className="p-4">
                       <div className="flex items-center space-x-2 mb-2">
