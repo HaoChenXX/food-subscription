@@ -83,3 +83,6 @@ Desktop.ini
 logs/
 *.log
 log/
+
+# Claude Code settings
+.claude/
