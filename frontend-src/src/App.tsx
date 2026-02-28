@@ -56,7 +56,7 @@ const queryClient = new QueryClient({
 const AuthInitializer = ({ children }: { children: React.ReactNode }) => {
   const { token, logout, login } = useAuthStore();
   const [isChecking, setIsChecking] = useState(true);
-  
+
   useEffect(() => {
     const validateToken = async () => {
       if (token) {
@@ -75,10 +75,10 @@ const AuthInitializer = ({ children }: { children: React.ReactNode }) => {
       }
       setIsChecking(false);
     };
-    
+
     validateToken();
   }, [token]); // 添加 token 依赖，确保 token 变化时重新验证
-  
+
   // 监听存储变化（处理多标签页登录状态同步）
   useEffect(() => {
     const handleStorageChange = (e: StorageEvent) => {
@@ -87,11 +87,28 @@ const AuthInitializer = ({ children }: { children: React.ReactNode }) => {
         window.location.reload();
       }
     };
-    
+
     window.addEventListener('storage', handleStorageChange);
     return () => window.removeEventListener('storage', handleStorageChange);
   }, []);
-  
+
+  // 监听页面可见性变化 - 解决浏览器返回黑屏问题
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        // 页面重新可见时，重新验证token或刷新页面状态
+        console.log('页面重新可见，刷新状态');
+        // 简单刷新页面，确保状态更新
+        window.location.reload();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, []);
+
   if (isChecking) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -99,7 +116,7 @@ const AuthInitializer = ({ children }: { children: React.ReactNode }) => {
       </div>
     );
   }
-  
+
   return <>{children}</>;
 };
 
@@ -108,13 +125,24 @@ const ProtectedRoute = ({ children, allowedRoles }: { children: React.ReactNode;
   const { isAuthenticated, user } = useAuthStore();
   const location = useLocation();
   const [isReady, setIsReady] = useState(false);
-  
+
   useEffect(() => {
-    // 短暂延迟确保状态已同步
-    const timer = setTimeout(() => setIsReady(true), 100);
+    // 更长的延迟确保认证状态已完全同步
+    const timer = setTimeout(() => setIsReady(true), 300);
     return () => clearTimeout(timer);
   }, [isAuthenticated, user]);
-  
+
+  // 超时保护：如果5秒后仍未就绪，强制设置为就绪状态
+  useEffect(() => {
+    const timeoutTimer = setTimeout(() => {
+      if (!isReady) {
+        console.log('ProtectedRoute超时，强制设置为就绪状态');
+        setIsReady(true);
+      }
+    }, 5000);
+    return () => clearTimeout(timeoutTimer);
+  }, [isReady]);
+
   if (!isReady) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -122,24 +150,24 @@ const ProtectedRoute = ({ children, allowedRoles }: { children: React.ReactNode;
       </div>
     );
   }
-  
+
   if (!isAuthenticated) {
     return <Navigate to="/login" replace state={{ from: location }} />;
   }
-  
+
   // 检查角色权限
   if (allowedRoles && user) {
     // 如果用户是 admin，但当前路由只允许 merchant（不包括 admin），则重定向到 /admin
     if (user.role === 'admin' && !allowedRoles.includes('admin')) {
       return <Navigate to="/admin" replace />;
     }
-    
+
     // 其他角色权限检查
     if (!allowedRoles.includes(user.role)) {
       return <Navigate to="/" replace />;
     }
   }
-  
+
   return <>{children}</>;
 };
 
