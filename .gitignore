@@ -8,8 +8,8 @@ package-lock.json
 yarn.lock
 
 # Build outputs
-frontend/dist/
-frontend-src/dist/
+# frontend/dist/
+# frontend-src/dist/
 
 # Environment variables
 .env
