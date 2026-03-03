@@ -1,6 +1,7 @@
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { useAuthStore, useCartStore, useUIStore } from '@/store';
+import { RebuildNotice } from '@/components/RebuildNotice';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -70,7 +71,9 @@ export default function UserLayout() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
+    <>
+      <RebuildNotice />
+      <div className="min-h-screen bg-gray-50 flex pt-[72px]">
       {/* 桌面端侧边栏 */}
       <aside
         className={`hidden lg:flex flex-col bg-white border-r border-gray-200 transition-all duration-300 ${
@@ -392,5 +395,6 @@ export default function UserLayout() {
         </SheetContent>
       </Sheet>
     </div>
+    </>
   );
 }
