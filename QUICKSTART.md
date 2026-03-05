@@ -44,7 +44,7 @@ sudo bash deploy.sh
 
 打开浏览器访问：
 ```
-http://你的服务器IP:8080
+http://你的服务器IP
 ```
 
 ## 测试账号
@@ -73,7 +73,7 @@ sudo journalctl -u food-subscription -n 50
 可能是 dist 目录为空，需要构建前端。参考 `BUILD-FRONTEND.md`。
 
 ### Q: 如何修改端口？
-编辑 `nginx/food-subscription.conf` 中的 `listen 8080`，然后重新部署。
+编辑 `nginx/food-subscription.conf` 中的 `listen 80`，然后重新部署。
 
 ## 目录说明
 

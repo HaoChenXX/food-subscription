@@ -239,11 +239,18 @@ async function initDatabase() {
     connection = await mysql.createConnection({ ...DB_CONFIG, database: DB_NAME });
     console.log(`✓ 已连接到数据库 '${DB_NAME}'`);
     
-    // 创建表
+    // 创建表 - 逐个执行，增加错误处理
     const statements = TABLES_SQL.split(';').filter(s => s.trim());
-    for (const statement of statements) {
-      if (statement.trim()) {
-        await connection.execute(statement);
+    for (let i = 0; i < statements.length; i++) {
+      const statement = statements[i].trim();
+      if (statement) {
+        try {
+          await connection.execute(statement);
+        } catch (err) {
+          console.error(`✗ 执行SQL失败: ${err.message}`);
+          console.error(`SQL: ${statement.substring(0, 100)}...`);
+          throw err;
+        }
       }
     }
     console.log('✓ 所有数据表创建成功');

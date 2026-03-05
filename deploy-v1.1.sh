@@ -111,7 +111,7 @@ chown -R www-data:www-data "${FRONTEND_DIR}"
 echo -e "${GREEN}步骤 6/6: 配置 Nginx...${NC}"
 cat > "${NGINX_CONF}" << 'EOF'
 server {
-    listen 8080;
+    listen 80;
     server_name _;
     root /var/www/food-subscription-v1.1/frontend/dist;
     index index.html;

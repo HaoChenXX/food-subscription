@@ -175,7 +175,7 @@ CURRENT_DIR_NAME=$(basename "${PROJECT_DIR}")
 
 cat > "${NGINX_CONF}" << EOF
 server {
-    listen 8080;
+    listen 80;
     server_name _;
     root ${PROJECT_DIR}/frontend/dist;
     index index.html;
