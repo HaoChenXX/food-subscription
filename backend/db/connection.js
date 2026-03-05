@@ -2,7 +2,7 @@
  * 数据库连接模块 - 使用内存数据库作为MySQL的临时替代
  */
 
-const { ensureInitialized, query } = require('./memory-db-simple');
+const { ensureInitialized, query: memoryQuery } = require('./memory-db-simple');
 
 let pool = null;
 
@@ -27,7 +27,7 @@ async function getConnection() {
 // 执行查询
 async function query(sql, params = []) {
   await initPool();
-  return require('./memory-db-simple').query(sql, params);
+  return memoryQuery(sql, params);
 }
 
 // 执行事务（简化版，不支持回滚）
