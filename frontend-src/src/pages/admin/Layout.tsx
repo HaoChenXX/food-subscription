@@ -1,7 +1,6 @@
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { useAuthStore, useUIStore } from '@/store';
-import { RebuildNotice } from '@/components/RebuildNotice';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
@@ -62,8 +61,7 @@ export default function AdminLayout() {
 
   return (
     <>
-      <RebuildNotice />
-      <div className="min-h-screen bg-gray-50 flex pt-[72px]">
+      <div className="min-h-screen bg-gray-50 flex">
       {/* 桌面端侧边栏 */}
       <aside
         className={`hidden lg:flex flex-col bg-slate-900 text-white transition-all duration-300 ${

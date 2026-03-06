@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Eye, EyeOff, Loader2, ArrowLeft, User, Store, AlertTriangle, Clock } from 'lucide-react';
+import { Eye, EyeOff, Loader2, ArrowLeft, User, Store } from 'lucide-react';
 import { useAuthStore } from '@/store';
 import api from '@/api';
 
@@ -81,25 +81,6 @@ export default function Register() {
           <p className="text-sm text-gray-500 mt-1">县域富民食材订阅平台</p>
         </div>
 
-        {/* 重构提示 */}
-        <div className="w-full bg-gradient-to-r from-amber-500 via-orange-500 to-red-500 text-white rounded-xl p-4 shadow-lg mb-6 animate-pulse">
-          <div className="flex items-start gap-3">
-            <div className="flex-shrink-0 w-8 h-8 rounded-full bg-white/20 flex items-center justify-center mt-0.5">
-              <AlertTriangle className="w-5 h-5" />
-            </div>
-            <div className="flex-1">
-              <h3 className="font-bold text-base">🚧 系统即将重构升级</h3>
-              <p className="text-white/90 text-sm mt-1">
-                平台即将进行全面重构，<span className="font-bold underline">各项服务可能随时暂停</span>
-              </p>
-              <div className="flex items-center gap-2 mt-2 bg-white/20 px-3 py-1 rounded-full w-fit">
-                <Clock className="w-3.5 h-3.5" />
-                <span className="text-xs font-medium">预计维护时间：近期</span>
-              </div>
-            </div>
-          </div>
-        </div>
-        
         <Card className="shadow-xl border-0">
           <CardHeader className="text-center">
             <CardTitle className="text-xl font-bold text-gray-900">创建账户</CardTitle>
