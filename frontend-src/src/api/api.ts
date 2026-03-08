@@ -91,7 +91,7 @@ const demoOrders: Order[] = [
 // ID 2: 增肌能量套餐 - https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?w=800&auto=format&fit=crop - ¥129
 // ID 3: 地中海风味套餐 - https://images.unsplash.com/photo-1543339308-43e59d6b73a6?w=800&auto=format&fit=crop - ¥159
 
-// 演示订阅数据
+// 演示订阅数据 - 进行中、已暂停、已取消各一个
 const demoSubscriptions: Subscription[] = [
   {
     id: 'SUB202503010001',
@@ -104,6 +104,30 @@ const demoSubscriptions: Subscription[] = [
     totalDeliveries: 4,
     completedDeliveries: 1,
     price: 89
+  },
+  {
+    id: 'SUB202502150002',
+    userId: '3',
+    packageId: '2',
+    type: 'monthly',
+    status: 'paused',
+    startDate: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+    nextDeliveryDate: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+    totalDeliveries: 2,
+    completedDeliveries: 2,
+    price: 129
+  },
+  {
+    id: 'SUB202501100003',
+    userId: '3',
+    packageId: '3',
+    type: 'weekly',
+    status: 'cancelled',
+    startDate: new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+    nextDeliveryDate: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+    totalDeliveries: 4,
+    completedDeliveries: 4,
+    price: 159
   }
 ];
 
