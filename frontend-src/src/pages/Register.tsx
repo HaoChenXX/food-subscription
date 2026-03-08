@@ -75,7 +75,7 @@ export default function Register() {
         {/* Logo & Brand */}
         <div className="flex flex-col items-center justify-center mb-6">
           <div className="w-20 h-20 rounded-2xl flex items-center justify-center shadow-lg overflow-hidden bg-gradient-to-br from-green-100 to-emerald-50">
-            <img src="/logo.png" alt="梓里炊烟" className="w-16 h-16 object-contain" />
+            <img src="/logo.svg" alt="梓里炊烟" className="w-16 h-16 object-contain" />
           </div>
           <h1 className="mt-4 text-2xl font-bold text-gray-900">梓里炊烟</h1>
           <p className="text-sm text-gray-500 mt-1">县域富民食材订阅平台</p>

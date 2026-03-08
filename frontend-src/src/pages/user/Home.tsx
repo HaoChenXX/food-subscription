@@ -72,7 +72,7 @@ export default function UserHome() {
         <div className="relative z-10 flex flex-col lg:flex-row lg:items-center lg:justify-between">
           <div>
             <div className="flex items-center gap-2 mb-2">
-              <img src="/logo.png" alt="梓里炊烟" className="w-8 h-8 rounded-lg" />
+              <img src="/logo.svg" alt="梓里炊烟" className="w-8 h-8 rounded-lg" />
               <span className="text-green-100 text-sm font-medium">梓里炊烟</span>
             </div>
             <h1 className="text-2xl lg:text-3xl font-bold mb-2">

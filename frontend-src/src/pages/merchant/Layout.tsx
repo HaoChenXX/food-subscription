@@ -71,7 +71,7 @@ export default function MerchantLayout() {
         <div className="h-16 flex items-center justify-center border-b border-gray-200">
           <Link to="/merchant" className="flex items-center space-x-2">
             <div className="w-10 h-10 rounded-xl flex items-center justify-center overflow-hidden bg-gradient-to-br from-green-100 to-emerald-50 shadow-sm">
-              <img src="/logo.png" alt="梓里炊烟" className="w-8 h-8 object-contain" />
+              <img src="/logo.svg" alt="梓里炊烟" className="w-8 h-8 object-contain" />
             </div>
             {sidebarOpen && (
               <div className="flex flex-col">
@@ -134,7 +134,7 @@ export default function MerchantLayout() {
                 <SheetHeader className="p-6 border-b border-gray-200">
                   <SheetTitle className="flex items-center space-x-2">
                     <div className="w-10 h-10 rounded-xl flex items-center justify-center overflow-hidden bg-gradient-to-br from-green-100 to-emerald-50 shadow-sm">
-                      <img src="/logo.png" alt="梓里炊烟" className="w-8 h-8 object-contain" />
+                      <img src="/logo.svg" alt="梓里炊烟" className="w-8 h-8 object-contain" />
                     </div>
                     <div className="flex flex-col">
                       <span className="font-bold text-base">梓里炊烟</span>
