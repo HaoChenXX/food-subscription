@@ -18,7 +18,9 @@
       "Bash(curl:*)",
       "Bash(node:*)",
       "Bash(sc query:*)",
-      "Bash(tasklist:*)"
+      "Bash(tasklist:*)",
+      "WebFetch(domain:39.104.25.212)",
+      "Bash(pip install:*)"
     ]
   }
 }

@@ -109,6 +109,88 @@ export const useFoodPackageStore = create<FoodPackageState>((set) => ({
   setLoading: (loading) => set({ isLoading: loading })
 }));
 
+// 演示订单数据
+const demoOrders: Order[] = [
+  {
+    id: 'ORD202503080001',
+    userId: '3',
+    packageId: '1',
+    packageName: '健康减脂套餐',
+    packageImage: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=800&auto=format&fit=crop',
+    quantity: 1,
+    price: 89,
+    totalAmount: 89,
+    subscriptionType: 'weekly',
+    status: 'pending_payment',
+    deliveryDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+    deliveryTimeSlot: '09:00-12:00',
+    address: {
+      id: 'addr001',
+      name: '张三',
+      phone: '13700137000',
+      province: '北京市',
+      city: '北京市',
+      district: '朝阳区',
+      address: '建国路88号SOHO现代城1号楼101室',
+      isDefault: true
+    },
+    createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+    updatedAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString()
+  },
+  {
+    id: 'ORD202503070002',
+    userId: '3',
+    packageId: '2',
+    packageName: '增肌能量套餐',
+    packageImage: 'https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?w=800&auto=format&fit=crop',
+    quantity: 1,
+    price: 129,
+    totalAmount: 129,
+    subscriptionType: 'monthly',
+    status: 'preparing',
+    deliveryDate: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+    deliveryTimeSlot: '14:00-18:00',
+    address: {
+      id: 'addr002',
+      name: '张三',
+      phone: '13700137000',
+      province: '北京市',
+      city: '北京市',
+      district: '海淀区',
+      address: '中关村大街1号中关村广场购物中心B2层',
+      isDefault: false
+    },
+    createdAt: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
+    updatedAt: new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString()
+  },
+  {
+    id: 'ORD202503030003',
+    userId: '3',
+    packageId: '3',
+    packageName: '地中海风味套餐',
+    packageImage: 'https://images.unsplash.com/photo-1543339308-43e59d6b73a6?w=800&auto=format&fit=crop',
+    quantity: 2,
+    price: 159,
+    totalAmount: 318,
+    subscriptionType: 'weekly',
+    status: 'delivered',
+    deliveryDate: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+    deliveryTimeSlot: '09:00-12:00',
+    address: {
+      id: 'addr003',
+      name: '张三',
+      phone: '13700137000',
+      province: '北京市',
+      city: '北京市',
+      district: '西城区',
+      address: '金融大街7号英蓝国际金融中心',
+      isDefault: false
+    },
+    createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
+    updatedAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString()
+  }
+];
+
 // 订单状态
 interface OrderState {
   orders: Order[];
@@ -121,18 +203,41 @@ interface OrderState {
   setLoading: (loading: boolean) => void;
 }
 
-export const useOrderStore = create<OrderState>((set) => ({
-  orders: [],
-  currentOrder: null,
-  isLoading: false,
-  setOrders: (orders) => set({ orders }),
-  addOrder: (order) => set((state) => ({ orders: [order, ...state.orders] })),
-  updateOrder: (order) => set((state) => ({
-    orders: state.orders.map((o) => (o.id === order.id ? order : o))
-  })),
-  setCurrentOrder: (order) => set({ currentOrder: order }),
-  setLoading: (loading) => set({ isLoading: loading })
-}));
+export const useOrderStore = create<OrderState>()(
+  persist(
+    (set) => ({
+      orders: demoOrders,
+      currentOrder: null,
+      isLoading: false,
+      setOrders: (orders) => set({ orders }),
+      addOrder: (order) => set((state) => ({ orders: [order, ...state.orders] })),
+      updateOrder: (order) => set((state) => ({
+        orders: state.orders.map((o) => (o.id === order.id ? order : o))
+      })),
+      setCurrentOrder: (order) => set({ currentOrder: order }),
+      setLoading: (loading) => set({ isLoading: loading })
+    }),
+    {
+      name: 'order-storage'
+    }
+  )
+);
+
+// 演示订阅数据
+const demoSubscriptions: Subscription[] = [
+  {
+    id: 'SUB202503010001',
+    userId: '3',
+    packageId: '1',
+    type: 'weekly',
+    status: 'active',
+    startDate: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+    nextDeliveryDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+    totalDeliveries: 4,
+    completedDeliveries: 1,
+    price: 89
+  }
+];
 
 // 订阅状态
 interface SubscriptionState {
@@ -144,20 +249,27 @@ interface SubscriptionState {
   setLoading: (loading: boolean) => void;
 }
 
-export const useSubscriptionStore = create<SubscriptionState>((set) => ({
-  subscriptions: [],
-  isLoading: false,
-  setSubscriptions: (subscriptions) => set({ subscriptions }),
-  addSubscription: (subscription) => set((state) => ({
-    subscriptions: [subscription, ...state.subscriptions]
-  })),
-  updateSubscription: (subscription) => set((state) => ({
-    subscriptions: state.subscriptions.map((s) =>
-      s.id === subscription.id ? subscription : s
-    )
-  })),
-  setLoading: (loading) => set({ isLoading: loading })
-}));
+export const useSubscriptionStore = create<SubscriptionState>()(
+  persist(
+    (set) => ({
+      subscriptions: demoSubscriptions,
+      isLoading: false,
+      setSubscriptions: (subscriptions) => set({ subscriptions }),
+      addSubscription: (subscription) => set((state) => ({
+        subscriptions: [subscription, ...state.subscriptions]
+      })),
+      updateSubscription: (subscription) => set((state) => ({
+        subscriptions: state.subscriptions.map((s) =>
+          s.id === subscription.id ? subscription : s
+        )
+      })),
+      setLoading: (loading) => set({ isLoading: loading })
+    }),
+    {
+      name: 'subscription-storage'
+    }
+  )
+);
 
 // 购物车状态
 interface CartItem {
