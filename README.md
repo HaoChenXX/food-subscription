@@ -248,21 +248,25 @@ NODE_ENV=production
 ## 🛠️ 技术栈
 
 ### 前端
-- **框架**: React 19 + TypeScript
-- **构建**: Vite 7
+- **框架**: React 19.2 + TypeScript 5.9
+- **构建**: Vite 7.2
 - **样式**: Tailwind CSS 3.4
-- **UI 组件**: shadcn/ui
+- **UI 组件**: shadcn/ui (基于 Radix UI)
 - **状态管理**: Zustand 5
+- **数据获取**: TanStack Query 5 + Axios
+- **表单**: React Hook Form 7 + Zod 4
 - **路由**: React Router 7
-- **HTTP**: Fetch API
+- **图表**: Recharts 2.15
+- **图标**: Lucide React
+- **通知**: Sonner
 
 ### 后端
-- **运行时**: Node.js 20+
+- **运行时**: Node.js 18+
 - **框架**: Express 4.18
-- **数据库**: MySQL 8
-- **认证**: JWT
-- **密码加密**: bcryptjs
-- **文件上传**: Multer
+- **数据库**: MySQL 8 (mysql2 驱动)
+- **认证**: JWT + bcryptjs 2.4
+- **文件上传**: Multer 1.4
+- **开发**: Nodemon 热重载
 
 ### 部署
 - **Web 服务器**: Nginx
@@ -388,6 +392,14 @@ git push origin main && git push github main
 - **CodeArts**: git@codehub.devcloud.cn-north-4.huaweicloud.com:a384bf0b99f140dbaa16281939ab38b1/huawei_food_subscription.git
 
 ---
+
+## 🔄 最近更新
+
+### 2026-03-08
+- **CLAUDE.md 文档更新**: 完善架构说明，添加详细技术栈版本信息
+- **前端数据模拟**: 订单和订阅页面使用前端假数据，提升开发体验
+- **订阅状态管理**: 添加三种订阅状态（进行中/已暂停/已取消）数据支持
+- **食材包详情页**: 优化数据展示逻辑
 
 ## 📝 版本历史
 
