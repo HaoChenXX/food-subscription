@@ -4,6 +4,104 @@ import type {
 } from '@/types';
 import { useAuthStore } from '@/store';
 
+// 演示订单数据（假数据，不依赖后端数据库）
+const demoOrders: Order[] = [
+  {
+    id: 'ORD202503080001',
+    userId: '3',
+    packageId: '1',
+    packageName: '健康减脂套餐',
+    packageImage: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=800&auto=format&fit=crop',
+    quantity: 1,
+    price: 89,
+    totalAmount: 89,
+    subscriptionType: 'weekly',
+    status: 'pending_payment',
+    deliveryDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+    deliveryTimeSlot: '09:00-12:00',
+    address: {
+      id: 'addr001',
+      name: '张三',
+      phone: '13700137000',
+      province: '北京市',
+      city: '北京市',
+      district: '朝阳区',
+      address: '建国路88号SOHO现代城1号楼101室',
+      isDefault: true
+    },
+    createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+    updatedAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString()
+  },
+  {
+    id: 'ORD202503070002',
+    userId: '3',
+    packageId: '2',
+    packageName: '增肌能量套餐',
+    packageImage: 'https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?w=800&auto=format&fit=crop',
+    quantity: 1,
+    price: 129,
+    totalAmount: 129,
+    subscriptionType: 'monthly',
+    status: 'preparing',
+    deliveryDate: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+    deliveryTimeSlot: '14:00-18:00',
+    address: {
+      id: 'addr002',
+      name: '张三',
+      phone: '13700137000',
+      province: '北京市',
+      city: '北京市',
+      district: '海淀区',
+      address: '中关村大街1号中关村广场购物中心B2层',
+      isDefault: false
+    },
+    createdAt: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
+    updatedAt: new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString()
+  },
+  {
+    id: 'ORD202503030003',
+    userId: '3',
+    packageId: '3',
+    packageName: '地中海风味套餐',
+    packageImage: 'https://images.unsplash.com/photo-1543339308-43e59d6b73a6?w=800&auto=format&fit=crop',
+    quantity: 2,
+    price: 159,
+    totalAmount: 318,
+    subscriptionType: 'weekly',
+    status: 'delivered',
+    deliveryDate: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+    deliveryTimeSlot: '09:00-12:00',
+    address: {
+      id: 'addr003',
+      name: '张三',
+      phone: '13700137000',
+      province: '北京市',
+      city: '北京市',
+      district: '西城区',
+      address: '金融大街7号英蓝国际金融中心',
+      isDefault: false
+    },
+    createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
+    updatedAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString()
+  }
+];
+
+// 演示订阅数据
+const demoSubscriptions: Subscription[] = [
+  {
+    id: 'SUB202503010001',
+    userId: '3',
+    packageId: '1',
+    type: 'weekly',
+    status: 'active',
+    startDate: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+    nextDeliveryDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+    totalDeliveries: 4,
+    completedDeliveries: 1,
+    price: 89
+  }
+];
+
 // API 基础 URL
 const API_BASE_URL = '/api';
 
@@ -143,55 +241,65 @@ const realApi = {
     },
   },
   
-  // 订单
+  // 订单 - 使用假数据，不依赖后端
   orders: {
     getAll: async () => {
-      return fetchWithAuth<Order[]>('/orders');
+      console.log('返回演示订单数据:', demoOrders);
+      return Promise.resolve(demoOrders);
     },
     
     getById: async (id: string) => {
-      return fetchWithAuth<Order>(`/orders/${id}`);
+      const order = demoOrders.find(o => o.id === id);
+      return Promise.resolve(order || demoOrders[0]);
     },
     
     create: async (data: Partial<Order>) => {
-      return fetchWithAuth<Order>('/orders', {
-        method: 'POST',
-        body: JSON.stringify(data),
-      });
+      const newOrder = { ...demoOrders[0], ...data, id: 'ORD' + Date.now() } as Order;
+      demoOrders.unshift(newOrder);
+      return Promise.resolve(newOrder);
     },
     
     update: async (id: string, data: Partial<Order>) => {
-      return fetchWithAuth<Order>(`/orders/${id}`, {
-        method: 'PUT',
-        body: JSON.stringify(data),
-      });
+      const index = demoOrders.findIndex(o => o.id === id);
+      if (index >= 0) {
+        demoOrders[index] = { ...demoOrders[index], ...data } as Order;
+        return Promise.resolve(demoOrders[index]);
+      }
+      return Promise.resolve(demoOrders[0]);
     },
     
-    pay: async (id: string, paymentMethod: string = 'mock') => {
-      return fetchWithAuth<{ message: string; transactionId: string; order: Order }>(`/orders/${id}/pay`, {
-        method: 'POST',
-        body: JSON.stringify({ paymentMethod }),
+    pay: async (id: string, _paymentMethod: string = 'mock') => {
+      const order = demoOrders.find(o => o.id === id);
+      if (order) {
+        order.status = 'paid';
+      }
+      return Promise.resolve({ 
+        message: '支付成功', 
+        transactionId: 'TRX' + Date.now(), 
+        order: order || demoOrders[0] 
       });
     },
   },
   
-  // 订阅
+  // 订阅 - 使用假数据，不依赖后端
   subscriptions: {
     getAll: async () => {
-      return fetchWithAuth<Subscription[]>('/subscriptions');
+      console.log('返回演示订阅数据:', demoSubscriptions);
+      return Promise.resolve(demoSubscriptions);
     },
     
     create: async (data: Partial<Subscription>) => {
-      return fetchWithAuth<Subscription>('/subscriptions', {
-        method: 'POST',
-        body: JSON.stringify(data),
-      });
+      const newSub = { ...demoSubscriptions[0], ...data, id: 'SUB' + Date.now() } as Subscription;
+      demoSubscriptions.unshift(newSub);
+      return Promise.resolve(newSub);
     },
     
     cancel: async (id: string) => {
-      return fetchWithAuth<void>(`/subscriptions/${id}/cancel`, {
-        method: 'POST',
-      });
+      const sub = demoSubscriptions.find(s => s.id === id);
+      if (sub) {
+        sub.status = 'cancelled';
+      }
+      return Promise.resolve();
     },
   },
   
@@ -224,9 +332,10 @@ const realApi = {
   
   // 商家接口
   merchant: {
-    // 获取商家的所有订单
+    // 获取商家的所有订单 - 使用假数据
     getOrders: async () => {
-      return fetchWithAuth<Order[]>('/food-packages/merchant/orders');
+      console.log('返回商家演示订单数据:', demoOrders);
+      return Promise.resolve(demoOrders);
     },
     
     // 获取商家库存数据
@@ -290,31 +399,44 @@ const realApi = {
       });
     },
     
-    // 获取统计数据
+    // 获取统计数据 - 使用假数据
     getStatistics: async () => {
-      return fetchWithAuth<{
-        users: { total: number; today: number };
-        orders: { total: number; totalAmount: number; today: number; todayAmount: number; byStatus: any[] };
-        packages: { total: number; lowStock: number };
-      }>('/admin/statistics');
-    },
-    
-    // 获取所有订单（管理员）
-    getAllOrders: async () => {
-      return fetchWithAuth<Order[]>('/admin/orders');
-    },
-    
-    // 更新订单状态
-    updateOrderStatus: async (id: string, status: string) => {
-      return fetchWithAuth<void>(`/admin/orders/${id}/status`, {
-        method: 'PUT',
-        body: JSON.stringify({ status }),
+      return Promise.resolve({
+        users: { total: 3, today: 0 },
+        orders: { 
+          total: demoOrders.length, 
+          totalAmount: demoOrders.reduce((sum, o) => sum + o.totalAmount, 0),
+          today: 1,
+          todayAmount: 89,
+          byStatus: [
+            { status: 'pending_payment', count: 1 },
+            { status: 'preparing', count: 1 },
+            { status: 'delivered', count: 1 }
+          ]
+        },
+        packages: { total: 12, lowStock: 2 }
       });
     },
     
-    // 获取所有订阅
+    // 获取所有订单（管理员）- 使用假数据
+    getAllOrders: async () => {
+      console.log('返回管理员演示订单数据:', demoOrders);
+      return Promise.resolve(demoOrders);
+    },
+    
+    // 更新订单状态 - 修改假数据
+    updateOrderStatus: async (id: string, status: string) => {
+      const order = demoOrders.find(o => o.id === id);
+      if (order) {
+        order.status = status as Order['status'];
+      }
+      return Promise.resolve();
+    },
+    
+    // 获取所有订阅 - 使用假数据
     getAllSubscriptions: async () => {
-      return fetchWithAuth<Subscription[]>('/admin/subscriptions');
+      console.log('返回管理员演示订阅数据:', demoSubscriptions);
+      return Promise.resolve(demoSubscriptions);
     },
     
     // 获取管理员库存数据
