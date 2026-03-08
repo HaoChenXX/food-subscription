@@ -4,9 +4,66 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { api } from '@/api/api';
 import { toast } from 'sonner';
 import type { OrderStatus } from '@/types';
+
+// 演示订单数据（直接内嵌，不依赖后端）
+const demoOrdersData: Record<string, BackendOrder> = {
+  'ORD202503080001': {
+    id: 'ORD202503080001',
+    user_id: 3,
+    package_id: 1,
+    package_name: '健康减脂套餐',
+    package_image: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=800&auto=format&fit=crop',
+    quantity: 1,
+    total_amount: 89,
+    price: 89,
+    status: 'pending_payment',
+    delivery_date: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+    delivery_time_slot: '09:00-12:00',
+    delivery_address: JSON.stringify({ name: '张三', phone: '13700137000', province: '北京市', city: '北京市', district: '朝阳区', address: '建国路88号SOHO现代城1号楼101室' }),
+    contact_name: '张三',
+    contact_phone: '13700137000',
+    created_at: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+    updated_at: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString()
+  },
+  'ORD202503070002': {
+    id: 'ORD202503070002',
+    user_id: 3,
+    package_id: 2,
+    package_name: '增肌能量套餐',
+    package_image: 'https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?w=800&auto=format&fit=crop',
+    quantity: 1,
+    total_amount: 129,
+    price: 129,
+    status: 'preparing',
+    delivery_date: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+    delivery_time_slot: '14:00-18:00',
+    delivery_address: JSON.stringify({ name: '张三', phone: '13700137000', province: '北京市', city: '北京市', district: '海淀区', address: '中关村大街1号中关村广场购物中心B2层' }),
+    contact_name: '张三',
+    contact_phone: '13700137000',
+    created_at: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
+    updated_at: new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString()
+  },
+  'ORD202503030003': {
+    id: 'ORD202503030003',
+    user_id: 3,
+    package_id: 3,
+    package_name: '地中海风味套餐',
+    package_image: 'https://images.unsplash.com/photo-1543339308-43e59d6b73a6?w=800&auto=format&fit=crop',
+    quantity: 2,
+    total_amount: 318,
+    price: 159,
+    status: 'delivered',
+    delivery_date: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+    delivery_time_slot: '09:00-12:00',
+    delivery_address: JSON.stringify({ name: '张三', phone: '13700137000', province: '北京市', city: '北京市', district: '西城区', address: '金融大街7号英蓝国际金融中心' }),
+    contact_name: '张三',
+    contact_phone: '13700137000',
+    created_at: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
+    updated_at: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString()
+  }
+};
 import {
   ArrowLeft,
   Clock,
@@ -93,11 +150,12 @@ export default function OrderDetail() {
   const [loading, setLoading] = useState(true);
   const [paying, setPaying] = useState(false);
 
-  // 加载订单详情
+  // 加载订单详情 - 使用假数据
   const loadOrder = async () => {
     if (!id) return;
     try {
-      const data = await api.orders.getById(id) as unknown as BackendOrder;
+      // 从假数据中查找对应订单，不存在则使用第一个
+      const data = demoOrdersData[id] || demoOrdersData['ORD202503080001'];
       setOrder(data);
     } catch (error: any) {
       toast.error(error.message || '加载订单详情失败');
@@ -110,17 +168,18 @@ export default function OrderDetail() {
     loadOrder();
   }, [id]);
 
-  // 支付订单
+  // 支付订单 - 使用假数据
   const handlePay = async () => {
     if (!order) return;
     try {
       setPaying(true);
-      // 调用支付 API
-      const result = await api.orders.pay(order.id, 'mock');
-      toast.success(result.message || '支付成功！');
-      localStorage.setItem('shouldRefreshOrders', 'true'); // 标记需要刷新订单列表
-      loadOrder(); // 刷新订单状态
-      // 延迟返回订单列表，让用户看到支付成功状态
+      // 模拟支付成功，直接修改本地数据
+      const updatedOrder = { ...order, status: 'paid' as OrderStatus };
+      setOrder(updatedOrder);
+      demoOrdersData[order.id].status = 'paid';
+      toast.success('支付成功！');
+      localStorage.setItem('shouldRefreshOrders', 'true');
+      // 延迟返回订单列表
       setTimeout(() => {
         navigate('/orders', { state: { refresh: true } });
       }, 1500);
