@@ -84,7 +84,7 @@ async function addDemoData() {
 
     // 获取orders表的字段
     const [orderColumns] = await connection.execute('SHOW COLUMNS FROM orders');
-    const orderFields = orderColumns.map((c: any) => c.Field);
+    const orderFields = orderColumns.map((c) => c.Field);
     console.log('  订单表字段:', orderFields.join(', '));
     
     const hasStatus = orderFields.includes('status');
@@ -147,7 +147,7 @@ async function addDemoData() {
 
     // 获取subscriptions表的字段
     const [subColumns] = await connection.execute('SHOW COLUMNS FROM subscriptions');
-    const subFields = subColumns.map((c: any) => c.Field);
+    const subFields = subColumns.map((c) => c.Field);
     console.log('  订阅表字段:', subFields.join(', '));
     
     const subHasStatus = subFields.includes('status');
