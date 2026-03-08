@@ -4,7 +4,7 @@ import type {
 } from '@/types';
 import { useAuthStore } from '@/store';
 
-// 演示订单数据（假数据，不依赖后端数据库）
+// 演示订单数据（使用数据库中真实存在的三个食材包）
 const demoOrders: Order[] = [
   {
     id: 'ORD202503080001',
@@ -85,6 +85,11 @@ const demoOrders: Order[] = [
     updatedAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString()
   }
 ];
+
+// 数据库中的三个真实食材包（用于参考）
+// ID 1: 健康减脂套餐 - https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=800&auto=format&fit=crop - ¥89
+// ID 2: 增肌能量套餐 - https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?w=800&auto=format&fit=crop - ¥129
+// ID 3: 地中海风味套餐 - https://images.unsplash.com/photo-1543339308-43e59d6b73a6?w=800&auto=format&fit=crop - ¥159
 
 // 演示订阅数据
 const demoSubscriptions: Subscription[] = [
