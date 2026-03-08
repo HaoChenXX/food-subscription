@@ -218,7 +218,19 @@ export const useOrderStore = create<OrderState>()(
       setLoading: (loading) => set({ isLoading: loading })
     }),
     {
-      name: 'order-storage'
+      name: 'order-storage',
+      // 合并持久化数据和初始数据：如果持久化数据为空，使用演示数据
+      merge: (persistedState, currentState) => {
+        if (!persistedState) {
+          return { ...currentState, orders: demoOrders };
+        }
+        const persisted = persistedState as { orders?: Order[] };
+        // 如果持久化的订单为空数组，使用演示数据
+        if (!persisted.orders || persisted.orders.length === 0) {
+          return { ...currentState, orders: demoOrders };
+        }
+        return { ...currentState, ...persisted };
+      }
     }
   )
 );
@@ -266,7 +278,19 @@ export const useSubscriptionStore = create<SubscriptionState>()(
       setLoading: (loading) => set({ isLoading: loading })
     }),
     {
-      name: 'subscription-storage'
+      name: 'subscription-storage',
+      // 合并持久化数据和初始数据：如果持久化数据为空，使用演示数据
+      merge: (persistedState, currentState) => {
+        if (!persistedState) {
+          return { ...currentState, subscriptions: demoSubscriptions };
+        }
+        const persisted = persistedState as { subscriptions?: Subscription[] };
+        // 如果持久化的订阅为空数组，使用演示数据
+        if (!persisted.subscriptions || persisted.subscriptions.length === 0) {
+          return { ...currentState, subscriptions: demoSubscriptions };
+        }
+        return { ...currentState, ...persisted };
+      }
     }
   )
 );
