@@ -4,9 +4,57 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { api } from '@/api/api';
 import { toast } from 'sonner';
 import type { OrderStatus } from '@/types';
+
+// 演示订单数据（直接内嵌，不依赖后端）
+const demoOrdersData = [
+  {
+    id: 'ORD202503080001',
+    user_id: 3,
+    package_id: 1,
+    package_name: '健康减脂套餐',
+    package_image: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=800&auto=format&fit=crop',
+    quantity: 1,
+    total_amount: 89,
+    status: 'pending_payment' as OrderStatus,
+    delivery_address: JSON.stringify({ province: '北京市', city: '北京市', district: '朝阳区', address: '建国路88号SOHO现代城' }),
+    contact_name: '张三',
+    contact_phone: '13700137000',
+    created_at: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+    updated_at: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString()
+  },
+  {
+    id: 'ORD202503070002',
+    user_id: 3,
+    package_id: 2,
+    package_name: '增肌能量套餐',
+    package_image: 'https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?w=800&auto=format&fit=crop',
+    quantity: 1,
+    total_amount: 129,
+    status: 'preparing' as OrderStatus,
+    delivery_address: JSON.stringify({ province: '北京市', city: '北京市', district: '海淀区', address: '中关村大街1号' }),
+    contact_name: '张三',
+    contact_phone: '13700137000',
+    created_at: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
+    updated_at: new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString()
+  },
+  {
+    id: 'ORD202503030003',
+    user_id: 3,
+    package_id: 3,
+    package_name: '地中海风味套餐',
+    package_image: 'https://images.unsplash.com/photo-1543339308-43e59d6b73a6?w=800&auto=format&fit=crop',
+    quantity: 2,
+    total_amount: 318,
+    status: 'delivered' as OrderStatus,
+    delivery_address: JSON.stringify({ province: '北京市', city: '北京市', district: '西城区', address: '金融大街7号' }),
+    contact_name: '张三',
+    contact_phone: '13700137000',
+    created_at: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
+    updated_at: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString()
+  }
+];
 import {
   ShoppingBag,
   Clock,
@@ -65,19 +113,13 @@ export default function Orders() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
-  // 加载订单列表
+  // 加载订单列表 - 使用假数据
   const loadOrders = async () => {
     try {
       setRefreshing(true);
-      console.log('开始加载订单列表...');
-      const data = await api.orders.getAll() as unknown as BackendOrder[];
-      console.log('获取到的订单数据:', data);
-      setOrders(data);
-
-      // 如果没有订单，显示提示
-      if (data.length === 0) {
-        console.log('没有获取到任何订单');
-      }
+      console.log('使用演示订单数据');
+      // 直接返回假数据，不调用API
+      setOrders(demoOrdersData);
     } catch (error: any) {
       console.error('加载订单失败:', error);
       toast.error(error.message || '加载订单失败');

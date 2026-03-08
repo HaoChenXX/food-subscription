@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { useQuery, useMutation } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -8,7 +8,6 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useAuthStore, useSubscriptionStore } from '@/store';
-import { mockApi } from '@/api/mock';
 import {
   Calendar,
   Play,
@@ -18,28 +17,80 @@ import {
   RotateCcw
 } from 'lucide-react';
 
+// 演示订阅数据（直接内嵌，不依赖后端）
+const demoSubscriptionsData = [
+  {
+    id: 'SUB202503010001',
+    userId: '3',
+    packageId: '1',
+    packageName: '健康减脂套餐',
+    packageImage: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=800&auto=format&fit=crop',
+    type: 'weekly' as const,
+    status: 'active' as const,
+    startDate: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+    nextDeliveryDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+    totalDeliveries: 4,
+    completedDeliveries: 1,
+    price: 89
+  },
+  {
+    id: 'SUB202502150002',
+    userId: '3',
+    packageId: '2',
+    packageName: '增肌能量套餐',
+    packageImage: 'https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?w=800&auto=format&fit=crop',
+    type: 'monthly' as const,
+    status: 'paused' as const,
+    startDate: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+    nextDeliveryDate: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+    totalDeliveries: 2,
+    completedDeliveries: 2,
+    price: 129
+  },
+  {
+    id: 'SUB202501100003',
+    userId: '3',
+    packageId: '3',
+    packageName: '地中海风味套餐',
+    packageImage: 'https://images.unsplash.com/photo-1543339308-43e59d6b73a6?w=800&auto=format&fit=crop',
+    type: 'weekly' as const,
+    status: 'cancelled' as const,
+    startDate: new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+    nextDeliveryDate: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+    totalDeliveries: 4,
+    completedDeliveries: 4,
+    price: 159
+  }
+];
+
 export default function Subscriptions() {
   const { user } = useAuthStore();
   const { subscriptions, setSubscriptions, updateSubscription } = useSubscriptionStore();
   const [selectedSub, setSelectedSub] = useState<string | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [dialogAction, setDialogAction] = useState<'pause' | 'cancel' | 'resume'>('pause');
+  const [isLoading, setIsLoading] = useState(true);
 
-  // 获取订阅列表
-  const { isLoading } = useQuery({
-    queryKey: ['subscriptions', user?.id],
-    queryFn: async () => {
-      const data = await mockApi.subscriptions.getAll(user?.id || '');
-      setSubscriptions(data);
-      return data;
-    },
-    enabled: !!user
-  });
+  // 获取订阅列表 - 使用假数据
+  useEffect(() => {
+    if (user) {
+      console.log('使用演示订阅数据');
+      setSubscriptions(demoSubscriptionsData);
+      setIsLoading(false);
+    }
+  }, [user, setSubscriptions]);
 
-  // 更新订阅状态
+  // 更新订阅状态 - 直接操作本地数据
   const updateMutation = useMutation({
-    mutationFn: ({ id, status }: { id: string; status: 'active' | 'paused' | 'cancelled' }) =>
-      mockApi.subscriptions.updateStatus(id, status),
+    mutationFn: ({ id, status }: { id: string; status: 'active' | 'paused' | 'cancelled' }) => {
+      // 直接更新本地数据
+      const updatedSub = subscriptions.find(s => s.id === id);
+      if (updatedSub) {
+        const newSub = { ...updatedSub, status };
+        return Promise.resolve(newSub);
+      }
+      return Promise.reject('订阅不存在');
+    },
     onSuccess: (data) => {
       updateSubscription(data);
       toast.success('订阅状态已更新');
