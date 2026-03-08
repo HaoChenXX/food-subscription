@@ -65,7 +65,8 @@ router.get('/limited', async (req, res) => {
 router.get('/', async (req, res) => {
   try {
     const { level, search } = req.query;
-    let sql = 'SELECT * FROM food_packages WHERE status = "active"';
+    // 暂时移除 status 限制，返回所有食材包用于调试
+    let sql = 'SELECT * FROM food_packages WHERE 1=1';
     const params = [];
     
     if (level) {
@@ -80,7 +81,12 @@ router.get('/', async (req, res) => {
     
     sql += ' ORDER BY created_at DESC';
     
+    console.log('查询SQL:', sql);
+    console.log('参数:', params);
+    
     const packages = await query(sql, params);
+    console.log('返回食材包数量:', packages.length);
+    
     res.json(packages.map(formatFoodPackage));
   } catch (error) {
     console.error('获取食材包错误:', error);
