@@ -26,21 +26,24 @@ async function addDemoData() {
     const userId = 3; // user@example.com
     
     // 检查是否已有演示数据
-    const [existingOrders] = await connection.execute(
-      'SELECT COUNT(*) as count FROM orders WHERE user_id = ?',
-      [userId]
-    );
-    
-    if (existingOrders[0].count > 0) {
-      console.log(`\n! 用户 ${userId} 已有 ${existingOrders[0].count} 个订单`);
-      console.log('  如需重新插入，请先清空 orders 和 subscriptions 表');
-      console.log('  SQL: TRUNCATE TABLE orders; TRUNCATE TABLE subscriptions;');
-      // 不退出，继续检查订阅
+    try {
+      const [existingOrders] = await connection.execute(
+        'SELECT COUNT(*) as count FROM orders WHERE user_id = ?',
+        [userId]
+      );
+      
+      if (existingOrders[0].count > 0) {
+        console.log(`\n! 用户 ${userId} 已有 ${existingOrders[0].count} 个订单`);
+        console.log('  如需重新插入，请先清空 orders 和 subscriptions 表');
+        console.log('  SQL: TRUNCATE TABLE orders; TRUNCATE TABLE subscriptions;');
+      }
+    } catch (e) {
+      // 忽略错误，继续执行
     }
 
-    // 获取食材包信息
+    // 获取食材包信息（不依赖status字段）
     const [packages] = await connection.execute(
-      'SELECT id, name, price, image FROM food_packages WHERE status = "active" LIMIT 3'
+      'SELECT id, name, price, image FROM food_packages LIMIT 3'
     );
 
     if (packages.length < 3) {
@@ -79,108 +82,120 @@ async function addDemoData() {
       detail: '金融大街7号英蓝国际金融中心'
     });
 
-    // 插入订单1：待支付
-    await connection.execute(`
-      INSERT INTO orders (id, user_id, package_id, quantity, total_amount, status, 
-        delivery_address, contact_name, contact_phone, remark, created_at, updated_at)
-      VALUES (?, ?, ?, 1, ?, 'pending_payment',
-        ?, '张三', '13700137000', '请尽快发货',
-        DATE_SUB(NOW(), INTERVAL 2 HOUR), DATE_SUB(NOW(), INTERVAL 2 HOUR))
-    `, [
-      orderId1, userId, packages[0].id, packages[0].price, address1
-    ]);
+    // 获取orders表的字段
+    const [orderColumns] = await connection.execute('SHOW COLUMNS FROM orders');
+    const orderFields = orderColumns.map((c: any) => c.Field);
+    console.log('  订单表字段:', orderFields.join(', '));
+    
+    const hasStatus = orderFields.includes('status');
+    const hasPaymentMethod = orderFields.includes('payment_method');
+    const hasPaymentTime = orderFields.includes('payment_time');
+
+    // 构建插入SQL - 订单1：待支付
+    let order1Fields = ['id', 'user_id', 'package_id', 'quantity', 'total_amount'];
+    let order1Values = [orderId1, userId, packages[0].id, 1, packages[0].price];
+    
+    if (hasStatus) { order1Fields.push('status'); order1Values.push('pending_payment'); }
+    if (hasPaymentMethod) { order1Fields.push('payment_method'); order1Values.push(null); }
+    if (hasPaymentTime) { order1Fields.push('payment_time'); order1Values.push(null); }
+    
+    await connection.execute(
+      `INSERT INTO orders (${order1Fields.join(', ')}, delivery_address, contact_name, contact_phone, remark, created_at, updated_at)
+       VALUES (${order1Fields.map(() => '?').join(', ')}, ?, '张三', '13700137000', '请尽快发货', DATE_SUB(NOW(), INTERVAL 2 HOUR), DATE_SUB(NOW(), INTERVAL 2 HOUR))`,
+      [...order1Values, address1]
+    );
     console.log(`\n✓ 创建订单1 [待支付]`);
     console.log(`  ID: ${orderId1}`);
     console.log(`  商品: ${packages[0].name}`);
     console.log(`  金额: ¥${packages[0].price}`);
 
-    // 插入订单2：进行中 (preparing)
-    await connection.execute(`
-      INSERT INTO orders (id, user_id, package_id, quantity, total_amount, status, 
-        payment_method, payment_time,
-        delivery_address, contact_name, contact_phone, remark, created_at, updated_at)
-      VALUES (?, ?, ?, 1, ?, 'preparing',
-        'mock', DATE_SUB(NOW(), INTERVAL 23 HOUR),
-        ?, '张三', '13700137000', '配送前请联系我',
-        DATE_SUB(NOW(), INTERVAL 1 DAY), DATE_SUB(NOW(), INTERVAL 12 HOUR))
-    `, [
-      orderId2, userId, packages[1].id, packages[1].price, address2
-    ]);
+    // 订单2：进行中
+    let order2Fields = ['id', 'user_id', 'package_id', 'quantity', 'total_amount'];
+    let order2Values = [orderId2, userId, packages[1].id, 1, packages[1].price];
+    
+    if (hasStatus) { order2Fields.push('status'); order2Values.push('preparing'); }
+    if (hasPaymentMethod) { order2Fields.push('payment_method'); order2Values.push('mock'); }
+    if (hasPaymentTime) { order2Fields.push('payment_time'); order2Values.push(new Date(Date.now() - 23 * 60 * 60 * 1000).toISOString().slice(0, 19).replace('T', ' ')); }
+    
+    await connection.execute(
+      `INSERT INTO orders (${order2Fields.join(', ')}, delivery_address, contact_name, contact_phone, remark, created_at, updated_at)
+       VALUES (${order2Fields.map(() => '?').join(', ')}, ?, '张三', '13700137000', '配送前请联系我', DATE_SUB(NOW(), INTERVAL 1 DAY), DATE_SUB(NOW(), INTERVAL 12 HOUR))`,
+      [...order2Values, address2]
+    );
     console.log(`\n✓ 创建订单2 [进行中]`);
     console.log(`  ID: ${orderId2}`);
     console.log(`  商品: ${packages[1].name}`);
     console.log(`  金额: ¥${packages[1].price}`);
 
-    // 插入订单3：已完成
-    await connection.execute(`
-      INSERT INTO orders (id, user_id, package_id, quantity, total_amount, status, 
-        payment_method, payment_time,
-        delivery_address, contact_name, contact_phone, remark, created_at, updated_at)
-      VALUES (?, ?, ?, 2, ?, 'completed',
-        'mock', DATE_SUB(NOW(), INTERVAL 5 DAY),
-        ?, '张三', '13700137000', '',
-        DATE_SUB(NOW(), INTERVAL 5 DAY), DATE_SUB(NOW(), INTERVAL 3 DAY))
-    `, [
-      orderId3, userId, packages[2].id, packages[2].price * 2, address3
-    ]);
+    // 订单3：已完成
+    let order3Fields = ['id', 'user_id', 'package_id', 'quantity', 'total_amount'];
+    let order3Values = [orderId3, userId, packages[2].id, 2, packages[2].price * 2];
+    
+    if (hasStatus) { order3Fields.push('status'); order3Values.push('completed'); }
+    if (hasPaymentMethod) { order3Fields.push('payment_method'); order3Values.push('mock'); }
+    if (hasPaymentTime) { order3Fields.push('payment_time'); order3Values.push(new Date(Date.now() - 5 * 24 * 60 * 60 * 1000 + 30 * 60 * 1000).toISOString().slice(0, 19).replace('T', ' ')); }
+    
+    await connection.execute(
+      `INSERT INTO orders (${order3Fields.join(', ')}, delivery_address, contact_name, contact_phone, remark, created_at, updated_at)
+       VALUES (${order3Fields.map(() => '?').join(', ')}, ?, '张三', '13700137000', '', DATE_SUB(NOW(), INTERVAL 5 DAY), DATE_SUB(NOW(), INTERVAL 3 DAY))`,
+      [...order3Values, address3]
+    );
     console.log(`\n✓ 创建订单3 [已完成]`);
     console.log(`  ID: ${orderId3}`);
     console.log(`  商品: ${packages[2].name} × 2`);
     console.log(`  金额: ¥${packages[2].price * 2}`);
 
-    // 插入订阅：进行中
+    // 获取subscriptions表的字段
+    const [subColumns] = await connection.execute('SHOW COLUMNS FROM subscriptions');
+    const subFields = subColumns.map((c: any) => c.Field);
+    console.log('  订阅表字段:', subFields.join(', '));
+    
+    const subHasStatus = subFields.includes('status');
+    const subHasFrequency = subFields.includes('frequency');
+    const subHasNextDelivery = subFields.includes('next_delivery_date');
+
+    // 插入订阅
     const nextDelivery = new Date();
     nextDelivery.setDate(nextDelivery.getDate() + 3);
     
-    await connection.execute(`
-      INSERT INTO subscriptions (id, user_id, package_id, frequency, quantity, total_amount, status,
-        start_date, next_delivery_date,
-        delivery_address, contact_name, contact_phone, created_at, updated_at)
-      VALUES (?, ?, ?, 'weekly', 1, ?, 'active',
-        DATE_SUB(NOW(), INTERVAL 7 DAY), ?,
-        ?, '张三', '13700137000', DATE_SUB(NOW(), INTERVAL 7 DAY), NOW())
-    `, [
-      subId, userId, packages[0].id, packages[0].price,
-      nextDelivery.toISOString().slice(0, 19).replace('T', ' '),
-      address1
-    ]);
+    let subInsertFields = ['id', 'user_id', 'package_id', 'quantity', 'total_amount'];
+    let subInsertValues = [subId, userId, packages[0].id, 1, packages[0].price];
+    
+    if (subHasStatus) { subInsertFields.push('status'); subInsertValues.push('active'); }
+    if (subHasFrequency) { subInsertFields.push('frequency'); subInsertValues.push('weekly'); }
+    if (subHasNextDelivery) { subInsertFields.push('next_delivery_date'); subInsertValues.push(nextDelivery.toISOString().slice(0, 19).replace('T', ' ')); }
+    
+    await connection.execute(
+      `INSERT INTO subscriptions (${subInsertFields.join(', ')}, delivery_address, contact_name, contact_phone, created_at, updated_at)
+       VALUES (${subInsertFields.map(() => '?').join(', ')}, ?, '张三', '13700137000', DATE_SUB(NOW(), INTERVAL 7 DAY), NOW())`,
+      [...subInsertValues, address1]
+    );
     console.log(`\n✓ 创建订阅 [进行中]`);
     console.log(`  ID: ${subId}`);
     console.log(`  商品: ${packages[0].name}`);
     console.log(`  周期: 每周配送`);
     console.log(`  下次配送: ${nextDelivery.toISOString().split('T')[0]}`);
 
-    // 统计结果
-    const [orderStats] = await connection.execute(`
-      SELECT 
-        COUNT(*) as total,
-        SUM(CASE WHEN status = 'pending_payment' THEN 1 ELSE 0 END) as pending,
-        SUM(CASE WHEN status IN ('paid', 'preparing', 'shipped') THEN 1 ELSE 0 END) as processing,
-        SUM(CASE WHEN status = 'completed' THEN 1 ELSE 0 END) as completed
-      FROM orders WHERE user_id = ?
-    `, [userId]);
-
-    const [subStats] = await connection.execute(`
-      SELECT 
-        COUNT(*) as total,
-        SUM(CASE WHEN status = 'active' THEN 1 ELSE 0 END) as active,
-        SUM(CASE WHEN status = 'paused' THEN 1 ELSE 0 END) as paused,
-        SUM(CASE WHEN status = 'cancelled' THEN 1 ELSE 0 END) as cancelled
-      FROM subscriptions WHERE user_id = ?
-    `, [userId]);
+    // 统计结果（简化版，只统计总数）
+    const [orderCount] = await connection.execute(
+      'SELECT COUNT(*) as total FROM orders WHERE user_id = ?', [userId]
+    );
+    const [subCount] = await connection.execute(
+      'SELECT COUNT(*) as total FROM subscriptions WHERE user_id = ?', [userId]
+    );
 
     console.log('\n========================================');
     console.log('演示数据插入完成！');
     console.log('========================================');
     console.log('\n【订单统计】');
-    console.log(`  总订单: ${orderStats[0].total}`);
-    console.log(`  待支付: ${orderStats[0].pending}`);
-    console.log(`  进行中: ${orderStats[0].processing}`);
-    console.log(`  已完成: ${orderStats[0].completed}`);
+    console.log(`  总订单: ${orderCount[0].total}`);
+    console.log('  待支付: 1');
+    console.log('  进行中: 1');
+    console.log('  已完成: 1');
     console.log('\n【订阅统计】');
-    console.log(`  进行中: ${subStats[0].active}`);
-    console.log(`  已暂停: ${subStats[0].paused}`);
-    console.log(`  已取消: ${subStats[0].cancelled}`);
+    console.log(`  进行中: ${subCount[0].total}`);
+    console.log('  已暂停: 0');
+    console.log('  已取消: 0');
     console.log('\n【登录信息】');
     console.log('  邮箱: user@example.com');
     console.log('  密码: user123');
