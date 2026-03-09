@@ -53,6 +53,7 @@ import MerchantDashboard from '@/pages/merchant/Dashboard';
 import MerchantProducts from '@/pages/merchant/Products';
 import MerchantOrders from '@/pages/merchant/Orders';
 import MerchantInventory from '@/pages/merchant/Inventory';
+import MerchantSettings from '@/pages/merchant/Settings';
 
 // 后台管理页面
 import AdminLayout from '@/pages/admin/Layout';
@@ -63,6 +64,7 @@ import AdminInventory from '@/pages/admin/Inventory';
 import AdminSuppliers from '@/pages/admin/Suppliers';
 import AdminReports from '@/pages/admin/Reports';
 import AdminProducts from '@/pages/admin/Products';
+import AdminSettings from '@/pages/admin/Settings';
 
 // 公共页面
 import Login from '@/pages/Login';
@@ -306,6 +308,7 @@ function App() {
               <Route path="products" element={<MerchantProducts />} />
               <Route path="orders" element={<MerchantOrders />} />
               <Route path="inventory" element={<MerchantInventory />} />
+              <Route path="settings" element={<MerchantSettings />} />
             </Route>
             
             {/* 后台管理路由 */}
@@ -321,6 +324,7 @@ function App() {
               <Route path="inventory" element={<AdminInventory />} />
               <Route path="suppliers" element={<AdminSuppliers />} />
               <Route path="reports" element={<AdminReports />} />
+              <Route path="settings" element={<AdminSettings />} />
             </Route>
             
             {/* 404页面 */}

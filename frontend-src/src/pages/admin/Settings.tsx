@@ -11,24 +11,24 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useAuthStore, useUIStore } from '@/store';
 import { t, type Language } from '@/lib/i18n';
 import {
-  User,
-  Bell,
   Shield,
+  Bell,
   Moon,
   Globe,
   Smartphone,
   Mail,
-  Trash2,
-  Download,
   Info,
   ChevronRight,
   Palette,
   Sun,
-  Monitor
+  Monitor,
+  Database,
+  Server,
+  Lock
 } from 'lucide-react';
 
-export default function Settings() {
-  const { user, logout } = useAuthStore();
+export default function AdminSettings() {
+  const { user } = useAuthStore();
   const { theme, setTheme, language, setLanguage, effectiveTheme, updateEffectiveTheme } = useUIStore();
   
   // 监听系统主题变化
@@ -49,21 +49,17 @@ export default function Settings() {
     email: true,
     sms: false,
     push: true,
-    marketing: false,
+    systemAlert: true,
+    securityAlert: true,
+    userReport: true,
   });
 
-  // 隐私设置
-  const [privacy, setPrivacy] = useState({
-    profileVisible: true,
-    shareData: false,
-    locationTracking: true,
-  });
-
-  // 账号安全
-  const [security, setSecurity] = useState({
-    twoFactor: false,
-    loginAlert: true,
-    deviceManagement: true,
+  // 系统设置
+  const [systemSettings, setSystemSettings] = useState({
+    maintenanceMode: false,
+    debugMode: false,
+    autoBackup: true,
+    logRetention: true,
   });
 
   const handleNotificationChange = (key: keyof typeof notifications) => {
@@ -71,14 +67,9 @@ export default function Settings() {
     toast.success(t('toast.settings.updated', language));
   };
 
-  const handlePrivacyChange = (key: keyof typeof privacy) => {
-    setPrivacy(prev => ({ ...prev, [key]: !prev[key] }));
-    toast.success(t('toast.privacy.updated', language));
-  };
-
-  const handleSecurityChange = (key: keyof typeof security) => {
-    setSecurity(prev => ({ ...prev, [key]: !prev[key] }));
-    toast.success(t('toast.security.updated', language));
+  const handleSystemSettingChange = (key: keyof typeof systemSettings) => {
+    setSystemSettings(prev => ({ ...prev, [key]: !prev[key] }));
+    toast.success(t('toast.settings.updated', language));
   };
 
   const handleThemeChange = (value: string) => {
@@ -95,24 +86,12 @@ export default function Settings() {
   const handleLanguageChange = (value: string) => {
     const newLang = value as Language;
     setLanguage(newLang);
-    // 语言切换后，使用新语言显示提示
     toast.success(t('toast.language.updated', newLang));
   };
 
-  const handleExportData = () => {
-    toast.success(t('toast.data.exporting', language));
-    setTimeout(() => {
-      toast.success(t('toast.data.exported', language));
-    }, 2000);
-  };
-
-  const handleDeleteAccount = () => {
-    if (confirm(t('toast.account.deleteConfirm', language))) {
-      toast.success(t('toast.account.deleteRequested', language));
-      setTimeout(() => {
-        logout();
-      }, 2000);
-    }
+  const handleClearCache = () => {
+    localStorage.clear();
+    toast.success(t('toast.cache.cleared', language));
   };
 
   // 获取主题图标
@@ -137,29 +116,29 @@ export default function Settings() {
         <p className="text-gray-500 dark:text-gray-400">{t('settings.subtitle', language)}</p>
       </div>
 
-      <Tabs defaultValue="account" className="w-full">
+      <Tabs defaultValue="system" className="w-full">
         <TabsList className="grid w-full grid-cols-2 lg:grid-cols-4 lg:w-auto lg:inline-flex">
-          <TabsTrigger value="account">{t('settings.tab.account', language)}</TabsTrigger>
+          <TabsTrigger value="system">{language === 'zh' ? '系统设置' : 'System'}</TabsTrigger>
           <TabsTrigger value="notifications">{t('settings.tab.notifications', language)}</TabsTrigger>
-          <TabsTrigger value="privacy">{t('settings.tab.privacy', language)}</TabsTrigger>
           <TabsTrigger value="general">{t('settings.tab.general', language)}</TabsTrigger>
+          <TabsTrigger value="about">{t('settings.general.about', language)}</TabsTrigger>
         </TabsList>
 
-        {/* 账号设置 */}
-        <TabsContent value="account" className="mt-6 space-y-6">
-          {/* 账号信息 */}
+        {/* 系统设置 */}
+        <TabsContent value="system" className="mt-6 space-y-6">
+          {/* 管理员信息 */}
           <Card>
             <CardHeader>
               <CardTitle className="text-lg flex items-center">
-                <User className="w-5 h-5 mr-2 text-green-600" />
-                {t('settings.account.info', language)}
+                <Shield className="w-5 h-5 mr-2 text-purple-600" />
+                {language === 'zh' ? '管理员信息' : 'Administrator Info'}
               </CardTitle>
-              <CardDescription>{t('settings.account.info.desc', language)}</CardDescription>
+              <CardDescription>{language === 'zh' ? '查看管理员账户信息' : 'View administrator account information'}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label>{t('settings.account.userId', language)}</Label>
+                  <Label>{language === 'zh' ? '管理员ID' : 'Admin ID'}</Label>
                   <Input value={user?.id || ''} disabled className="bg-gray-50 dark:bg-gray-800" />
                 </div>
                 <div className="space-y-2">
@@ -169,11 +148,7 @@ export default function Settings() {
                 <div className="space-y-2">
                   <Label>{t('settings.account.role', language)}</Label>
                   <Input 
-                    value={user?.role === 'admin' 
-                      ? t('settings.account.role.admin', language) 
-                      : user?.role === 'merchant' 
-                        ? t('settings.account.role.merchant', language) 
-                        : t('settings.account.role.user', language)} 
+                    value={t('settings.account.role.admin', language)} 
                     disabled 
                     className="bg-gray-50 dark:bg-gray-800" 
                   />
@@ -190,81 +165,56 @@ export default function Settings() {
             </CardContent>
           </Card>
 
-          {/* 安全设置 */}
+          {/* 系统控制 */}
           <Card>
             <CardHeader>
               <CardTitle className="text-lg flex items-center">
-                <Shield className="w-5 h-5 mr-2 text-green-600" />
-                {t('settings.security.title', language)}
+                <Server className="w-5 h-5 mr-2 text-purple-600" />
+                {language === 'zh' ? '系统控制' : 'System Control'}
               </CardTitle>
-              <CardDescription>{t('settings.security.desc', language)}</CardDescription>
+              <CardDescription>{language === 'zh' ? '管理系统运行状态和参数' : 'Manage system operation status and parameters'}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
-                  <div className="font-medium">{t('settings.security.twoFactor', language)}</div>
-                  <div className="text-sm text-gray-500 dark:text-gray-400">{t('settings.security.twoFactor.desc', language)}</div>
+                  <div className="font-medium flex items-center">
+                    <Lock className="w-4 h-4 mr-2 text-gray-400" />
+                    {language === 'zh' ? '维护模式' : 'Maintenance Mode'}
+                  </div>
+                  <div className="text-sm text-gray-500 dark:text-gray-400">{language === 'zh' ? '开启后只有管理员可访问系统' : 'Only administrators can access when enabled'}</div>
                 </div>
                 <Switch 
-                  checked={security.twoFactor}
-                  onCheckedChange={() => handleSecurityChange('twoFactor')}
+                  checked={systemSettings.maintenanceMode}
+                  onCheckedChange={() => handleSystemSettingChange('maintenanceMode')}
                 />
               </div>
               <Separator />
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
-                  <div className="font-medium">{t('settings.security.loginAlert', language)}</div>
-                  <div className="text-sm text-gray-500 dark:text-gray-400">{t('settings.security.loginAlert.desc', language)}</div>
+                  <div className="font-medium flex items-center">
+                    <Database className="w-4 h-4 mr-2 text-gray-400" />
+                    {language === 'zh' ? '自动备份' : 'Auto Backup'}
+                  </div>
+                  <div className="text-sm text-gray-500 dark:text-gray-400">{language === 'zh' ? '每日自动备份数据库' : 'Automatically backup database daily'}</div>
                 </div>
                 <Switch 
-                  checked={security.loginAlert}
-                  onCheckedChange={() => handleSecurityChange('loginAlert')}
+                  checked={systemSettings.autoBackup}
+                  onCheckedChange={() => handleSystemSettingChange('autoBackup')}
                 />
               </div>
               <Separator />
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
-                  <div className="font-medium">{t('settings.security.deviceMgmt', language)}</div>
-                  <div className="text-sm text-gray-500 dark:text-gray-400">{t('settings.security.deviceMgmt.desc', language)}</div>
+                  <div className="font-medium flex items-center">
+                    <Server className="w-4 h-4 mr-2 text-gray-400" />
+                    {language === 'zh' ? '日志保留' : 'Log Retention'}
+                  </div>
+                  <div className="text-sm text-gray-500 dark:text-gray-400">{language === 'zh' ? '保留30天系统日志' : 'Keep system logs for 30 days'}</div>
                 </div>
-                <Button variant="outline" size="sm">
-                  {t('settings.security.deviceMgmt.btn', language)}
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* 危险区域 */}
-          <Card className="border-red-200 dark:border-red-800">
-            <CardHeader>
-              <CardTitle className="text-lg text-red-600 flex items-center">
-                <Trash2 className="w-5 h-5 mr-2" />
-                {t('settings.danger.title', language)}
-              </CardTitle>
-              <CardDescription>{t('settings.danger.desc', language)}</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="space-y-0.5">
-                  <div className="font-medium">{t('settings.danger.clearCache', language)}</div>
-                  <div className="text-sm text-gray-500 dark:text-gray-400">{t('settings.danger.clearCache.desc', language)}</div>
-                </div>
-                <Button variant="outline" size="sm" onClick={() => {
-                  localStorage.removeItem('cart-storage');
-                  toast.success(t('toast.cache.cleared', language));
-                }}>
-                  {t('settings.danger.clearCache.btn', language)}
-                </Button>
-              </div>
-              <Separator />
-              <div className="flex items-center justify-between">
-                <div className="space-y-0.5">
-                  <div className="font-medium text-red-600">{t('settings.danger.deleteAccount', language)}</div>
-                  <div className="text-sm text-gray-500 dark:text-gray-400">{t('settings.danger.deleteAccount.desc', language)}</div>
-                </div>
-                <Button variant="destructive" size="sm" onClick={handleDeleteAccount}>
-                  {t('settings.danger.deleteAccount.btn', language)}
-                </Button>
+                <Switch 
+                  checked={systemSettings.logRetention}
+                  onCheckedChange={() => handleSystemSettingChange('logRetention')}
+                />
               </div>
             </CardContent>
           </Card>
@@ -275,7 +225,7 @@ export default function Settings() {
           <Card>
             <CardHeader>
               <CardTitle className="text-lg flex items-center">
-                <Bell className="w-5 h-5 mr-2 text-green-600" />
+                <Bell className="w-5 h-5 mr-2 text-purple-600" />
                 {t('settings.notifications.channels', language)}
               </CardTitle>
               <CardDescription>{t('settings.notifications.channels.desc', language)}</CardDescription>
@@ -327,131 +277,41 @@ export default function Settings() {
 
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">{t('settings.notifications.types', language)}</CardTitle>
-              <CardDescription>{t('settings.notifications.types.desc', language)}</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {[
-                { id: 'order', label: t('settings.notifications.order', language), desc: t('settings.notifications.order.desc', language) },
-                { id: 'delivery', label: t('settings.notifications.delivery', language), desc: t('settings.notifications.delivery.desc', language) },
-                { id: 'promotion', label: t('settings.notifications.promotion', language), desc: t('settings.notifications.promotion.desc', language) },
-                { id: 'subscription', label: t('settings.notifications.subscription', language), desc: t('settings.notifications.subscription.desc', language) },
-                { id: 'system', label: t('settings.notifications.system', language), desc: t('settings.notifications.system.desc', language) },
-              ].map((item, index, arr) => (
-                <div key={item.id}>
-                  <div className="flex items-center justify-between">
-                    <div className="space-y-0.5">
-                      <div className="font-medium">{item.label}</div>
-                      <div className="text-sm text-gray-500 dark:text-gray-400">{item.desc}</div>
-                    </div>
-                    <Switch defaultChecked={item.id !== 'promotion'} />
-                  </div>
-                  {index < arr.length - 1 && <Separator className="mt-4" />}
-                </div>
-              ))}
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">{t('settings.notifications.marketing', language)}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center justify-between">
-                <div className="space-y-0.5">
-                  <div className="font-medium">{t('settings.notifications.marketing.enable', language)}</div>
-                  <div className="text-sm text-gray-500 dark:text-gray-400">{t('settings.notifications.marketing.desc', language)}</div>
-                </div>
-                <Switch 
-                  checked={notifications.marketing}
-                  onCheckedChange={() => handleNotificationChange('marketing')}
-                />
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        {/* 隐私设置 */}
-        <TabsContent value="privacy" className="mt-6 space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg flex items-center">
-                <Shield className="w-5 h-5 mr-2 text-green-600" />
-                {t('settings.privacy.title', language)}
-              </CardTitle>
-              <CardDescription>{t('settings.privacy.desc', language)}</CardDescription>
+              <CardTitle className="text-lg">{language === 'zh' ? '系统通知' : 'System Notifications'}</CardTitle>
+              <CardDescription>{language === 'zh' ? '接收系统运行相关通知' : 'Receive system operation notifications'}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
-                  <div className="font-medium">{t('settings.privacy.profileVisible', language)}</div>
-                  <div className="text-sm text-gray-500 dark:text-gray-400">{t('settings.privacy.profileVisible.desc', language)}</div>
+                  <div className="font-medium">{language === 'zh' ? '系统警报' : 'System Alerts'}</div>
+                  <div className="text-sm text-gray-500 dark:text-gray-400">{language === 'zh' ? '服务器负载、性能异常等警报' : 'Server load, performance anomaly alerts'}</div>
                 </div>
                 <Switch 
-                  checked={privacy.profileVisible}
-                  onCheckedChange={() => handlePrivacyChange('profileVisible')}
+                  checked={notifications.systemAlert}
+                  onCheckedChange={() => handleNotificationChange('systemAlert')}
                 />
               </div>
               <Separator />
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
-                  <div className="font-medium">{t('settings.privacy.shareData', language)}</div>
-                  <div className="text-sm text-gray-500 dark:text-gray-400">{t('settings.privacy.shareData.desc', language)}</div>
+                  <div className="font-medium">{language === 'zh' ? '安全警报' : 'Security Alerts'}</div>
+                  <div className="text-sm text-gray-500 dark:text-gray-400">{language === 'zh' ? '异常登录、安全事件等警报' : 'Abnormal login, security incident alerts'}</div>
                 </div>
                 <Switch 
-                  checked={privacy.shareData}
-                  onCheckedChange={() => handlePrivacyChange('shareData')}
+                  checked={notifications.securityAlert}
+                  onCheckedChange={() => handleNotificationChange('securityAlert')}
                 />
               </div>
               <Separator />
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
-                  <div className="font-medium">{t('settings.privacy.location', language)}</div>
-                  <div className="text-sm text-gray-500 dark:text-gray-400">{t('settings.privacy.location.desc', language)}</div>
+                  <div className="font-medium">{language === 'zh' ? '用户反馈' : 'User Reports'}</div>
+                  <div className="text-sm text-gray-500 dark:text-gray-400">{language === 'zh' ? '用户投诉和反馈通知' : 'User complaints and feedback notifications'}</div>
                 </div>
                 <Switch 
-                  checked={privacy.locationTracking}
-                  onCheckedChange={() => handlePrivacyChange('locationTracking')}
+                  checked={notifications.userReport}
+                  onCheckedChange={() => handleNotificationChange('userReport')}
                 />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">{t('settings.privacy.data', language)}</CardTitle>
-              <CardDescription>{t('settings.privacy.data.desc', language)}</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="space-y-0.5">
-                  <div className="font-medium">{t('settings.privacy.export', language)}</div>
-                  <div className="text-sm text-gray-500 dark:text-gray-400">{t('settings.privacy.export.desc', language)}</div>
-                </div>
-                <Button variant="outline" size="sm" onClick={handleExportData}>
-                  <Download className="w-4 h-4 mr-2" />
-                  {t('settings.privacy.export.btn', language)}
-                </Button>
-              </div>
-              <Separator />
-              <div className="flex items-center justify-between">
-                <div className="space-y-0.5">
-                  <div className="font-medium">{t('settings.privacy.policy', language)}</div>
-                  <div className="text-sm text-gray-500 dark:text-gray-400">{t('settings.privacy.policy.desc', language)}</div>
-                </div>
-                <Button variant="ghost" size="sm" onClick={() => toast.info(t('toast.info.privacy', language))}> 
-                  <ChevronRight className="w-4 h-4" />
-                </Button>
-              </div>
-              <Separator />
-              <div className="flex items-center justify-between">
-                <div className="space-y-0.5">
-                  <div className="font-medium">{t('settings.privacy.terms', language)}</div>
-                  <div className="text-sm text-gray-500 dark:text-gray-400">{t('settings.privacy.terms.desc', language)}</div>
-                </div>
-                <Button variant="ghost" size="sm" onClick={() => toast.info(t('toast.info.terms', language))}>
-                  <ChevronRight className="w-4 h-4" />
-                </Button>
               </div>
             </CardContent>
           </Card>
@@ -462,7 +322,7 @@ export default function Settings() {
           <Card>
             <CardHeader>
               <CardTitle className="text-lg flex items-center">
-                <Palette className="w-5 h-5 mr-2 text-green-600" />
+                <Palette className="w-5 h-5 mr-2 text-purple-600" />
                 {t('settings.general.appearance', language)}
               </CardTitle>
               <CardDescription>{t('settings.general.appearance.desc', language)}</CardDescription>
@@ -509,7 +369,7 @@ export default function Settings() {
           <Card>
             <CardHeader>
               <CardTitle className="text-lg flex items-center">
-                <Globe className="w-5 h-5 mr-2 text-green-600" />
+                <Globe className="w-5 h-5 mr-2 text-purple-600" />
                 {t('settings.general.language', language)}
               </CardTitle>
               <CardDescription>{t('settings.general.language.desc', language)}</CardDescription>
@@ -530,10 +390,35 @@ export default function Settings() {
             </CardContent>
           </Card>
 
+          {/* 危险区域 */}
+          <Card className="border-red-200 dark:border-red-800">
+            <CardHeader>
+              <CardTitle className="text-lg text-red-600 flex items-center">
+                <Shield className="w-5 h-5 mr-2" />
+                {language === 'zh' ? '系统维护' : 'System Maintenance'}
+              </CardTitle>
+              <CardDescription>{language === 'zh' ? '执行系统维护操作，请谨慎使用' : 'Perform system maintenance operations, use with caution'}</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="space-y-0.5">
+                  <div className="font-medium">{language === 'zh' ? '清除系统缓存' : 'Clear System Cache'}</div>
+                  <div className="text-sm text-gray-500 dark:text-gray-400">{language === 'zh' ? '清除所有本地存储的缓存数据' : 'Clear all locally stored cache data'}</div>
+                </div>
+                <Button variant="outline" size="sm" onClick={handleClearCache}>
+                  {language === 'zh' ? '清除' : 'Clear'}
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* 关于 */}
+        <TabsContent value="about" className="mt-6 space-y-6">
           <Card>
             <CardHeader>
               <CardTitle className="text-lg flex items-center">
-                <Info className="w-5 h-5 mr-2 text-green-600" />
+                <Info className="w-5 h-5 mr-2 text-purple-600" />
                 {t('settings.general.about', language)}
               </CardTitle>
             </CardHeader>
