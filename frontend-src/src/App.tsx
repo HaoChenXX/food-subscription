@@ -9,6 +9,7 @@ import api from '@/api';
 import UserLayout from '@/pages/user/Layout';
 import UserHome from '@/pages/user/Home';
 import UserProfile from '@/pages/user/Profile';
+import Settings from '@/pages/user/Settings';
 import DietProfilePage from '@/pages/user/DietProfile';
 import FoodPackages from '@/pages/user/FoodPackages';
 import PackageList from '@/pages/user/PackageList';
@@ -246,6 +247,7 @@ function App() {
               <Route path="addresses" element={<Addresses />} />
               <Route path="cart" element={<Cart />} />
               <Route path="checkout" element={<Checkout />} />
+              <Route path="settings" element={<Settings />} />
             </Route>
             
             {/* 商家端路由 - admin 会被重定向到 /admin */}
