@@ -404,32 +404,78 @@ export const useAddressStore = create<AddressState>()(
 );
 
 // UI状态
+type Theme = 'light' | 'dark' | 'system';
+type Language = 'zh' | 'en';
+
 interface UIState {
   sidebarOpen: boolean;
-  theme: 'light' | 'dark';
-  language: 'zh' | 'en';
+  theme: Theme;
+  language: Language;
+  effectiveTheme: 'light' | 'dark'; // 实际生效的主题（system会解析为light或dark）
   setSidebarOpen: (open: boolean) => void;
   toggleSidebar: () => void;
-  setTheme: (theme: 'light' | 'dark') => void;
+  setTheme: (theme: Theme) => void;
   toggleTheme: () => void;
-  setLanguage: (lang: 'zh' | 'en') => void;
+  setLanguage: (lang: Language) => void;
+  updateEffectiveTheme: () => void;
 }
+
+// 获取系统主题偏好
+const getSystemTheme = (): 'light' | 'dark' => {
+  if (typeof window === 'undefined') return 'light';
+  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+};
+
+// 计算实际生效的主题
+const calculateEffectiveTheme = (theme: Theme): 'light' | 'dark' => {
+  if (theme === 'system') {
+    return getSystemTheme();
+  }
+  return theme;
+};
 
 export const useUIStore = create<UIState>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       sidebarOpen: true,
       theme: 'light',
       language: 'zh',
+      effectiveTheme: 'light',
       setSidebarOpen: (open) => set({ sidebarOpen: open }),
       toggleSidebar: () => set((state) => ({ sidebarOpen: !state.sidebarOpen })),
-      setTheme: (theme) => set({ theme }),
+      setTheme: (theme) => {
+        const effectiveTheme = calculateEffectiveTheme(theme);
+        set({ theme, effectiveTheme });
+        // 应用到 document
+        applyTheme(effectiveTheme);
+      },
       toggleTheme: () =>
-        set((state) => ({ theme: state.theme === 'light' ? 'dark' : 'light' })),
-      setLanguage: (language) => set({ language })
+        set((state) => {
+          const newTheme = state.effectiveTheme === 'light' ? 'dark' : 'light';
+          applyTheme(newTheme);
+          return { theme: newTheme, effectiveTheme: newTheme };
+        }),
+      setLanguage: (language) => set({ language }),
+      updateEffectiveTheme: () => {
+        const { theme } = get();
+        const effectiveTheme = calculateEffectiveTheme(theme);
+        set({ effectiveTheme });
+        applyTheme(effectiveTheme);
+      }
     }),
     {
       name: 'ui-storage'
     }
   )
 );
+
+// 应用主题到 document
+const applyTheme = (theme: 'light' | 'dark') => {
+  if (typeof document === 'undefined') return;
+  const root = document.documentElement;
+  if (theme === 'dark') {
+    root.classList.add('dark');
+  } else {
+    root.classList.remove('dark');
+  }
+};

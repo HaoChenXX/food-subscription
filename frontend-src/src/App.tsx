@@ -1,9 +1,34 @@
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from '@/components/ui/sonner';
-import { useAuthStore } from '@/store';
+import { useAuthStore, useUIStore } from '@/store';
 import { useEffect, useState } from 'react';
 import api from '@/api';
+
+// 主题初始化 - 从 localStorage 读取并应用
+const initializeTheme = () => {
+  try {
+    const stored = localStorage.getItem('ui-storage');
+    if (stored) {
+      const { state } = JSON.parse(stored);
+      const theme = state?.theme || 'light';
+      const effectiveTheme = theme === 'system' 
+        ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
+        : theme;
+      
+      if (effectiveTheme === 'dark') {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    }
+  } catch (e) {
+    console.error('Failed to initialize theme:', e);
+  }
+};
+
+// 立即执行主题初始化
+initializeTheme();
 
 // 用户端页面
 import UserLayout from '@/pages/user/Layout';
@@ -52,6 +77,26 @@ const queryClient = new QueryClient({
     }
   }
 });
+
+// 主题初始化组件
+const ThemeInitializer = ({ children }: { children: React.ReactNode }) => {
+  const { theme, updateEffectiveTheme } = useUIStore();
+  
+  useEffect(() => {
+    // 监听系统主题变化
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    const handleChange = () => {
+      if (theme === 'system') {
+        updateEffectiveTheme();
+      }
+    };
+    
+    mediaQuery.addEventListener('change', handleChange);
+    return () => mediaQuery.removeEventListener('change', handleChange);
+  }, [theme, updateEffectiveTheme]);
+  
+  return <>{children}</>;
+};
 
 // 认证初始化组件 - 验证 token 有效性
 const AuthInitializer = ({ children }: { children: React.ReactNode }) => {
@@ -215,6 +260,7 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <Router>
         <AuthInitializer>
+          <ThemeInitializer>
           <Routes>
             {/* 公共路由 - 已登录自动跳转 */}
             <Route path="/login" element={
@@ -280,6 +326,7 @@ function App() {
             {/* 404页面 */}
             <Route path="*" element={<NotFound />} />
           </Routes>
+          </ThemeInitializer>
         </AuthInitializer>
       </Router>
       <Toaster position="top-center" />

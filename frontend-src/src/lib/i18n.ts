@@ -1,0 +1,303 @@
+// 简易国际化支持
+export type Language = 'zh' | 'en';
+
+export const translations = {
+  zh: {
+    // 通用
+    'common.save': '保存',
+    'common.cancel': '取消',
+    'common.edit': '编辑',
+    'common.delete': '删除',
+    'common.confirm': '确认',
+    'common.back': '返回',
+    'common.loading': '加载中...',
+    'common.success': '成功',
+    'common.error': '错误',
+    'common.warning': '警告',
+    'common.info': '提示',
+    
+    // 设置页面
+    'settings.title': '设置',
+    'settings.subtitle': '管理您的账号设置、隐私和通知偏好',
+    'settings.tab.account': '账号',
+    'settings.tab.notifications': '通知',
+    'settings.tab.privacy': '隐私',
+    'settings.tab.general': '通用',
+    
+    // 账号设置
+    'settings.account.info': '账号信息',
+    'settings.account.info.desc': '查看和管理您的账号基本信息',
+    'settings.account.userId': '用户ID',
+    'settings.account.registerTime': '注册时间',
+    'settings.account.role': '当前角色',
+    'settings.account.status': '账号状态',
+    'settings.account.status.active': '正常',
+    'settings.account.status.inactive': '已停用',
+    'settings.account.role.admin': '管理员',
+    'settings.account.role.merchant': '商家',
+    'settings.account.role.user': '普通用户',
+    
+    // 安全设置
+    'settings.security.title': '安全设置',
+    'settings.security.desc': '增强您的账号安全性',
+    'settings.security.twoFactor': '双重验证',
+    'settings.security.twoFactor.desc': '登录时需要输入手机验证码',
+    'settings.security.loginAlert': '登录提醒',
+    'settings.security.loginAlert.desc': '新设备登录时发送通知',
+    'settings.security.deviceMgmt': '设备管理',
+    'settings.security.deviceMgmt.desc': '查看和管理已登录设备',
+    'settings.security.deviceMgmt.btn': '管理',
+    
+    // 危险区域
+    'settings.danger.title': '危险区域',
+    'settings.danger.desc': '这些操作不可恢复，请谨慎操作',
+    'settings.danger.clearCache': '清除缓存数据',
+    'settings.danger.clearCache.desc': '清除本地存储的临时数据',
+    'settings.danger.clearCache.btn': '清除',
+    'settings.danger.deleteAccount': '注销账号',
+    'settings.danger.deleteAccount.desc': '永久删除您的账号和所有数据',
+    'settings.danger.deleteAccount.btn': '注销',
+    
+    // 通知设置
+    'settings.notifications.channels': '通知渠道',
+    'settings.notifications.channels.desc': '选择您接收通知的方式',
+    'settings.notifications.email': '邮件通知',
+    'settings.notifications.email.desc': '接收订单状态和促销邮件',
+    'settings.notifications.sms': '短信通知',
+    'settings.notifications.sms.desc': '接收订单配送和验证码短信',
+    'settings.notifications.push': '推送通知',
+    'settings.notifications.push.desc': '接收应用内消息推送',
+    
+    'settings.notifications.types': '通知类型',
+    'settings.notifications.types.desc': '选择您感兴趣的通知内容',
+    'settings.notifications.order': '订单通知',
+    'settings.notifications.order.desc': '订单状态变更、配送提醒',
+    'settings.notifications.delivery': '配送通知',
+    'settings.notifications.delivery.desc': '配送开始前、送达提醒',
+    'settings.notifications.promotion': '优惠活动',
+    'settings.notifications.promotion.desc': '限时优惠、新套餐上架',
+    'settings.notifications.subscription': '订阅通知',
+    'settings.notifications.subscription.desc': '订阅续费、套餐变更',
+    'settings.notifications.system': '系统通知',
+    'settings.notifications.system.desc': '账号安全、系统更新',
+    
+    'settings.notifications.marketing': '营销偏好',
+    'settings.notifications.marketing.enable': '接收营销信息',
+    'settings.notifications.marketing.desc': '接收产品推荐和个性化优惠',
+    
+    // 隐私设置
+    'settings.privacy.title': '隐私控制',
+    'settings.privacy.desc': '控制您的个人数据如何被使用',
+    'settings.privacy.profileVisible': '公开个人资料',
+    'settings.privacy.profileVisible.desc': '允许其他用户查看您的基本资料',
+    'settings.privacy.shareData': '数据分析共享',
+    'settings.privacy.shareData.desc': '允许使用您的数据改进服务',
+    'settings.privacy.location': '位置追踪',
+    'settings.privacy.location.desc': '允许获取您的位置用于配送优化',
+    
+    'settings.privacy.data': '数据管理',
+    'settings.privacy.data.desc': '管理您的个人数据',
+    'settings.privacy.export': '导出个人数据',
+    'settings.privacy.export.desc': '下载您的所有个人数据副本',
+    'settings.privacy.export.btn': '导出',
+    'settings.privacy.policy': '隐私政策',
+    'settings.privacy.policy.desc': '查看我们的隐私政策',
+    'settings.privacy.terms': '用户协议',
+    'settings.privacy.terms.desc': '查看用户服务协议',
+    
+    // 通用设置
+    'settings.general.appearance': '外观',
+    'settings.general.appearance.desc': '自定义应用的外观和风格',
+    'settings.general.theme': '主题模式',
+    'settings.general.theme.light': '浅色模式',
+    'settings.general.theme.dark': '深色模式',
+    'settings.general.theme.system': '跟随系统',
+    
+    'settings.general.language': '语言',
+    'settings.general.language.desc': '设置您的语言偏好',
+    'settings.general.language.zh': '简体中文',
+    'settings.general.language.en': 'English',
+    
+    'settings.general.about': '关于',
+    'settings.general.version': '应用版本',
+    'settings.general.update': '检查更新',
+    'settings.general.update.desc': '当前已是最新版本',
+    'settings.general.update.btn': '检查',
+    'settings.general.help': '帮助中心',
+    'settings.general.help.desc': '查看使用帮助和常见问题',
+    'settings.general.contact': '联系我们',
+    'settings.general.contact.desc': '客服邮箱：support@zili.com',
+    
+    // Toast 消息
+    'toast.settings.updated': '设置已更新',
+    'toast.privacy.updated': '隐私设置已更新',
+    'toast.security.updated': '安全设置已更新',
+    'toast.theme.light': '已切换到浅色模式',
+    'toast.theme.dark': '已切换到深色模式',
+    'toast.theme.system': '已切换到跟随系统模式',
+    'toast.language.updated': '语言设置已更新',
+    'toast.data.exporting': '数据导出中，请稍后...',
+    'toast.data.exported': '数据已导出到您的邮箱',
+    'toast.cache.cleared': '缓存已清除',
+    'toast.account.deleteConfirm': '确定要注销账号吗？此操作不可恢复！',
+    'toast.account.deleteRequested': '账号注销申请已提交',
+    'toast.update.latest': '已是最新版本',
+    'toast.info.privacy': '隐私政策页面',
+    'toast.info.terms': '用户协议页面',
+    'toast.info.help': '帮助中心页面',
+    'toast.info.contact': '联系客服',
+  },
+  en: {
+    // Common
+    'common.save': 'Save',
+    'common.cancel': 'Cancel',
+    'common.edit': 'Edit',
+    'common.delete': 'Delete',
+    'common.confirm': 'Confirm',
+    'common.back': 'Back',
+    'common.loading': 'Loading...',
+    'common.success': 'Success',
+    'common.error': 'Error',
+    'common.warning': 'Warning',
+    'common.info': 'Info',
+    
+    // Settings Page
+    'settings.title': 'Settings',
+    'settings.subtitle': 'Manage your account settings, privacy, and notification preferences',
+    'settings.tab.account': 'Account',
+    'settings.tab.notifications': 'Notifications',
+    'settings.tab.privacy': 'Privacy',
+    'settings.tab.general': 'General',
+    
+    // Account Settings
+    'settings.account.info': 'Account Info',
+    'settings.account.info.desc': 'View and manage your account information',
+    'settings.account.userId': 'User ID',
+    'settings.account.registerTime': 'Registration Date',
+    'settings.account.role': 'Current Role',
+    'settings.account.status': 'Account Status',
+    'settings.account.status.active': 'Active',
+    'settings.account.status.inactive': 'Inactive',
+    'settings.account.role.admin': 'Admin',
+    'settings.account.role.merchant': 'Merchant',
+    'settings.account.role.user': 'User',
+    
+    // Security Settings
+    'settings.security.title': 'Security',
+    'settings.security.desc': 'Enhance your account security',
+    'settings.security.twoFactor': 'Two-Factor Authentication',
+    'settings.security.twoFactor.desc': 'Require SMS code when signing in',
+    'settings.security.loginAlert': 'Login Alerts',
+    'settings.security.loginAlert.desc': 'Get notified of new device sign-ins',
+    'settings.security.deviceMgmt': 'Device Management',
+    'settings.security.deviceMgmt.desc': 'View and manage signed-in devices',
+    'settings.security.deviceMgmt.btn': 'Manage',
+    
+    // Danger Zone
+    'settings.danger.title': 'Danger Zone',
+    'settings.danger.desc': 'These actions cannot be undone. Please proceed with caution.',
+    'settings.danger.clearCache': 'Clear Cache',
+    'settings.danger.clearCache.desc': 'Clear locally stored temporary data',
+    'settings.danger.clearCache.btn': 'Clear',
+    'settings.danger.deleteAccount': 'Delete Account',
+    'settings.danger.deleteAccount.desc': 'Permanently delete your account and all data',
+    'settings.danger.deleteAccount.btn': 'Delete',
+    
+    // Notifications
+    'settings.notifications.channels': 'Notification Channels',
+    'settings.notifications.channels.desc': 'Choose how you receive notifications',
+    'settings.notifications.email': 'Email Notifications',
+    'settings.notifications.email.desc': 'Receive order updates and promotional emails',
+    'settings.notifications.sms': 'SMS Notifications',
+    'settings.notifications.sms.desc': 'Receive delivery and verification SMS',
+    'settings.notifications.push': 'Push Notifications',
+    'settings.notifications.push.desc': 'Receive in-app push notifications',
+    
+    'settings.notifications.types': 'Notification Types',
+    'settings.notifications.types.desc': 'Select content you want to be notified about',
+    'settings.notifications.order': 'Order Notifications',
+    'settings.notifications.order.desc': 'Order status changes and delivery reminders',
+    'settings.notifications.delivery': 'Delivery Notifications',
+    'settings.notifications.delivery.desc': 'Before delivery starts and arrival notices',
+    'settings.notifications.promotion': 'Promotions',
+    'settings.notifications.promotion.desc': 'Limited-time offers and new packages',
+    'settings.notifications.subscription': 'Subscription Notifications',
+    'settings.notifications.subscription.desc': 'Subscription renewals and changes',
+    'settings.notifications.system': 'System Notifications',
+    'settings.notifications.system.desc': 'Account security and system updates',
+    
+    'settings.notifications.marketing': 'Marketing Preferences',
+    'settings.notifications.marketing.enable': 'Receive Marketing Messages',
+    'settings.notifications.marketing.desc': 'Receive product recommendations and personalized offers',
+    
+    // Privacy
+    'settings.privacy.title': 'Privacy Controls',
+    'settings.privacy.desc': 'Control how your personal data is used',
+    'settings.privacy.profileVisible': 'Public Profile',
+    'settings.privacy.profileVisible.desc': 'Allow others to view your basic profile',
+    'settings.privacy.shareData': 'Data Analytics Sharing',
+    'settings.privacy.shareData.desc': 'Allow using your data to improve services',
+    'settings.privacy.location': 'Location Tracking',
+    'settings.privacy.location.desc': 'Allow location access for delivery optimization',
+    
+    'settings.privacy.data': 'Data Management',
+    'settings.privacy.data.desc': 'Manage your personal data',
+    'settings.privacy.export': 'Export Personal Data',
+    'settings.privacy.export.desc': 'Download a copy of all your personal data',
+    'settings.privacy.export.btn': 'Export',
+    'settings.privacy.policy': 'Privacy Policy',
+    'settings.privacy.policy.desc': 'View our privacy policy',
+    'settings.privacy.terms': 'Terms of Service',
+    'settings.privacy.terms.desc': 'View user service agreement',
+    
+    // General
+    'settings.general.appearance': 'Appearance',
+    'settings.general.appearance.desc': 'Customize app appearance and style',
+    'settings.general.theme': 'Theme',
+    'settings.general.theme.light': 'Light Mode',
+    'settings.general.theme.dark': 'Dark Mode',
+    'settings.general.theme.system': 'Follow System',
+    
+    'settings.general.language': 'Language',
+    'settings.general.language.desc': 'Set your language preference',
+    'settings.general.language.zh': '简体中文',
+    'settings.general.language.en': 'English',
+    
+    'settings.general.about': 'About',
+    'settings.general.version': 'App Version',
+    'settings.general.update': 'Check for Updates',
+    'settings.general.update.desc': 'You have the latest version',
+    'settings.general.update.btn': 'Check',
+    'settings.general.help': 'Help Center',
+    'settings.general.help.desc': 'View help and FAQs',
+    'settings.general.contact': 'Contact Us',
+    'settings.general.contact.desc': 'Support: support@zili.com',
+    
+    // Toast Messages
+    'toast.settings.updated': 'Settings updated',
+    'toast.privacy.updated': 'Privacy settings updated',
+    'toast.security.updated': 'Security settings updated',
+    'toast.theme.light': 'Switched to light mode',
+    'toast.theme.dark': 'Switched to dark mode',
+    'toast.theme.system': 'Switched to follow system mode',
+    'toast.language.updated': 'Language settings updated',
+    'toast.data.exporting': 'Exporting data, please wait...',
+    'toast.data.exported': 'Data exported to your email',
+    'toast.cache.cleared': 'Cache cleared',
+    'toast.account.deleteConfirm': 'Are you sure you want to delete your account? This cannot be undone!',
+    'toast.account.deleteRequested': 'Account deletion request submitted',
+    'toast.update.latest': 'You have the latest version',
+    'toast.info.privacy': 'Privacy Policy page',
+    'toast.info.terms': 'Terms of Service page',
+    'toast.info.help': 'Help Center page',
+    'toast.info.contact': 'Contact Support',
+  }
+};
+
+// 翻译键类型
+export type TranslationKey = keyof typeof translations.zh;
+
+// 翻译函数
+export function t(key: TranslationKey, lang: Language): string {
+  return translations[lang][key] || translations.zh[key] || key;
+}
