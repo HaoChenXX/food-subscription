@@ -9,12 +9,14 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Eye, EyeOff, Loader2 } from 'lucide-react';
-import { useAuthStore } from '@/store';
+import { useAuthStore, useUIStore } from '@/store';
+import { t } from '@/lib/i18n';
 import api from '@/api';
 
 export default function Login() {
   const navigate = useNavigate();
   const { login } = useAuthStore();
+  const { language } = useUIStore();
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   
@@ -41,7 +43,7 @@ export default function Login() {
       api.auth.login({ email, password }),
     onSuccess: (data) => {
       login(data.user, data.token);
-      toast.success('登录成功！');
+      toast.success(t('common.success', language));
       
       // 根据角色跳转到不同页面，使用 replace 避免返回问题
       // 添加小延迟确保状态已同步
@@ -58,7 +60,7 @@ export default function Login() {
       }, 100);
     },
     onError: (error: Error) => {
-      toast.error(error.message || '登录失败');
+      toast.error(error.message || t('common.error', language));
     }
   });
 
@@ -91,39 +93,39 @@ export default function Login() {
 
         <Card className="shadow-xl border-0">
           <CardHeader className="text-center">
-            <CardTitle className="text-xl font-bold text-gray-900">欢迎回来</CardTitle>
-            <CardDescription>登录您的账户，开启健康食材之旅</CardDescription>
+            <CardTitle className="text-xl font-bold text-gray-900">{t('auth.login.title', language)}</CardTitle>
+            <CardDescription>{t('auth.login.subtitle', language)}</CardDescription>
           </CardHeader>
           
           <CardContent>
             <Tabs defaultValue="user" className="w-full">
               <TabsList className="grid w-full grid-cols-3 mb-6">
-                <TabsTrigger value="user">用户</TabsTrigger>
-                <TabsTrigger value="merchant">商家</TabsTrigger>
-                <TabsTrigger value="admin">管理员</TabsTrigger>
+                <TabsTrigger value="user">{t('auth.role.user', language)}</TabsTrigger>
+                <TabsTrigger value="merchant">{t('auth.role.merchant', language)}</TabsTrigger>
+                <TabsTrigger value="admin">{t('auth.role.admin', language)}</TabsTrigger>
               </TabsList>
               
               {/* 用户登录 */}
               <TabsContent value="user">
                 <form onSubmit={handleUserLogin} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="user-email">邮箱</Label>
+                    <Label htmlFor="user-email">{t('auth.login.email', language)}</Label>
                     <Input
                       id="user-email"
                       type="email"
-                      placeholder="请输入邮箱"
+                      placeholder={t('auth.login.emailPlaceholder', language)}
                       value={userForm.email}
                       onChange={(e) => setUserForm({ ...userForm, email: e.target.value })}
                       required
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="user-password">密码</Label>
+                    <Label htmlFor="user-password">{t('auth.login.password', language)}</Label>
                     <div className="relative">
                       <Input
                         id="user-password"
                         type={showPassword ? 'text' : 'password'}
-                        placeholder="请输入密码"
+                        placeholder={t('auth.login.passwordPlaceholder', language)}
                         value={userForm.password}
                         onChange={(e) => setUserForm({ ...userForm, password: e.target.value })}
                         required
@@ -144,10 +146,10 @@ export default function Login() {
                         checked={rememberMe}
                         onCheckedChange={(checked) => setRememberMe(checked as boolean)}
                       />
-                      <Label htmlFor="remember" className="text-sm font-normal">记住我</Label>
+                      <Label htmlFor="remember" className="text-sm font-normal">{t('auth.login.remember', language)}</Label>
                     </div>
                     <Link to="/forgot-password" className="text-sm text-green-600 hover:text-green-700">
-                      忘记密码？
+                      {t('auth.login.forgot', language)}
                     </Link>
                   </div>
                   <Button
@@ -158,10 +160,10 @@ export default function Login() {
                     {loginMutation.isPending ? (
                       <>
                         <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                        登录中...
+                        {t('auth.login.loading', language)}
                       </>
                     ) : (
-                      '登录'
+                      t('auth.login.btn', language)
                     )}
                   </Button>
                 </form>
@@ -171,23 +173,23 @@ export default function Login() {
               <TabsContent value="merchant">
                 <form onSubmit={handleMerchantLogin} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="merchant-email">邮箱</Label>
+                    <Label htmlFor="merchant-email">{t('auth.login.email', language)}</Label>
                     <Input
                       id="merchant-email"
                       type="email"
-                      placeholder="请输入商家邮箱"
+                      placeholder={t('auth.login.merchantEmailPlaceholder', language)}
                       value={merchantForm.email}
                       onChange={(e) => setMerchantForm({ ...merchantForm, email: e.target.value })}
                       required
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="merchant-password">密码</Label>
+                    <Label htmlFor="merchant-password">{t('auth.login.password', language)}</Label>
                     <div className="relative">
                       <Input
                         id="merchant-password"
                         type={showPassword ? 'text' : 'password'}
-                        placeholder="请输入密码"
+                        placeholder={t('auth.login.passwordPlaceholder', language)}
                         value={merchantForm.password}
                         onChange={(e) => setMerchantForm({ ...merchantForm, password: e.target.value })}
                         required
@@ -209,10 +211,10 @@ export default function Login() {
                     {loginMutation.isPending ? (
                       <>
                         <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                        登录中...
+                        {t('auth.login.loading', language)}
                       </>
                     ) : (
-                      '商家登录'
+                      t('auth.login.merchantBtn', language)
                     )}
                   </Button>
                 </form>
@@ -222,23 +224,23 @@ export default function Login() {
               <TabsContent value="admin">
                 <form onSubmit={handleAdminLogin} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="admin-email">邮箱</Label>
+                    <Label htmlFor="admin-email">{t('auth.login.email', language)}</Label>
                     <Input
                       id="admin-email"
                       type="email"
-                      placeholder="请输入管理员邮箱"
+                      placeholder={t('auth.login.adminEmailPlaceholder', language)}
                       value={adminForm.email}
                       onChange={(e) => setAdminForm({ ...adminForm, email: e.target.value })}
                       required
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="admin-password">密码</Label>
+                    <Label htmlFor="admin-password">{t('auth.login.password', language)}</Label>
                     <div className="relative">
                       <Input
                         id="admin-password"
                         type={showPassword ? 'text' : 'password'}
-                        placeholder="请输入密码"
+                        placeholder={t('auth.login.passwordPlaceholder', language)}
                         value={adminForm.password}
                         onChange={(e) => setAdminForm({ ...adminForm, password: e.target.value })}
                         required
@@ -260,10 +262,10 @@ export default function Login() {
                     {loginMutation.isPending ? (
                       <>
                         <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                        登录中...
+                        {t('auth.login.loading', language)}
                       </>
                     ) : (
-                      '管理员登录'
+                      t('auth.login.adminBtn', language)
                     )}
                   </Button>
                 </form>
@@ -273,9 +275,9 @@ export default function Login() {
           
           <CardFooter className="flex flex-col space-y-4">
             <div className="text-sm text-center text-gray-500">
-              还没有账户？{' '}
+              {t('auth.login.noAccount', language)}{' '}
               <Link to="/register" className="text-green-600 hover:text-green-700 font-medium">
-                立即注册
+                {t('auth.login.register', language)}
               </Link>
             </div>
             <div className="text-xs text-center text-gray-400">

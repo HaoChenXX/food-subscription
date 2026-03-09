@@ -1,8 +1,12 @@
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Utensils, Home, ArrowLeft } from 'lucide-react';
+import { useUIStore } from '@/store';
+import { t } from '@/lib/i18n';
 
 export default function NotFound() {
+  const { language } = useUIStore();
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 to-emerald-100 p-4">
       <div className="text-center max-w-md">
@@ -20,10 +24,10 @@ export default function NotFound() {
         
         {/* 错误信息 */}
         <h2 className="text-2xl font-semibold text-gray-900 mb-2">
-          页面未找到
+          {t('notFound.title', language)}
         </h2>
         <p className="text-gray-600 mb-8">
-          抱歉，您访问的页面不存在或已被移除。
+          {t('notFound.desc', language)}
         </p>
         
         {/* 操作按钮 */}
@@ -34,7 +38,7 @@ export default function NotFound() {
             className="flex items-center"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
-            返回上一页
+            {t('notFound.backPrev', language)}
           </Button>
           <Button
             asChild
@@ -42,7 +46,7 @@ export default function NotFound() {
           >
             <Link to="/" className="flex items-center">
               <Home className="w-4 h-4 mr-2" />
-              返回首页
+              {t('notFound.back', language)}
             </Link>
           </Button>
         </div>

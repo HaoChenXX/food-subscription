@@ -6,7 +6,8 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
-import { useAuthStore, useAddressStore } from '@/store';
+import { useAuthStore, useAddressStore, useUIStore } from '@/store';
+import { t } from '@/lib/i18n';
 import api from '@/api';
 import {
   MapPin,
@@ -23,6 +24,7 @@ import type { DeliveryAddress } from '@/types';
 export default function Addresses() {
   const { user } = useAuthStore();
   const { addresses, setAddresses, addAddress, updateAddress, removeAddress, setDefaultAddress } = useAddressStore();
+  const { language } = useUIStore();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingAddress, setEditingAddress] = useState<DeliveryAddress | null>(null);
   const [formData, setFormData] = useState({
@@ -54,12 +56,12 @@ export default function Addresses() {
     mutationFn: (data: Partial<DeliveryAddress>) => api.addresses.create(data),
     onSuccess: (data: any) => {
       addAddress(data);
-      toast.success('地址添加成功');
+      toast.success(t('address.addSuccess', language));
       setDialogOpen(false);
       resetForm();
     },
     onError: () => {
-      toast.error('添加失败，请重试');
+      toast.error(t('address.addError', language));
     }
   });
 
@@ -97,7 +99,7 @@ export default function Addresses() {
   const handleSubmit = () => {
     // 简单验证
     if (!formData.name || !formData.phone || !formData.address) {
-      toast.error('请填写完整信息');
+      toast.error(t('address.fillAllFields', language));
       return;
     }
 
@@ -105,7 +107,7 @@ export default function Addresses() {
       // 更新地址
       const updated = { ...editingAddress, ...formData };
       updateAddress(updated);
-      toast.success('地址更新成功');
+      toast.success(t('address.updateSuccess', language));
       setDialogOpen(false);
       resetForm();
     } else {
@@ -115,9 +117,9 @@ export default function Addresses() {
   };
 
   const handleDelete = (id: string) => {
-    if (confirm('确定要删除这个地址吗？')) {
+    if (confirm(t('address.confirmDelete', language))) {
       removeAddress(id);
-      toast.success('地址已删除');
+      toast.success(t('address.deleteSuccess', language));
     }
   };
 
@@ -129,7 +131,7 @@ export default function Addresses() {
     addresses.filter(a => a.id !== address.id && a.isDefault).forEach(a => {
       updateAddress({ ...a, isDefault: false });
     });
-    toast.success('默认地址已设置');
+    toast.success(t('address.setDefaultSuccess', language));
   };
 
   if (isLoading) {
@@ -145,15 +147,15 @@ export default function Addresses() {
       {/* 页面标题 */}
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6">
         <div>
-          <h1 className="text-2xl font-bold mb-2">收货地址</h1>
-          <p className="text-gray-500">管理您的配送地址</p>
+          <h1 className="text-2xl font-bold mb-2">{t('address.title', language)}</h1>
+          <p className="text-gray-500">{t('address.subtitle', language)}</p>
         </div>
         <Button
           className="bg-green-600 hover:bg-green-700"
           onClick={() => handleOpenDialog()}
         >
           <Plus className="w-4 h-4 mr-2" />
-          添加地址
+          {t('address.add', language)}
         </Button>
       </div>
 
@@ -163,14 +165,14 @@ export default function Addresses() {
           <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
             <MapPin className="w-12 h-12 text-gray-400" />
           </div>
-          <h2 className="text-xl font-medium text-gray-900 mb-2">暂无收货地址</h2>
-          <p className="text-gray-500 mb-6">添加地址以便快速下单</p>
+          <h2 className="text-xl font-medium text-gray-900 mb-2">{t('address.empty', language)}</h2>
+          <p className="text-gray-500 mb-6">{t('address.empty.desc', language)}</p>
           <Button
             className="bg-green-600 hover:bg-green-700"
             onClick={() => handleOpenDialog()}
           >
             <Plus className="w-4 h-4 mr-2" />
-            添加地址
+            {t('address.add', language)}
           </Button>
         </div>
       ) : (
@@ -184,7 +186,7 @@ export default function Addresses() {
             >
               {address.isDefault && (
                 <div className="absolute top-0 right-0 bg-green-500 text-white text-xs px-2 py-1 rounded-bl-lg">
-                  默认
+                  {t('address.default', language)}
                 </div>
               )}
               <CardHeader className="pb-3">
@@ -218,7 +220,7 @@ export default function Addresses() {
                         onClick={() => handleSetDefault(address)}
                       >
                         <CheckCircle2 className="w-4 h-4 mr-1" />
-                        设为默认
+                        {t('address.setDefault', language)}
                       </Button>
                     )}
                   </div>
@@ -230,7 +232,7 @@ export default function Addresses() {
                       onClick={() => handleOpenDialog(address)}
                     >
                       <Edit2 className="w-4 h-4 mr-1" />
-                      编辑
+                      {t('address.edit', language)}
                     </Button>
                     <Button
                       variant="ghost"
@@ -239,7 +241,7 @@ export default function Addresses() {
                       onClick={() => handleDelete(address.id)}
                     >
                       <Trash2 className="w-4 h-4 mr-1" />
-                      删除
+                      {t('common.delete', language)}
                     </Button>
                   </div>
                 </div>
@@ -254,56 +256,56 @@ export default function Addresses() {
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>
-              {editingAddress ? '编辑地址' : '添加地址'}
+              {editingAddress ? t('address.edit', language) : t('address.add', language)}
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label>收货人姓名</Label>
+              <Label>{t('address.name', language)}</Label>
               <Input
-                placeholder="请输入姓名"
+                placeholder={t('address.namePlaceholder', language)}
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               />
             </div>
             <div className="space-y-2">
-              <Label>手机号码</Label>
+              <Label>{t('address.phone', language)}</Label>
               <Input
-                placeholder="请输入手机号"
+                placeholder={t('address.phonePlaceholder', language)}
                 value={formData.phone}
                 onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
               />
             </div>
             <div className="grid grid-cols-3 gap-2">
               <div className="space-y-2">
-                <Label>省</Label>
+                <Label>{t('address.province', language)}</Label>
                 <Input
-                  placeholder="省"
+                  placeholder={t('address.provincePlaceholder', language)}
                   value={formData.province}
                   onChange={(e) => setFormData({ ...formData, province: e.target.value })}
                 />
               </div>
               <div className="space-y-2">
-                <Label>市</Label>
+                <Label>{t('address.city', language)}</Label>
                 <Input
-                  placeholder="市"
+                  placeholder={t('address.cityPlaceholder', language)}
                   value={formData.city}
                   onChange={(e) => setFormData({ ...formData, city: e.target.value })}
                 />
               </div>
               <div className="space-y-2">
-                <Label>区</Label>
+                <Label>{t('address.district', language)}</Label>
                 <Input
-                  placeholder="区"
+                  placeholder={t('address.districtPlaceholder', language)}
                   value={formData.district}
                   onChange={(e) => setFormData({ ...formData, district: e.target.value })}
                 />
               </div>
             </div>
             <div className="space-y-2">
-              <Label>详细地址</Label>
+              <Label>{t('address.detail', language)}</Label>
               <Input
-                placeholder="请输入详细地址"
+                placeholder={t('address.detailPlaceholder', language)}
                 value={formData.address}
                 onChange={(e) => setFormData({ ...formData, address: e.target.value })}
               />
@@ -317,13 +319,13 @@ export default function Addresses() {
                 className="rounded border-gray-300"
               />
               <Label htmlFor="isDefault" className="cursor-pointer">
-                设为默认地址
+                {t('address.setDefaultAddress', language)}
               </Label>
             </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDialogOpen(false)}>
-              取消
+              {t('common.cancel', language)}
             </Button>
             <Button
               className="bg-green-600 hover:bg-green-700"
@@ -333,7 +335,7 @@ export default function Addresses() {
               {createMutation.isPending ? (
                 <div className="w-4 h-4 animate-spin rounded-full border-2 border-white border-t-transparent mr-2" />
               ) : null}
-              {editingAddress ? '保存' : '添加'}
+              {editingAddress ? t('common.save', language) : t('address.add', language)}
             </Button>
           </DialogFooter>
         </DialogContent>

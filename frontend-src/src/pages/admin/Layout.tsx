@@ -1,6 +1,7 @@
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { useAuthStore, useUIStore } from '@/store';
+import { t } from '@/lib/i18n';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
@@ -32,23 +33,23 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 
-const navItems = [
-  { path: '/admin', label: '仪表盘', icon: LayoutDashboard },
-  { path: '/admin/users', label: '用户管理', icon: Users },
-  { path: '/admin/orders', label: '订单管理', icon: ClipboardList },
-  { path: '/admin/products', label: '商品管理', icon: Boxes },
-];
-
 export default function AdminLayout() {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, logout } = useAuthStore();
-  const { sidebarOpen, toggleSidebar } = useUIStore();
+  const { sidebarOpen, toggleSidebar, language } = useUIStore();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const navItems = [
+    { path: '/admin', label: t('admin.overview', language), icon: LayoutDashboard },
+    { path: '/admin/users', label: t('admin.users', language), icon: Users },
+    { path: '/admin/orders', label: t('admin.orders', language), icon: ClipboardList },
+    { path: '/admin/products', label: t('admin.products', language), icon: Boxes },
+  ];
 
   const handleLogout = () => {
     logout();
-    toast.success('已退出登录');
+    toast.success(t('nav.logoutSuccess', language));
     navigate('/login');
   };
 
@@ -77,7 +78,7 @@ export default function AdminLayout() {
             {sidebarOpen && (
               <div className="flex flex-col">
                 <span className="font-bold text-base text-white leading-tight">梓里炊烟</span>
-                <span className="text-[10px] text-slate-400 leading-tight">管理后台</span>
+                <span className="text-[10px] text-slate-400 leading-tight">{t('admin.dashboard', language)}</span>
               </div>
             )}
           </Link>
@@ -139,7 +140,7 @@ export default function AdminLayout() {
                     </div>
                     <div className="flex flex-col">
                       <span className="font-bold text-base">梓里炊烟</span>
-                      <span className="text-[10px] text-slate-400">管理后台</span>
+                      <span className="text-[10px] text-slate-400">{t('admin.dashboard', language)}</span>
                     </div>
                   </SheetTitle>
                 </SheetHeader>
@@ -191,20 +192,20 @@ export default function AdminLayout() {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
-                <DropdownMenuLabel>管理员</DropdownMenuLabel>
+                <DropdownMenuLabel>{t('admin.administrator', language)}</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={() => navigate('/admin')}>
                   <LayoutDashboard className="w-4 h-4 mr-2" />
-                  管理后台
+                  {t('admin.dashboard', language)}
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => navigate('/admin/settings')}>
                   <Settings className="w-4 h-4 mr-2" />
-                  系统设置
+                  {t('admin.system', language)}
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleLogout} className="text-red-600">
                   <LogOut className="w-4 h-4 mr-2" />
-                  退出登录
+                  {t('nav.logout', language)}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

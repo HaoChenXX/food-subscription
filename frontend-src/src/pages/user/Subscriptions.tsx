@@ -7,7 +7,8 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { useAuthStore, useSubscriptionStore } from '@/store';
+import { useAuthStore, useSubscriptionStore, useUIStore } from '@/store';
+import { t } from '@/lib/i18n';
 import {
   Calendar,
   Play,
@@ -66,6 +67,7 @@ const demoSubscriptionsData = [
 export default function Subscriptions() {
   const { user } = useAuthStore();
   const { subscriptions, setSubscriptions, updateSubscription } = useSubscriptionStore();
+  const { language } = useUIStore();
   const [selectedSub, setSelectedSub] = useState<string | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [dialogAction, setDialogAction] = useState<'pause' | 'cancel' | 'resume'>('pause');
@@ -93,11 +95,11 @@ export default function Subscriptions() {
     },
     onSuccess: (data) => {
       updateSubscription(data);
-      toast.success('订阅状态已更新');
+      toast.success(t('subscription.updateSuccess', language));
       setDialogOpen(false);
     },
     onError: () => {
-      toast.error('操作失败，请重试');
+      toast.error(t('subscription.updateError', language));
     }
   });
 
@@ -140,7 +142,7 @@ export default function Subscriptions() {
         <div className="flex flex-col lg:flex-row lg:items-center justify-between">
           <div className="flex-1">
             <div className="flex items-center space-x-3 mb-2">
-              <h3 className="font-bold text-lg">订阅 #{sub.id}</h3>
+              <h3 className="font-bold text-lg">{t('subscription.id', language)} #{sub.id}</h3>
               <Badge
                 className={
                   sub.status === 'active'
@@ -150,37 +152,37 @@ export default function Subscriptions() {
                     : 'bg-gray-100 text-gray-700'
                 }
               >
-                {sub.status === 'active' && '进行中'}
-                {sub.status === 'paused' && '已暂停'}
-                {sub.status === 'cancelled' && '已取消'}
+                {sub.status === 'active' && t('subscription.status.active', language)}
+                {sub.status === 'paused' && t('subscription.status.paused', language)}
+                {sub.status === 'cancelled' && t('subscription.status.cancelled', language)}
               </Badge>
             </div>
             
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
               <div>
-                <div className="text-gray-500">订阅类型</div>
+                <div className="text-gray-500">{t('subscription.type', language)}</div>
                 <div className="font-medium">
-                  {sub.type === 'weekly' && '周订阅'}
-                  {sub.type === 'monthly' && '月订阅'}
-                  {sub.type === 'quarterly' && '季订阅'}
+                  {sub.type === 'weekly' && t('subscription.type.weekly', language)}
+                  {sub.type === 'monthly' && t('subscription.type.monthly', language)}
+                  {sub.type === 'quarterly' && t('subscription.type.quarterly', language)}
                 </div>
               </div>
               <div>
-                <div className="text-gray-500">下次配送</div>
+                <div className="text-gray-500">{t('subscription.nextDelivery', language)}</div>
                 <div className="font-medium flex items-center">
                   <Calendar className="w-4 h-4 mr-1 text-green-600" />
                   {new Date(sub.nextDeliveryDate).toLocaleDateString()}
                 </div>
               </div>
               <div>
-                <div className="text-gray-500">配送进度</div>
+                <div className="text-gray-500">{t('subscription.deliveryProgress', language)}</div>
                 <div className="font-medium">
                   {sub.completedDeliveries} / {sub.totalDeliveries}
                 </div>
               </div>
               <div>
-                <div className="text-gray-500">订阅价格</div>
-                <div className="font-medium text-green-600">¥{sub.price}/次</div>
+                <div className="text-gray-500">{t('subscription.price', language)}</div>
+                <div className="font-medium text-green-600">¥{sub.price}/{t('subscription.perDelivery', language)}</div>
               </div>
             </div>
           </div>
@@ -194,7 +196,7 @@ export default function Subscriptions() {
                   onClick={() => handleAction(sub.id, 'pause')}
                 >
                   <Pause className="w-4 h-4 mr-1" />
-                  暂停
+                  {t('subscription.pause', language)}
                 </Button>
                 <Button
                   variant="outline"
@@ -203,7 +205,7 @@ export default function Subscriptions() {
                   onClick={() => handleAction(sub.id, 'cancel')}
                 >
                   <X className="w-4 h-4 mr-1" />
-                  取消
+                  {t('subscription.cancel', language)}
                 </Button>
               </>
             )}
@@ -215,7 +217,7 @@ export default function Subscriptions() {
                 onClick={() => handleAction(sub.id, 'resume')}
               >
                 <Play className="w-4 h-4 mr-1" />
-                恢复
+                {t('subscription.resume', language)}
               </Button>
             )}
             {sub.status === 'cancelled' && (
@@ -226,7 +228,7 @@ export default function Subscriptions() {
               >
                 <Link to="/packages">
                   <RotateCcw className="w-4 h-4 mr-1" />
-                  重新订阅
+                  {t('subscription.resubscribe', language)}
                 </Link>
               </Button>
             )}
@@ -240,8 +242,8 @@ export default function Subscriptions() {
     <div className="p-4 lg:p-6 space-y-6">
       {/* 页面标题 */}
       <div>
-        <h1 className="text-2xl font-bold mb-2">订阅管理</h1>
-        <p className="text-gray-500">管理您的食材包订阅计划</p>
+        <h1 className="text-2xl font-bold mb-2">{t('subscription.title', language)}</h1>
+        <p className="text-gray-500">{t('subscription.subtitle', language)}</p>
       </div>
 
       {/* 统计卡片 */}
@@ -253,7 +255,7 @@ export default function Subscriptions() {
             </div>
             <div>
               <div className="text-2xl font-bold">{activeSubs.length}</div>
-              <div className="text-sm text-gray-500">进行中</div>
+              <div className="text-sm text-gray-500">{t('subscription.status.active', language)}</div>
             </div>
           </CardContent>
         </Card>
@@ -264,7 +266,7 @@ export default function Subscriptions() {
             </div>
             <div>
               <div className="text-2xl font-bold">{pausedSubs.length}</div>
-              <div className="text-sm text-gray-500">已暂停</div>
+              <div className="text-sm text-gray-500">{t('subscription.status.paused', language)}</div>
             </div>
           </CardContent>
         </Card>
@@ -275,7 +277,7 @@ export default function Subscriptions() {
             </div>
             <div>
               <div className="text-2xl font-bold">{cancelledSubs.length}</div>
-              <div className="text-sm text-gray-500">已取消</div>
+              <div className="text-sm text-gray-500">{t('subscription.status.cancelled', language)}</div>
             </div>
           </CardContent>
         </Card>
@@ -284,9 +286,9 @@ export default function Subscriptions() {
       {/* 订阅列表 */}
       <Tabs defaultValue="active" className="w-full">
         <TabsList className="grid w-full grid-cols-3 lg:w-auto lg:inline-flex">
-          <TabsTrigger value="active">进行中</TabsTrigger>
-          <TabsTrigger value="paused">已暂停</TabsTrigger>
-          <TabsTrigger value="cancelled">已取消</TabsTrigger>
+          <TabsTrigger value="active">{t('subscription.status.active', language)}</TabsTrigger>
+          <TabsTrigger value="paused">{t('subscription.status.paused', language)}</TabsTrigger>
+          <TabsTrigger value="cancelled">{t('subscription.status.cancelled', language)}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="active" className="mt-6 space-y-4">
@@ -295,10 +297,10 @@ export default function Subscriptions() {
               <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Calendar className="w-8 h-8 text-gray-400" />
               </div>
-              <h3 className="text-lg font-medium text-gray-900 mb-1">暂无进行中的订阅</h3>
-              <p className="text-gray-500 mb-4">开始订阅，享受定期配送服务</p>
+              <h3 className="text-lg font-medium text-gray-900 mb-1">{t('subscription.emptyActive', language)}</h3>
+              <p className="text-gray-500 mb-4">{t('subscription.startHint', language)}</p>
               <Button asChild className="bg-green-600 hover:bg-green-700">
-                <Link to="/packages">去选购</Link>
+                <Link to="/packages">{t('subscription.browse', language)}</Link>
               </Button>
             </div>
           ) : (
@@ -312,8 +314,8 @@ export default function Subscriptions() {
               <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Pause className="w-8 h-8 text-gray-400" />
               </div>
-              <h3 className="text-lg font-medium text-gray-900 mb-1">暂无暂停的订阅</h3>
-              <p className="text-gray-500">您可以将订阅暂停，稍后恢复</p>
+              <h3 className="text-lg font-medium text-gray-900 mb-1">{t('subscription.emptyPaused', language)}</h3>
+              <p className="text-gray-500">{t('subscription.pauseHint', language)}</p>
             </div>
           ) : (
             pausedSubs.map(renderSubscriptionCard)
@@ -326,8 +328,8 @@ export default function Subscriptions() {
               <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <X className="w-8 h-8 text-gray-400" />
               </div>
-              <h3 className="text-lg font-medium text-gray-900 mb-1">暂无取消的订阅</h3>
-              <p className="text-gray-500">取消的订阅会显示在这里</p>
+              <h3 className="text-lg font-medium text-gray-900 mb-1">{t('subscription.emptyCancelled', language)}</h3>
+              <p className="text-gray-500">{t('subscription.cancelledHint', language)}</p>
             </div>
           ) : (
             cancelledSubs.map(renderSubscriptionCard)
@@ -340,19 +342,19 @@ export default function Subscriptions() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>
-              {dialogAction === 'pause' && '暂停订阅'}
-              {dialogAction === 'resume' && '恢复订阅'}
-              {dialogAction === 'cancel' && '取消订阅'}
+              {dialogAction === 'pause' && t('subscription.pauseTitle', language)}
+              {dialogAction === 'resume' && t('subscription.resumeTitle', language)}
+              {dialogAction === 'cancel' && t('subscription.cancelTitle', language)}
             </DialogTitle>
             <DialogDescription>
-              {dialogAction === 'pause' && '暂停后，您的订阅将暂时停止配送，可以随时恢复。'}
-              {dialogAction === 'resume' && '恢复后，您的订阅将按原计划继续配送。'}
-              {dialogAction === 'cancel' && '取消后，您的订阅将彻底终止，无法恢复。'}
+              {dialogAction === 'pause' && t('subscription.pauseDescription', language)}
+              {dialogAction === 'resume' && t('subscription.resumeDescription', language)}
+              {dialogAction === 'cancel' && t('subscription.cancelDescription', language)}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDialogOpen(false)}>
-              取消
+              {t('common.cancel', language)}
             </Button>
             <Button
               onClick={confirmAction}
@@ -366,7 +368,7 @@ export default function Subscriptions() {
               {updateMutation.isPending ? (
                 <div className="w-4 h-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
               ) : (
-                '确认'
+                t('common.confirm', language)
               )}
             </Button>
           </DialogFooter>

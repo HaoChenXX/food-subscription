@@ -7,7 +7,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Separator } from '@/components/ui/separator';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
-import { useFoodPackageStore, useCartStore } from '@/store';
+import { useFoodPackageStore, useCartStore, useUIStore } from '@/store';
+import { t } from '@/lib/i18n';
 import {
   ArrowLeft,
   Clock,
@@ -240,9 +241,9 @@ const demoTraceability: Record<string, TraceabilityInfo[]> = {
 };
 
 const subscriptionOptions = [
-  { value: 'weekly', label: '周订阅', desc: '每周配送一次', discount: 0 },
-  { value: 'monthly', label: '月订阅', desc: '每月配送四次', discount: 0.1 },
-  { value: 'quarterly', label: '季订阅', desc: '每月配送四次，连订三月', discount: 0.2 },
+  { value: 'weekly', label: 'weekly', desc: '每周配送一次', discount: 0 },
+  { value: 'monthly', label: 'monthly', desc: '每月配送四次', discount: 0.1 },
+  { value: 'quarterly', label: 'quarterly', desc: '每月配送四次，连订三月', discount: 0.2 },
 ];
 
 export default function PackageDetail() {
@@ -250,6 +251,7 @@ export default function PackageDetail() {
   const navigate = useNavigate();
   const { setCurrentPackage } = useFoodPackageStore();
   const { addItem, setIsOpen } = useCartStore();
+  const { language } = useUIStore();
   const [quantity, setQuantity] = useState(1);
   const [subscriptionType, setSubscriptionType] = useState<'weekly' | 'monthly' | 'quarterly'>('weekly');
   const [isFavorite, setIsFavorite] = useState(false);
@@ -278,7 +280,7 @@ export default function PackageDetail() {
   if (!pkg) {
     return (
       <div className="text-center py-12">
-        <h2 className="text-xl font-bold mb-2">食材包不存在</h2>
+        <h2 className="text-xl font-bold mb-2">{t('packages.notFound', language)}</h2>
         <Button onClick={() => navigate('/packages')} variant="outline">
           <ArrowLeft className="w-4 h-4 mr-2" />
           返回列表
@@ -324,7 +326,7 @@ export default function PackageDetail() {
         onClick={() => navigate('/packages')}
       >
         <ArrowLeft className="w-4 h-4 mr-2" />
-        返回列表
+        {t('common.back', language)}
       </Button>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -339,7 +341,7 @@ export default function PackageDetail() {
             {pkg.isLimited && (
               <Badge className="absolute top-4 left-4 bg-red-500 text-lg px-3 py-1">
                 <Flame className="w-4 h-4 mr-1" />
-                限时特惠
+                {t('packages.limitedOffer', language)}
               </Badge>
             )}
             <button
@@ -358,14 +360,14 @@ export default function PackageDetail() {
           <div>
             <div className="flex items-center space-x-2 mb-2">
               <Badge variant="secondary">
-                {pkg.level === 'basic' && '基础'}
-                {pkg.level === 'advanced' && '进阶'}
-                {pkg.level === 'premium' && '精品'}
+                {pkg.level === 'basic' && t('packages.level.basic', language)}
+                {pkg.level === 'advanced' && t('packages.level.advanced', language)}
+                {pkg.level === 'premium' && t('packages.level.premium', language)}
               </Badge>
               <div className="flex items-center text-yellow-500">
                 <Star className="w-4 h-4 fill-current" />
                 <span className="ml-1 font-medium">{pkg.rating}</span>
-                <span className="text-gray-400 ml-1">({pkg.reviewCount}条评价)</span>
+                <span className="text-gray-400 ml-1">({pkg.reviewCount}{t('packages.reviews', language)})</span>
               </div>
             </div>
             <h1 className="text-3xl font-bold mb-2">{pkg.name}</h1>
@@ -377,26 +379,26 @@ export default function PackageDetail() {
             <div className="flex items-center text-gray-600">
               <Clock className="w-5 h-5 mr-2 text-green-600" />
               <div>
-                <div className="font-medium">{pkg.cookTime}分钟</div>
-                <div className="text-gray-400">烹饪时间</div>
+                <div className="font-medium">{pkg.cookTime}{t('common.minute', language)}</div>
+                <div className="text-gray-400">{t('packages.cookTime', language)}</div>
               </div>
             </div>
             <div className="flex items-center text-gray-600">
               <Users className="w-5 h-5 mr-2 text-blue-600" />
               <div>
-                <div className="font-medium">{pkg.servingSize}人份</div>
-                <div className="text-gray-400">适用人数</div>
+                <div className="font-medium">{pkg.servingSize}{t('packages.servings', language)}</div>
+                <div className="text-gray-400">{t('packages.servingSize', language)}</div>
               </div>
             </div>
             <div className="flex items-center text-gray-600">
               <ChefHat className="w-5 h-5 mr-2 text-orange-600" />
               <div>
                 <div className="font-medium">
-                  {pkg.difficulty === 'easy' && '简单'}
-                  {pkg.difficulty === 'medium' && '中等'}
-                  {pkg.difficulty === 'hard' && '困难'}
+                  {pkg.difficulty === 'easy' && t('packages.difficulty.easy', language)}
+                  {pkg.difficulty === 'medium' && t('packages.difficulty.medium', language)}
+                  {pkg.difficulty === 'hard' && t('packages.difficulty.hard', language)}
                 </div>
-                <div className="text-gray-400">难度</div>
+                <div className="text-gray-400">{t('packages.difficulty', language)}</div>
               </div>
             </div>
           </div>
@@ -414,7 +416,7 @@ export default function PackageDetail() {
 
           {/* 订阅类型选择 */}
           <div>
-            <Label className="text-lg font-medium mb-3 block">选择订阅周期</Label>
+            <Label className="text-lg font-medium mb-3 block">{t('subscription.selectPeriod', language)}</Label>
             <RadioGroup
               value={subscriptionType}
               onValueChange={(value) => setSubscriptionType(value as typeof subscriptionType)}
@@ -431,10 +433,10 @@ export default function PackageDetail() {
                     htmlFor={option.value}
                     className="flex flex-col items-center p-4 border-2 rounded-lg cursor-pointer transition-all peer-data-[state=checked]:border-green-500 peer-data-[state=checked]:bg-green-50 hover:bg-gray-50"
                   >
-                    <span className="font-medium">{option.label}</span>
+                    <span className="font-medium">{t(`subscription.type.${option.label}`, language)}</span>
                     <span className="text-xs text-gray-500">{option.desc}</span>
                     {option.discount > 0 && (
-                      <Badge className="mt-2 bg-red-500">省{option.discount * 100}%</Badge>
+                      <Badge className="mt-2 bg-red-500">{t('subscription.save', language)}{option.discount * 100}%</Badge>
                     )}
                   </Label>
                 </div>
@@ -444,7 +446,7 @@ export default function PackageDetail() {
 
           {/* 数量选择 */}
           <div>
-            <Label className="text-lg font-medium mb-3 block">数量</Label>
+            <Label className="text-lg font-medium mb-3 block">{t('common.quantity', language)}</Label>
             <div className="flex items-center space-x-4">
               <Button
                 variant="outline"
@@ -467,7 +469,7 @@ export default function PackageDetail() {
           {/* 价格 */}
           <div className="bg-gray-50 rounded-xl p-4">
             <div className="flex items-baseline justify-between">
-              <span className="text-gray-600">单价</span>
+              <span className="text-gray-600">{t('common.unitPrice', language)}</span>
               <div>
                 <span className="text-3xl font-bold text-green-600">¥{discountedPrice}</span>
                 {discountedPrice < pkg.price && (
@@ -476,7 +478,7 @@ export default function PackageDetail() {
               </div>
             </div>
             <div className="flex items-baseline justify-between mt-2">
-              <span className="text-gray-600">总计</span>
+              <span className="text-gray-600">{t('common.total', language)}</span>
               <span className="text-2xl font-bold">¥{totalPrice}</span>
             </div>
           </div>
@@ -490,14 +492,14 @@ export default function PackageDetail() {
               disabled={!pkg.stockStatus?.canOrder}
             >
               <ShoppingCart className="w-5 h-5 mr-2" />
-              {pkg.stockStatus?.canOrder ? '加入购物车' : '暂时缺货'}
+              {pkg.stockStatus?.canOrder ? t('cart.addToCart', language) : t('packages.outOfStock', language)}
             </Button>
             <Button
               className="flex-1 h-12 bg-green-600 hover:bg-green-700"
               onClick={handleBuyNow}
               disabled={!pkg.stockStatus?.canOrder}
             >
-              {pkg.stockStatus?.canOrder ? '立即购买' : '暂时缺货'}
+              {pkg.stockStatus?.canOrder ? t('common.buy', language) : t('packages.outOfStock', language)}
             </Button>
           </div>
         </div>
@@ -507,10 +509,10 @@ export default function PackageDetail() {
       <div className="mt-12">
         <Tabs defaultValue="ingredients" className="w-full">
           <TabsList className="w-full justify-start">
-            <TabsTrigger value="ingredients">食材清单</TabsTrigger>
-            <TabsTrigger value="recipe">菜谱详情</TabsTrigger>
-            <TabsTrigger value="nutrition">营养成分</TabsTrigger>
-            <TabsTrigger value="traceability">食材溯源</TabsTrigger>
+            <TabsTrigger value="ingredients">{t('packages.ingredients', language)}</TabsTrigger>
+            <TabsTrigger value="recipe">{t('packages.recipe', language)}</TabsTrigger>
+            <TabsTrigger value="nutrition">{t('packages.nutrition', language)}</TabsTrigger>
+            <TabsTrigger value="traceability">{t('packages.traceability', language)}</TabsTrigger>
           </TabsList>
 
           <TabsContent value="ingredients" className="mt-6">
@@ -538,18 +540,18 @@ export default function PackageDetail() {
                             ? 'text-yellow-800' 
                             : 'text-red-800'
                       }`}>
-                        食材库存：{pkg.stockStatus.status}
+                        {t('packages.stock', language)}：{pkg.stockStatus.status}
                       </span>
                     </div>
                     {!pkg.stockStatus.canOrder && (
                       <p className="text-sm mt-1 text-red-600">
-                        部分食材库存不足，暂时无法购买
+                        {t('packages.stockInsufficient', language)}
                       </p>
                     )}
                   </div>
                 )}
 
-                <h3 className="text-lg font-bold mb-4">包含食材</h3>
+                <h3 className="text-lg font-bold mb-4">{t('packages.includes', language)}</h3>
                 
                 {/* 数据库关联的食材库存信息 */}
                 {pkg.ingredientStocks && pkg.ingredientStocks.length > 0 ? (
@@ -580,23 +582,23 @@ export default function PackageDetail() {
                               <span>{ingredient.name}</span>
                               {!ingredient.isStockSufficient && (
                                 <span className="text-xs px-2 py-0.5 bg-red-100 text-red-600 rounded-full">
-                                  库存不足
+                                  {t('packages.lowStock', language)}
                                 </span>
                               )}
                             </div>
                             <div className="text-sm text-gray-500">
-                              {ingredient.category} · 产地：{ingredient.origin || '未知'}
+                              {ingredient.category} · {t('packages.origin', language)}：{ingredient.origin || t('common.unknown', language)}
                             </div>
                           </div>
                         </div>
                         <div className="text-right">
                           <div className="font-medium">
-                            需{ingredient.required_quantity}{ingredient.required_unit}
+                            {t('packages.need', language)}{ingredient.required_quantity}{ingredient.required_unit}
                           </div>
                           <div className={`text-sm ${
                             ingredient.isStockSufficient ? 'text-green-600' : 'text-red-600'
                           }`}>
-                            库存{ingredient.stock_quantity}{ingredient.unit}
+                            {t('packages.stockQuantity', language)}{ingredient.stock_quantity}{ingredient.unit}
                           </div>
                         </div>
                       </div>
@@ -622,7 +624,7 @@ export default function PackageDetail() {
                         <div className="text-right">
                           <div className="font-medium">{ingredient.quantity}{ingredient.unit}</div>
                           {ingredient.origin && (
-                            <div className="text-sm text-gray-500">产地：{ingredient.origin}</div>
+                            <div className="text-sm text-gray-500">{t('packages.origin', language)}：{ingredient.origin}</div>
                           )}
                         </div>
                       </div>
@@ -634,15 +636,14 @@ export default function PackageDetail() {
                 <div className="bg-blue-50 rounded-lg p-4 mb-6">
                   <h4 className="font-medium text-blue-800 mb-2 flex items-center">
                     <Package className="w-4 h-4 mr-2" />
-                    食材溯源
+                    {t('packages.traceability', language)}
                   </h4>
                   <p className="text-sm text-blue-700">
-                    所有食材均来自认证供应商，经过严格质检。我们实时追踪库存状态，
-                    确保您收到的每一份食材都是最新鲜的。
+                    {t('packages.traceabilityDesc', language)}
                   </p>
                 </div>
 
-                <h3 className="text-lg font-bold mb-4 mt-8">调味品</h3>
+                <h3 className="text-lg font-bold mb-4 mt-8">{t('packages.seasonings', language)}</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {pkg.seasonings.map((seasoning) => (
                     <div
@@ -674,7 +675,7 @@ export default function PackageDetail() {
                       {recipe.videoUrl && (
                         <Button variant="outline" className="flex items-center">
                           <PlayCircle className="w-4 h-4 mr-2" />
-                          观看视频
+                          {t('packages.watchVideo', language)}
                         </Button>
                       )}
                     </div>
@@ -690,7 +691,7 @@ export default function PackageDetail() {
                             {step.duration && (
                               <span className="text-sm text-gray-500 mt-1">
                                 <Clock className="w-3 h-3 inline mr-1" />
-                                {step.duration}分钟
+                                {step.duration}{t('common.minute', language)}
                               </span>
                             )}
                           </div>
@@ -700,7 +701,7 @@ export default function PackageDetail() {
 
                     {recipe.tips.length > 0 && (
                       <div className="mt-6 p-4 bg-yellow-50 rounded-lg">
-                        <h4 className="font-medium text-yellow-800 mb-2">烹饪小贴士</h4>
+                        <h4 className="font-medium text-yellow-800 mb-2">{t('packages.cookingTips', language)}</h4>
                         <ul className="list-disc list-inside space-y-1 text-yellow-700">
                           {recipe.tips.map((tip, index) => (
                             <li key={index}>{tip}</li>
@@ -717,34 +718,34 @@ export default function PackageDetail() {
           <TabsContent value="nutrition" className="mt-6">
             <Card>
               <CardContent className="p-6">
-                <h3 className="text-lg font-bold mb-4">营养成分表</h3>
+                <h3 className="text-lg font-bold mb-4">{t('packages.nutritionTable', language)}</h3>
                 <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
                   <div className="text-center p-4 bg-gray-50 rounded-lg">
                     <Flame className="w-8 h-8 mx-auto mb-2 text-orange-500" />
                     <div className="text-2xl font-bold">{pkg.nutritionInfo.calories}</div>
-                    <div className="text-sm text-gray-500">卡路里(kcal)</div>
+                    <div className="text-sm text-gray-500">{t('packages.calories', language)}(kcal)</div>
                   </div>
                   <div className="text-center p-4 bg-gray-50 rounded-lg">
                     <div className="w-8 h-8 mx-auto mb-2 bg-blue-100 rounded-full flex items-center justify-center">
                       <span className="text-blue-600 font-bold">P</span>
                     </div>
                     <div className="text-2xl font-bold">{pkg.nutritionInfo.protein}g</div>
-                    <div className="text-sm text-gray-500">蛋白质</div>
+                    <div className="text-sm text-gray-500">{t('packages.protein', language)}</div>
                   </div>
                   <div className="text-center p-4 bg-gray-50 rounded-lg">
                     <Wheat className="w-8 h-8 mx-auto mb-2 text-yellow-600" />
                     <div className="text-2xl font-bold">{pkg.nutritionInfo.carbs}g</div>
-                    <div className="text-sm text-gray-500">碳水化合物</div>
+                    <div className="text-sm text-gray-500">{t('packages.carbs', language)}</div>
                   </div>
                   <div className="text-center p-4 bg-gray-50 rounded-lg">
                     <Droplets className="w-8 h-8 mx-auto mb-2 text-red-500" />
                     <div className="text-2xl font-bold">{pkg.nutritionInfo.fat}g</div>
-                    <div className="text-sm text-gray-500">脂肪</div>
+                    <div className="text-sm text-gray-500">{t('packages.fat', language)}</div>
                   </div>
                   <div className="text-center p-4 bg-gray-50 rounded-lg">
                     <Leaf className="w-8 h-8 mx-auto mb-2 text-green-500" />
                     <div className="text-2xl font-bold">{pkg.nutritionInfo.fiber}g</div>
-                    <div className="text-sm text-gray-500">膳食纤维</div>
+                    <div className="text-sm text-gray-500">{t('packages.fiber', language)}</div>
                   </div>
                 </div>
               </CardContent>
@@ -757,12 +758,12 @@ export default function PackageDetail() {
               <CardContent className="p-6">
                 <div className="flex items-center justify-between mb-6">
                   <div>
-                    <h3 className="text-lg font-bold">食材溯源信息</h3>
-                    <p className="text-sm text-gray-500 mt-1">扫码或点击食材查看完整溯源链路</p>
+                    <h3 className="text-lg font-bold">{t('packages.traceabilityInfo', language)}</h3>
+                    <p className="text-sm text-gray-500 mt-1">{t('packages.traceabilityHint', language)}</p>
                   </div>
                   <Badge className="bg-green-100 text-green-700">
                     <CheckCircle2 className="w-4 h-4 mr-1" />
-                    溯源数据已上链
+                    {t('packages.traceabilityOnChain', language)}
                   </Badge>
                 </div>
 
@@ -789,12 +790,12 @@ export default function PackageDetail() {
                         <div className="bg-blue-50 rounded-lg p-4">
                           <div className="flex items-center space-x-2 mb-3">
                             <MapPin className="w-5 h-5 text-blue-600" />
-                            <span className="font-medium text-blue-800">产地信息</span>
+                            <span className="font-medium text-blue-800">{t('packages.originInfo', language)}</span>
                           </div>
                           <div className="space-y-2 text-sm">
-                            <div><span className="text-gray-500">产地：</span>{trace.origin.province}{trace.origin.city}</div>
-                            <div><span className="text-gray-500">农场：</span>{trace.origin.farm}</div>
-                            <div><span className="text-gray-500">坐标：</span>{trace.origin.coordinates}</div>
+                            <div><span className="text-gray-500">{t('packages.origin', language)}：</span>{trace.origin.province}{trace.origin.city}</div>
+                            <div><span className="text-gray-500">{t('packages.farm', language)}：</span>{trace.origin.farm}</div>
+                            <div><span className="text-gray-500">{t('packages.coordinates', language)}：</span>{trace.origin.coordinates}</div>
                           </div>
                         </div>
 
@@ -802,12 +803,12 @@ export default function PackageDetail() {
                         <div className="bg-orange-50 rounded-lg p-4">
                           <div className="flex items-center space-x-2 mb-3">
                             <Factory className="w-5 h-5 text-orange-600" />
-                            <span className="font-medium text-orange-800">生产信息</span>
+                            <span className="font-medium text-orange-800">{t('packages.productionInfo', language)}</span>
                           </div>
                           <div className="space-y-2 text-sm">
-                            <div><span className="text-gray-500">采收日期：</span>{trace.production.harvestDate}</div>
-                            <div><span className="text-gray-500">加工方式：</span>{trace.production.processMethod}</div>
-                            <div><span className="text-gray-500">储存温度：</span>{trace.production.storageTemp}</div>
+                            <div><span className="text-gray-500">{t('packages.harvestDate', language)}：</span>{trace.production.harvestDate}</div>
+                            <div><span className="text-gray-500">{t('packages.processMethod', language)}：</span>{trace.production.processMethod}</div>
+                            <div><span className="text-gray-500">{t('packages.storageTemp', language)}：</span>{trace.production.storageTemp}</div>
                           </div>
                         </div>
 
@@ -815,12 +816,12 @@ export default function PackageDetail() {
                         <div className="bg-green-50 rounded-lg p-4">
                           <div className="flex items-center space-x-2 mb-3">
                             <CheckCircle2 className="w-5 h-5 text-green-600" />
-                            <span className="font-medium text-green-800">质检信息</span>
+                            <span className="font-medium text-green-800">{t('packages.qualityInfo', language)}</span>
                           </div>
                           <div className="space-y-2 text-sm">
-                            <div><span className="text-gray-500">检验日期：</span>{trace.quality.inspectionDate}</div>
-                            <div><span className="text-gray-500">检验员：</span>{trace.quality.inspector}</div>
-                            <div><span className="text-gray-500">等级：</span><Badge variant="outline" className="ml-1">{trace.quality.grade}</Badge></div>
+                            <div><span className="text-gray-500">{t('packages.inspectionDate', language)}：</span>{trace.quality.inspectionDate}</div>
+                            <div><span className="text-gray-500">{t('packages.inspector', language)}：</span>{trace.quality.inspector}</div>
+                            <div><span className="text-gray-500">{t('packages.grade', language)}：</span><Badge variant="outline" className="ml-1">{trace.quality.grade}</Badge></div>
                           </div>
                         </div>
                       </div>
@@ -829,7 +830,7 @@ export default function PackageDetail() {
                       <div className="mt-4 pt-4 border-t flex items-center justify-between">
                         <div className="flex items-center space-x-2">
                           <Factory className="w-4 h-4 text-gray-400" />
-                          <span className="text-sm text-gray-600">供应商：{trace.supplier.name}</span>
+                          <span className="text-sm text-gray-600">{t('packages.supplier', language)}：{trace.supplier.name}</span>
                           <span className="text-xs text-gray-400">| {trace.supplier.address}</span>
                         </div>
                         <Badge variant="outline" className="text-xs">
@@ -844,7 +845,7 @@ export default function PackageDetail() {
                 <div className="bg-gradient-to-r from-green-50 to-blue-50 rounded-xl p-6 mt-6">
                   <h4 className="font-bold text-gray-800 mb-3 flex items-center">
                     <Sprout className="w-5 h-5 mr-2 text-green-600" />
-                    全程可追溯，吃得更放心
+                    {t('packages.fullTraceability', language)}
                   </h4>
                   <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-sm">
                     <div className="flex items-start space-x-2">
@@ -852,8 +853,8 @@ export default function PackageDetail() {
                         <MapPin className="w-4 h-4 text-blue-500" />
                       </div>
                       <div>
-                        <div className="font-medium">产地溯源</div>
-                        <div className="text-gray-500">精准定位种植/养殖基地</div>
+                        <div className="font-medium">{t('packages.originTrace', language)}</div>
+                        <div className="text-gray-500">{t('packages.originTraceDesc', language)}</div>
                       </div>
                     </div>
                     <div className="flex items-start space-x-2">
@@ -861,8 +862,8 @@ export default function PackageDetail() {
                         <Thermometer className="w-4 h-4 text-orange-500" />
                       </div>
                       <div>
-                        <div className="font-medium">温控监测</div>
-                        <div className="text-gray-500">全程冷链温度记录</div>
+                        <div className="font-medium">{t('packages.tempMonitor', language)}</div>
+                        <div className="text-gray-500">{t('packages.tempMonitorDesc', language)}</div>
                       </div>
                     </div>
                     <div className="flex items-start space-x-2">
@@ -870,8 +871,8 @@ export default function PackageDetail() {
                         <Droplet className="w-4 h-4 text-cyan-500" />
                       </div>
                       <div>
-                        <div className="font-medium">农残检测</div>
-                        <div className="text-gray-500">第三方机构权威检测</div>
+                        <div className="font-medium">{t('packages.pesticideTest', language)}</div>
+                        <div className="text-gray-500">{t('packages.pesticideTestDesc', language)}</div>
                       </div>
                     </div>
                     <div className="flex items-start space-x-2">
@@ -879,8 +880,8 @@ export default function PackageDetail() {
                         <CheckCircle2 className="w-4 h-4 text-green-500" />
                       </div>
                       <div>
-                        <div className="font-medium">质检认证</div>
-                        <div className="text-gray-500">多重认证品质保障</div>
+                        <div className="font-medium">{t('packages.qualityCert', language)}</div>
+                        <div className="text-gray-500">{t('packages.qualityCertDesc', language)}</div>
                       </div>
                     </div>
                   </div>

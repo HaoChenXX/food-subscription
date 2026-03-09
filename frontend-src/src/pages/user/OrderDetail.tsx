@@ -6,6 +6,8 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { toast } from 'sonner';
 import type { OrderStatus } from '@/types';
+import { useUIStore } from '@/store';
+import { t } from '@/lib/i18n';
 
 // 演示订单数据（直接内嵌，不依赖后端）
 const demoOrdersData: Record<string, BackendOrder> = {
@@ -149,6 +151,7 @@ export default function OrderDetail() {
   const [order, setOrder] = useState<BackendOrder | null>(null);
   const [loading, setLoading] = useState(true);
   const [paying, setPaying] = useState(false);
+  const { language } = useUIStore();
 
   // 加载订单详情 - 使用假数据
   const loadOrder = async () => {
@@ -158,7 +161,7 @@ export default function OrderDetail() {
       const data = demoOrdersData[id] || demoOrdersData['ORD202503080001'];
       setOrder(data);
     } catch (error: any) {
-      toast.error(error.message || '加载订单详情失败');
+      toast.error(error.message || t('orders.detail.loadError', language));
     } finally {
       setLoading(false);
     }
@@ -177,14 +180,14 @@ export default function OrderDetail() {
       const updatedOrder = { ...order, status: 'paid' as OrderStatus };
       setOrder(updatedOrder);
       demoOrdersData[order.id].status = 'paid';
-      toast.success('支付成功！');
+      toast.success(t('orders.pay.success', language));
       localStorage.setItem('shouldRefreshOrders', 'true');
       // 延迟返回订单列表
       setTimeout(() => {
         navigate('/orders', { state: { refresh: true } });
       }, 1500);
     } catch (error: any) {
-      toast.error(error.message || '支付失败');
+      toast.error(error.message || t('orders.pay.error', language));
     } finally {
       setPaying(false);
     }
@@ -223,10 +226,10 @@ export default function OrderDetail() {
   if (!order) {
     return (
       <div className="text-center py-12">
-        <h2 className="text-xl font-bold mb-2">订单不存在</h2>
+        <h2 className="text-xl font-bold mb-2">{t('orders.detail.notFound', language)}</h2>
         <Button onClick={() => navigate('/orders')} variant="outline">
           <ArrowLeft className="w-4 h-4 mr-2" />
-          返回订单列表
+          {t('orders.backToList', language)}
         </Button>
       </div>
     );
@@ -245,7 +248,7 @@ export default function OrderDetail() {
         onClick={() => navigate('/orders')}
       >
         <ArrowLeft className="w-4 h-4 mr-2" />
-        返回订单列表
+        {t('orders.backToList', language)}
       </Button>
 
       {/* 订单状态 */}
@@ -254,13 +257,13 @@ export default function OrderDetail() {
           <div className="flex flex-col lg:flex-row lg:items-center justify-between mb-6">
             <div>
               <div className="flex items-center space-x-3 mb-2">
-                <h1 className="text-xl font-bold">订单 {order.id}</h1>
+                <h1 className="text-xl font-bold">{t('orders.orderNo', language)} {order.id}</h1>
                 <Badge className={status.color}>
                   {status.label}
                 </Badge>
               </div>
               <p className="text-gray-500">
-                下单时间：{formatDate(order.created_at)}
+                {t('orders.orderDate', language)}：{formatDate(order.created_at)}
               </p>
             </div>
             <div className="mt-4 lg:mt-0 text-right">
@@ -318,19 +321,19 @@ export default function OrderDetail() {
           {/* 商品信息 */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">商品信息</CardTitle>
+              <CardTitle className="text-lg">{t('orders.detail.productInfo', language)}</CardTitle>
             </CardHeader>
             <CardContent className="p-6">
               <div className="flex items-start space-x-4">
                 <img
                   src={order.package_image || '/placeholder.png'}
-                  alt={order.package_name || '商品'}
+                  alt={order.package_name || t('common.product', language)}
                   className="w-24 h-24 object-cover rounded-lg"
                 />
                 <div className="flex-1">
-                  <h3 className="font-medium text-lg">{order.package_name || '商品'}</h3>
+                  <h3 className="font-medium text-lg">{order.package_name || t('common.product', language)}</h3>
                   <div className="flex items-center space-x-4 mt-2 text-sm text-gray-500">
-                    <span>数量：{order.quantity}</span>
+                    <span>{t('orders.quantity', language)}：{order.quantity}</span>
                   </div>
                   <div className="mt-4 text-lg font-medium text-green-600">
                     ¥{order.price || order.total_amount} × {order.quantity} = ¥{order.total_amount}
@@ -343,28 +346,28 @@ export default function OrderDetail() {
           {/* 配送信息 */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">配送信息</CardTitle>
+              <CardTitle className="text-lg">{t('orders.detail.deliveryInfo', language)}</CardTitle>
             </CardHeader>
             <CardContent className="p-6 space-y-4">
               <div className="flex items-center space-x-3">
                 <Calendar className="w-5 h-5 text-gray-400" />
                 <div>
-                  <div className="text-sm text-gray-500">配送日期</div>
-                  <div>{order.delivery_date || '待定'}</div>
+                  <div className="text-sm text-gray-500">{t('orders.detail.deliveryDate', language)}</div>
+                  <div>{order.delivery_date || t('common.pending', language)}</div>
                 </div>
               </div>
               <div className="flex items-center space-x-3">
                 <Clock className="w-5 h-5 text-gray-400" />
                 <div>
-                  <div className="text-sm text-gray-500">配送时段</div>
-                  <div>{order.delivery_time_slot || '待定'}</div>
+                  <div className="text-sm text-gray-500">{t('orders.detail.deliveryTime', language)}</div>
+                  <div>{order.delivery_time_slot || t('common.pending', language)}</div>
                 </div>
               </div>
               <Separator />
               <div className="flex items-start space-x-3">
                 <MapPin className="w-5 h-5 text-gray-400 mt-0.5" />
                 <div>
-                  <div className="text-sm text-gray-500">配送地址</div>
+                  <div className="text-sm text-gray-500">{t('checkout.deliveryAddress', language)}</div>
                   <div className="font-medium">{address.name} {address.phone}</div>
                   <div>
                     {address.province} {address.city} {address.district}
@@ -381,20 +384,20 @@ export default function OrderDetail() {
           {/* 订单金额 */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">订单金额</CardTitle>
+              <CardTitle className="text-lg">{t('orders.detail.amount', language)}</CardTitle>
             </CardHeader>
             <CardContent className="p-6 space-y-3">
               <div className="flex justify-between">
-                <span className="text-gray-500">商品金额</span>
+                <span className="text-gray-500">{t('orders.detail.productAmount', language)}</span>
                 <span>¥{order.total_amount}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-500">运费</span>
-                <span className="text-green-600">免运费</span>
+                <span className="text-gray-500">{t('checkout.shipping', language)}</span>
+                <span className="text-green-600">{t('checkout.freeShipping', language)}</span>
               </div>
               <Separator />
               <div className="flex justify-between text-lg font-bold">
-                <span>实付金额</span>
+                <span>{t('orders.detail.actualAmount', language)}</span>
                 <span className="text-green-600">¥{order.total_amount}</span>
               </div>
             </CardContent>
@@ -403,12 +406,12 @@ export default function OrderDetail() {
           {/* 支付方式 */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">支付方式</CardTitle>
+              <CardTitle className="text-lg">{t('orders.detail.paymentMethod', language)}</CardTitle>
             </CardHeader>
             <CardContent className="p-6">
               <div className="flex items-center space-x-3">
                 <CreditCard className="w-5 h-5 text-gray-400" />
-                <span>在线支付</span>
+                <span>{t('payment.online', language)}</span>
               </div>
             </CardContent>
           </Card>
@@ -424,21 +427,21 @@ export default function OrderDetail() {
                 {paying ? (
                   <>
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    支付中...
+                    {t('orders.pay.processing', language)}
                   </>
                 ) : (
-                  '立即支付'
+                  t('orders.pay.now', language)
                 )}
               </Button>
             )}
             {order.status === 'delivered' && (
               <Button className="w-full" variant="outline">
                 <MessageSquare className="w-4 h-4 mr-2" />
-                评价订单
+                {t('orders.review', language)}
               </Button>
             )}
             <Button variant="outline" className="w-full">
-              联系客服
+              {t('common.contactService', language)}
             </Button>
           </div>
         </div>

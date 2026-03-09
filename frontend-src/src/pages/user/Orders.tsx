@@ -6,6 +6,8 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
 import type { OrderStatus } from '@/types';
+import { useUIStore } from '@/store';
+import { t } from '@/lib/i18n';
 
 // 演示订单数据（直接内嵌，不依赖后端）
 const demoOrdersData = [
@@ -99,19 +101,20 @@ const statusConfig: Record<OrderStatus, { label: string; color: string; icon: Re
   refunded: { label: '已退款', color: 'bg-gray-100 text-gray-700', icon: XCircle },
 };
 
-const orderTabs = [
-  { value: 'all', label: '全部' },
-  { value: 'pending_payment', label: '待支付' },
-  { value: 'processing', label: '进行中' },
-  { value: 'completed', label: '已完成' },
-];
-
 export default function Orders() {
   const location = useLocation();
   const [orders, setOrders] = useState<BackendOrder[]>([]);
   const [activeTab, setActiveTab] = useState('all');
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const { language } = useUIStore();
+
+  const orderTabs = [
+    { value: 'all', label: t('orders.status.all', language) },
+    { value: 'pending_payment', label: t('orders.status.pending', language) },
+    { value: 'processing', label: t('orders.inProgress', language) },
+    { value: 'completed', label: t('orders.completed', language) },
+  ];
 
   // 加载订单列表 - 使用假数据
   const loadOrders = async () => {
@@ -178,7 +181,7 @@ export default function Orders() {
       <div className="flex items-center justify-center h-96">
         <div className="flex flex-col items-center gap-4">
           <Loader2 className="w-8 h-8 animate-spin text-green-600" />
-          <p className="text-gray-500">加载订单中...</p>
+          <p className="text-gray-500">{t('orders.loading', language)}</p>
         </div>
       </div>
     );
@@ -189,12 +192,12 @@ export default function Orders() {
       {/* 页面标题 */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold mb-2">我的订单</h1>
-          <p className="text-gray-500">查看和管理您的所有订单</p>
+          <h1 className="text-2xl font-bold mb-2">{t('orders.title', language)}</h1>
+          <p className="text-gray-500">{t('orders.subtitle', language)}</p>
         </div>
         <Button variant="outline" onClick={loadOrders} disabled={refreshing}>
           <RefreshCw className={`w-4 h-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
-          刷新
+          {t('orders.refresh', language)}
         </Button>
       </div>
 
@@ -207,7 +210,7 @@ export default function Orders() {
             </div>
             <div>
               <div className="text-2xl font-bold">{orders.length}</div>
-              <div className="text-sm text-gray-500">总订单</div>
+              <div className="text-sm text-gray-500">{t('orders.total', language)}</div>
             </div>
           </CardContent>
         </Card>
@@ -220,7 +223,7 @@ export default function Orders() {
               <div className="text-2xl font-bold">
                 {orders.filter(o => o.status === 'pending_payment').length}
               </div>
-              <div className="text-sm text-gray-500">待支付</div>
+              <div className="text-sm text-gray-500">{t('orders.pending', language)}</div>
             </div>
           </CardContent>
         </Card>
@@ -233,7 +236,7 @@ export default function Orders() {
               <div className="text-2xl font-bold">
                 {orders.filter(o => ['paid', 'preparing', 'shipped'].includes(o.status)).length}
               </div>
-              <div className="text-sm text-gray-500">进行中</div>
+              <div className="text-sm text-gray-500">{t('orders.inProgress', language)}</div>
             </div>
           </CardContent>
         </Card>
@@ -246,7 +249,7 @@ export default function Orders() {
               <div className="text-2xl font-bold">
                 {orders.filter(o => o.status === 'delivered').length}
               </div>
-              <div className="text-sm text-gray-500">已完成</div>
+              <div className="text-sm text-gray-500">{t('orders.completed', language)}</div>
             </div>
           </CardContent>
         </Card>
@@ -268,10 +271,10 @@ export default function Orders() {
               <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <ShoppingBag className="w-8 h-8 text-gray-400" />
               </div>
-              <h3 className="text-lg font-medium text-gray-900 mb-1">暂无订单</h3>
-              <p className="text-gray-500 mb-4">您还没有相关订单</p>
+              <h3 className="text-lg font-medium text-gray-900 mb-1">{t('orders.empty', language)}</h3>
+              <p className="text-gray-500 mb-4">{t('orders.emptySubtitle', language)}</p>
               <Button asChild className="bg-green-600 hover:bg-green-700">
-                <Link to="/packages">去选购</Link>
+                <Link to="/packages">{t('orders.goShopping', language)}</Link>
               </Button>
             </div>
           ) : (
@@ -286,7 +289,7 @@ export default function Orders() {
                     <CardContent className="p-4 lg:p-6">
                       <div className="flex flex-col lg:flex-row lg:items-center justify-between mb-4">
                         <div className="flex items-center space-x-4 mb-2 lg:mb-0">
-                          <span className="text-sm text-gray-500">订单号：{order.id}</span>
+                          <span className="text-sm text-gray-500">{t('orders.orderNo', language)}：{order.id}</span>
                           <span className="text-sm text-gray-500">
                             <Calendar className="w-4 h-4 inline mr-1" />
                             {formatDate(order.created_at)}
@@ -325,7 +328,7 @@ export default function Orders() {
                           </div>
                           <Button variant="ghost" size="sm" className="text-green-600" asChild>
                             <Link to={`/orders/${order.id}`}>
-                              查看详情
+                              {t('orders.viewDetail', language)}
                               <ChevronRight className="w-4 h-4 ml-1" />
                             </Link>
                           </Button>

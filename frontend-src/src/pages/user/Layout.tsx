@@ -19,7 +19,6 @@ import {
   SheetTitle,
   SheetTrigger,
 } from '@/components/ui/sheet';
-// import { Separator } from '@/components/ui/separator';
 import {
   Home,
   Package,
@@ -40,25 +39,26 @@ import {
   X
 } from 'lucide-react';
 import { toast } from 'sonner';
-
-const navItems = [
-  { path: '/', label: '首页', icon: Home },
-  { path: '/packages', label: '食材包', icon: Package },
-  { path: '/orders', label: '我的订单', icon: ClipboardList },
-  { path: '/subscriptions', label: '订阅管理', icon: Calendar },
-];
+import { t } from '@/lib/i18n';
 
 export default function UserLayout() {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, logout } = useAuthStore();
   const { items, getTotalCount, setIsOpen } = useCartStore();
-  const { sidebarOpen, toggleSidebar } = useUIStore();
+  const { sidebarOpen, toggleSidebar, language } = useUIStore();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const navItems = [
+    { path: '/', label: t('nav.home', language), icon: Home },
+    { path: '/packages', label: t('nav.packages', language), icon: Package },
+    { path: '/orders', label: t('nav.orders', language), icon: ClipboardList },
+    { path: '/subscriptions', label: t('nav.subscriptions', language), icon: Calendar },
+  ];
 
   const handleLogout = () => {
     logout();
-    toast.success('已退出登录');
+    toast.success(language === 'zh' ? '已退出登录' : 'Logged out');
     navigate('/login');
   };
 
@@ -82,12 +82,12 @@ export default function UserLayout() {
         <div className="h-16 flex items-center justify-center border-b border-gray-200 dark:border-gray-700">
           <Link to="/" className="flex items-center space-x-2">
             <div className="w-10 h-10 rounded-xl flex items-center justify-center overflow-hidden bg-gradient-to-br from-green-100 to-emerald-50 shadow-sm">
-              <img src="/logo.svg" alt="梓里炊烟" className="w-8 h-8 object-contain" />
+              <img src="/logo.svg" alt={t('brand.name', language)} className="w-8 h-8 object-contain" />
             </div>
             {sidebarOpen && (
               <div className="flex flex-col">
-                <span className="font-bold text-base text-gray-900 dark:text-gray-100 leading-tight">梓里炊烟</span>
-                <span className="text-[10px] text-gray-500 dark:text-gray-400 leading-tight">县域富民食材平台</span>
+                <span className="font-bold text-base text-gray-900 dark:text-gray-100 leading-tight">{t('brand.name', language)}</span>
+                <span className="text-[10px] text-gray-500 dark:text-gray-400 leading-tight">{t('brand.slogan', language)}</span>
               </div>
             )}
           </Link>
@@ -145,11 +145,11 @@ export default function UserLayout() {
                 <SheetHeader className="p-6 border-b border-gray-200">
                   <SheetTitle className="flex items-center space-x-2">
                     <div className="w-10 h-10 rounded-xl flex items-center justify-center overflow-hidden bg-gradient-to-br from-green-100 to-emerald-50 shadow-sm">
-                      <img src="/logo.svg" alt="梓里炊烟" className="w-8 h-8 object-contain" />
+                      <img src="/logo.svg" alt={t('brand.name', language)} className="w-8 h-8 object-contain" />
                     </div>
                     <div className="flex flex-col">
-                      <span className="font-bold text-base">梓里炊烟</span>
-                      <span className="text-[10px] text-gray-500">县域富民食材平台</span>
+                      <span className="font-bold text-base">{t('brand.name', language)}</span>
+                      <span className="text-[10px] text-gray-500">{t('brand.slogan', language)}</span>
                     </div>
                   </SheetTitle>
                 </SheetHeader>
@@ -181,7 +181,7 @@ export default function UserLayout() {
               <Search className="w-4 h-4 text-gray-400 dark:text-gray-300 mr-2" />
               <input
                 type="text"
-                placeholder="搜索食材包..."
+                placeholder={t('nav.searchPlaceholder', language)}
                 className="bg-transparent border-none outline-none text-sm w-48 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500"
               />
             </div>
@@ -226,32 +226,32 @@ export default function UserLayout() {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
-                <DropdownMenuLabel>我的账户</DropdownMenuLabel>
+                <DropdownMenuLabel>{t('nav.myAccount', language) || (language === 'zh' ? '我的账户' : 'My Account')}</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={() => navigate('/profile')}>
                   <User className="w-4 h-4 mr-2" />
-                  个人资料
+                  {t('nav.profile', language)}
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => navigate('/diet-profile')}>
                   <Heart className="w-4 h-4 mr-2" />
-                  饮食画像
+                  {t('nav.dietProfile', language)}
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => navigate('/orders')}>
                   <ClipboardList className="w-4 h-4 mr-2" />
-                  我的订单
+                  {t('nav.orders', language)}
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => navigate('/subscriptions')}>
                   <Calendar className="w-4 h-4 mr-2" />
-                  订阅管理
+                  {t('nav.subscriptions', language)}
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={() => navigate('/settings')}>
                   <Settings className="w-4 h-4 mr-2" />
-                  设置
+                  {t('nav.settings', language)}
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={handleLogout} className="text-red-600">
                   <LogOut className="w-4 h-4 mr-2" />
-                  退出登录
+                  {t('nav.logout', language)}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -270,7 +270,7 @@ export default function UserLayout() {
           <SheetHeader className="flex flex-row items-center justify-between">
             <SheetTitle className="flex items-center">
               <ShoppingCart className="w-5 h-5 mr-2" />
-              购物车 ({getTotalCount()})
+              {t('nav.cart', language)} ({getTotalCount()})
             </SheetTitle>
             {items.length > 0 && (
               <Button
@@ -278,14 +278,14 @@ export default function UserLayout() {
                 size="sm"
                 className="text-red-600 hover:text-red-700"
                 onClick={() => {
-                  if (confirm('确定要清空购物车吗？')) {
+                  if (confirm(language === 'zh' ? '确定要清空购物车吗？' : 'Are you sure you want to clear the cart?')) {
                     useCartStore.getState().clearCart();
-                    toast.success('购物车已清空');
+                    toast.success(t('toast.cart.cleared', language));
                   }
                 }}
               >
                 <Trash2 className="w-4 h-4 mr-1" />
-                清空
+                {t('cart.clear', language)}
               </Button>
             )}
           </SheetHeader>
@@ -293,7 +293,7 @@ export default function UserLayout() {
             {items.length === 0 ? (
               <div className="flex-1 flex flex-col items-center justify-center text-gray-500">
                 <ShoppingCart className="w-16 h-16 mb-4 text-gray-300" />
-                <p>购物车是空的</p>
+                <p>{t('cart.empty', language)}</p>
                 <Button
                   variant="outline"
                   className="mt-4"
@@ -302,7 +302,7 @@ export default function UserLayout() {
                     navigate('/packages');
                   }}
                 >
-                  去选购
+                  {t('cart.goShopping', language)}
                 </Button>
               </div>
             ) : (
@@ -311,7 +311,7 @@ export default function UserLayout() {
                   {items.map((item) => (
                     <div
                       key={item.packageId}
-                      className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg group"
+                      className="flex items-center space-x-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg group"
                     >
                       <img
                         src={item.packageImage}
@@ -327,16 +327,16 @@ export default function UserLayout() {
                             className="h-6 w-6 text-gray-400 hover:text-red-600 flex-shrink-0"
                             onClick={() => {
                               useCartStore.getState().removeItem(item.packageId);
-                              toast.success('已从购物车移除');
+                              toast.success(t('toast.cart.removed', language));
                             }}
                           >
                             <X className="w-4 h-4" />
                           </Button>
                         </div>
                         <p className="text-gray-500 text-xs">
-                          {item.subscriptionType === 'weekly' && '周订阅'}
-                          {item.subscriptionType === 'monthly' && '月订阅'}
-                          {item.subscriptionType === 'quarterly' && '季订阅'}
+                          {item.subscriptionType === 'weekly' && t('subscription.type.weekly', language)}
+                          {item.subscriptionType === 'monthly' && t('subscription.type.monthly', language)}
+                          {item.subscriptionType === 'quarterly' && t('subscription.type.quarterly', language)}
                         </p>
                         <div className="flex items-center justify-between mt-2">
                           <div className="flex items-center space-x-1">
@@ -370,9 +370,9 @@ export default function UserLayout() {
                     </div>
                   ))}
                 </div>
-                <div className="border-t border-gray-200 pt-4 mt-4">
+                <div className="border-t border-gray-200 dark:border-gray-700 pt-4 mt-4">
                   <div className="flex justify-between items-center mb-4">
-                    <span className="text-gray-600">合计</span>
+                    <span className="text-gray-600">{t('common.total', language)}</span>
                     <span className="text-xl font-bold text-green-600">
                       ¥{useCartStore.getState().getTotalAmount()}
                     </span>
@@ -384,7 +384,7 @@ export default function UserLayout() {
                       navigate('/checkout');
                     }}
                   >
-                    去结算
+                    {t('cart.checkout', language)}
                   </Button>
                 </div>
               </>

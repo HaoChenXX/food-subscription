@@ -8,12 +8,14 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Eye, EyeOff, Loader2, ArrowLeft, User, Store } from 'lucide-react';
-import { useAuthStore } from '@/store';
+import { useAuthStore, useUIStore } from '@/store';
+import { t } from '@/lib/i18n';
 import api from '@/api';
 
 export default function Register() {
   const navigate = useNavigate();
   const { login } = useAuthStore();
+  const { language } = useUIStore();
   const [showPassword, setShowPassword] = useState(false);
   const [agreeTerms, setAgreeTerms] = useState(false);
   
@@ -83,14 +85,14 @@ export default function Register() {
 
         <Card className="shadow-xl border-0">
           <CardHeader className="text-center">
-            <CardTitle className="text-xl font-bold text-gray-900">创建账户</CardTitle>
-            <CardDescription>开启您的健康食材订阅之旅</CardDescription>
+            <CardTitle className="text-xl font-bold text-gray-900">{t('auth.register.title', language)}</CardTitle>
+            <CardDescription>{t('auth.register.subtitle', language)}</CardDescription>
           </CardHeader>
           
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="name">姓名</Label>
+                <Label htmlFor="name">{t('auth.register.name', language)}</Label>
                 <Input
                   id="name"
                   placeholder="请输入您的姓名"
@@ -101,7 +103,7 @@ export default function Register() {
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="email">邮箱</Label>
+                <Label htmlFor="email">{t('auth.register.email', language)}</Label>
                 <Input
                   id="email"
                   type="email"
@@ -159,7 +161,7 @@ export default function Register() {
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="password">密码</Label>
+                <Label htmlFor="password">{t('auth.register.password', language)}</Label>
                 <div className="relative">
                   <Input
                     id="password"
@@ -181,7 +183,7 @@ export default function Register() {
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="confirmPassword">确认密码</Label>
+                <Label htmlFor="confirmPassword">{t('auth.register.confirmPassword', language)}</Label>
                 <Input
                   id="confirmPassword"
                   type={showPassword ? 'text' : 'password'}
@@ -199,13 +201,13 @@ export default function Register() {
                   onCheckedChange={(checked) => setAgreeTerms(checked as boolean)}
                 />
                 <Label htmlFor="terms" className="text-sm font-normal leading-tight">
-                  我已阅读并同意{' '}
+                  {t('auth.register.agree', language)}{' '}
                   <Link to="/terms" className="text-green-600 hover:text-green-700">
-                    服务条款
+                    {t('auth.register.terms', language)}
                   </Link>
-                  {' '}和{' '}
+                  {' '}{t('auth.register.and', language)}{' '}
                   <Link to="/privacy" className="text-amber-600 hover:text-amber-700">
-                    隐私政策
+                    {t('auth.register.privacy', language)}
                   </Link>
                 </Label>
               </div>
@@ -221,7 +223,7 @@ export default function Register() {
                     注册中...
                   </>
                 ) : (
-                  '创建账户'
+                  t('auth.register.btn', language)
                 )}
               </Button>
             </form>
@@ -229,9 +231,9 @@ export default function Register() {
           
           <CardFooter>
             <div className="text-sm text-center w-full text-gray-500">
-              已有账户？{' '}
+              {t('auth.register.hasAccount', language)}{' '}
               <Link to="/login" className="text-green-600 hover:text-green-700 font-medium">
-                立即登录
+                {t('auth.register.login', language)}
               </Link>
             </div>
           </CardFooter>

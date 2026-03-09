@@ -8,7 +8,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Separator } from '@/components/ui/separator';
-import { useAuthStore } from '@/store';
+import { useAuthStore, useUIStore } from '@/store';
+import { t } from '@/lib/i18n';
 import {
   User,
   Mail,
@@ -21,6 +22,7 @@ import {
 
 export default function UserProfile() {
   const { user, setUser } = useAuthStore();
+  const { language } = useUIStore();
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
     name: user?.name || '',
@@ -37,7 +39,7 @@ export default function UserProfile() {
     onSuccess: (data) => {
       setUser(data);
       setIsEditing(false);
-      toast.success('资料更新成功');
+      toast.success(t('profile.updated', language));
     },
     onError: () => {
       toast.error('更新失败，请重试');
@@ -52,15 +54,15 @@ export default function UserProfile() {
     <div className="p-4 lg:p-6 max-w-4xl mx-auto">
       {/* 页面标题 */}
       <div className="mb-6">
-        <h1 className="text-2xl font-bold mb-2">个人资料</h1>
-        <p className="text-gray-500">管理您的个人信息和账户设置</p>
+        <h1 className="text-2xl font-bold mb-2">{t('profile.title', language)}</h1>
+        <p className="text-gray-500">{t('profile.subtitle', language)}</p>
       </div>
 
       <Tabs defaultValue="profile" className="w-full">
         <TabsList className="grid w-full grid-cols-3 lg:w-auto lg:inline-flex">
-          <TabsTrigger value="profile">基本信息</TabsTrigger>
-          <TabsTrigger value="security">安全设置</TabsTrigger>
-          <TabsTrigger value="notifications">通知设置</TabsTrigger>
+          <TabsTrigger value="profile">{t('profile.tab.profile', language)}</TabsTrigger>
+          <TabsTrigger value="security">{t('profile.tab.security', language)}</TabsTrigger>
+          <TabsTrigger value="notifications">{t('profile.tab.notifications', language)}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="profile" className="mt-6 space-y-6">
@@ -89,7 +91,7 @@ export default function UserProfile() {
           <Card>
             <CardHeader>
               <CardTitle className="text-lg flex items-center justify-between">
-                <span>基本信息</span>
+                <span>{t('profile.tab.profile', language)}</span>
                 <Button
                   variant="outline"
                   size="sm"
@@ -105,7 +107,7 @@ export default function UserProfile() {
                 <div className="space-y-2">
                   <Label className="flex items-center">
                     <User className="w-4 h-4 mr-2 text-gray-400" />
-                    姓名
+                    {t('profile.name', language)}
                   </Label>
                   <Input
                     value={formData.name}
@@ -116,7 +118,7 @@ export default function UserProfile() {
                 <div className="space-y-2">
                   <Label className="flex items-center">
                     <Mail className="w-4 h-4 mr-2 text-gray-400" />
-                    邮箱
+                    {t('profile.email', language)}
                   </Label>
                   <Input
                     type="email"
@@ -128,7 +130,7 @@ export default function UserProfile() {
                 <div className="space-y-2">
                   <Label className="flex items-center">
                     <Phone className="w-4 h-4 mr-2 text-gray-400" />
-                    手机号
+                    {t('profile.phone', language)}
                   </Label>
                   <Input
                     type="tel"
@@ -147,24 +149,24 @@ export default function UserProfile() {
             <CardHeader>
               <CardTitle className="text-lg flex items-center">
                 <Lock className="w-5 h-5 mr-2 text-green-600" />
-                修改密码
+                {t('profile.changePassword', language)}
               </CardTitle>
             </CardHeader>
             <CardContent className="p-6 space-y-4">
               <div className="space-y-2">
-                <Label>当前密码</Label>
+                <Label>{t('profile.currentPassword', language)}</Label>
                 <Input type="password" placeholder="请输入当前密码" />
               </div>
               <div className="space-y-2">
-                <Label>新密码</Label>
+                <Label>{t('profile.newPassword', language)}</Label>
                 <Input type="password" placeholder="请输入新密码" />
               </div>
               <div className="space-y-2">
-                <Label>确认新密码</Label>
+                <Label>{t('profile.confirmPassword', language)}</Label>
                 <Input type="password" placeholder="请再次输入新密码" />
               </div>
               <Button className="bg-green-600 hover:bg-green-700">
-                修改密码
+                {t('profile.changePassword', language)}
               </Button>
             </CardContent>
           </Card>
@@ -173,24 +175,24 @@ export default function UserProfile() {
             <CardHeader>
               <CardTitle className="text-lg flex items-center">
                 <Shield className="w-5 h-5 mr-2 text-green-600" />
-                账户安全
+                {t('settings.security.title', language)}
               </CardTitle>
             </CardHeader>
             <CardContent className="p-6 space-y-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <div className="font-medium">手机验证</div>
+                  <div className="font-medium">{t('profile.phoneVerified', language)}</div>
                   <div className="text-sm text-gray-500">已绑定手机号：138****8000</div>
                 </div>
-                <Button variant="outline" size="sm">更换</Button>
+                <Button variant="outline" size="sm">{t('profile.change', language)}</Button>
               </div>
               <Separator />
               <div className="flex items-center justify-between">
                 <div>
-                  <div className="font-medium">邮箱验证</div>
+                  <div className="font-medium">{t('profile.emailVerified', language)}</div>
                   <div className="text-sm text-gray-500">已绑定邮箱：{user?.email}</div>
                 </div>
-                <Button variant="outline" size="sm">更换</Button>
+                <Button variant="outline" size="sm">{t('profile.change', language)}</Button>
               </div>
             </CardContent>
           </Card>
@@ -201,7 +203,7 @@ export default function UserProfile() {
             <CardHeader>
               <CardTitle className="text-lg flex items-center">
                 <Bell className="w-5 h-5 mr-2 text-green-600" />
-                通知设置
+                {t('profile.tab.notifications', language)}
               </CardTitle>
             </CardHeader>
             <CardContent className="p-6 space-y-4">

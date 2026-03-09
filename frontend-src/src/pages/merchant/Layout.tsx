@@ -30,24 +30,25 @@ import {
   Bell
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { t } from '@/lib/i18n';
 
 // 侧边栏导航项
-const navItems = [
-  { path: '/merchant', label: '仪表盘', icon: LayoutDashboard },
-  { path: '/merchant/products', label: '商品管理', icon: Package },
-  { path: '/merchant/orders', label: '订单管理', icon: ClipboardList },
+const getNavItems = (language: string) => [
+  { path: '/merchant', label: t('merchant.overview', language), icon: LayoutDashboard },
+  { path: '/merchant/products', label: t('merchant.products', language), icon: Package },
+  { path: '/merchant/orders', label: t('merchant.orders', language), icon: ClipboardList },
 ];
 
 export default function MerchantLayout() {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, logout } = useAuthStore();
-  const { sidebarOpen, toggleSidebar } = useUIStore();
+  const { sidebarOpen, toggleSidebar, language } = useUIStore();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const handleLogout = () => {
     logout();
-    toast.success('已退出登录');
+    toast.success(t('auth.logoutSuccess', language));
     navigate('/login');
   };
 
@@ -76,7 +77,7 @@ export default function MerchantLayout() {
             {sidebarOpen && (
               <div className="flex flex-col">
                 <span className="font-bold text-base text-gray-900 leading-tight">梓里炊烟</span>
-                <span className="text-[10px] text-gray-500 leading-tight">商家中心</span>
+                <span className="text-[10px] text-gray-500 leading-tight">{t('merchant.center', language)}</span>
               </div>
             )}
           </Link>
@@ -84,7 +85,7 @@ export default function MerchantLayout() {
 
         {/* 导航菜单 */}
         <nav className="flex-1 py-6 px-3 space-y-1">
-          {navItems.map((item) => {
+          {getNavItems(language).map((item) => {
             const Icon = item.icon;
             return (
               <Link
@@ -138,12 +139,12 @@ export default function MerchantLayout() {
                     </div>
                     <div className="flex flex-col">
                       <span className="font-bold text-base">梓里炊烟</span>
-                      <span className="text-[10px] text-gray-500">商家中心</span>
+                      <span className="text-[10px] text-gray-500">{t('merchant.center', language)}</span>
                     </div>
                   </SheetTitle>
                 </SheetHeader>
                 <nav className="p-4 space-y-1">
-                  {navItems.map((item) => {
+                  {getNavItems(language).map((item) => {
                     const Icon = item.icon;
                     return (
                       <Link
@@ -190,20 +191,20 @@ export default function MerchantLayout() {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
-                <DropdownMenuLabel>商家账户</DropdownMenuLabel>
+                <DropdownMenuLabel>{t('merchant.account', language)}</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={() => navigate('/merchant')}>
                   <LayoutDashboard className="w-4 h-4 mr-2" />
-                  商家概览
+                  {t('merchant.overview', language)}
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => navigate('/merchant/settings')}>
                   <Settings className="w-4 h-4 mr-2" />
-                  设置
+                  {t('common.settings', language)}
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleLogout} className="text-red-600">
                   <LogOut className="w-4 h-4 mr-2" />
-                  退出登录
+                  {t('nav.logout', language)}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

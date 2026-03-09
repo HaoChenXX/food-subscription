@@ -9,8 +9,9 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { useCartStore, useOrderStore } from '@/store';
+import { useCartStore, useOrderStore, useUIStore } from '@/store';
 import { api } from '@/api/api';
+import { t } from '@/lib/i18n';
 import type { Order } from '@/types';
 import {
   MapPin,
@@ -31,14 +32,15 @@ const timeSlots = [
 ];
 
 const paymentMethods = [
-  { id: 'wechat', name: '微信支付', icon: '💚' },
-  { id: 'alipay', name: '支付宝', icon: '💙' },
+  { id: 'wechat', name: 'wechat', icon: '💚' },
+  { id: 'alipay', name: 'alipay', icon: '💙' },
 ];
 
 export default function Checkout() {
   const navigate = useNavigate();
   const { items, getTotalAmount, clearCart } = useCartStore();
   const { addOrder } = useOrderStore();
+  const { language } = useUIStore();
   
   const [selectedAddress, setSelectedAddress] = useState('1');
   const [selectedTimeSlot, setSelectedTimeSlot] = useState(timeSlots[0]);
@@ -49,7 +51,7 @@ export default function Checkout() {
   const [showSuccessDialog, setShowSuccessDialog] = useState(false);
   const [createdOrderId, setCreatedOrderId] = useState('');
 
-  // 模拟地址数据
+  // Mock address data
   const addresses = [
     {
       id: '1',
@@ -130,10 +132,10 @@ export default function Checkout() {
         <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
           <Package className="w-12 h-12 text-gray-400" />
         </div>
-        <h2 className="text-xl font-medium mb-2">购物车为空</h2>
-        <p className="text-gray-500 mb-6">请先选择您喜欢的食材包</p>
+        <h2 className="text-xl font-medium mb-2">{t('checkout.emptyCart', language)}</h2>
+        <p className="text-gray-500 mb-6">{t('checkout.emptyCartDesc', language)}</p>
         <Button asChild className="bg-green-600 hover:bg-green-700">
-          <a href="/packages">去选购</a>
+          <a href="/packages">{t('checkout.goShopping', language)}</a>
         </Button>
       </div>
     );
@@ -141,17 +143,17 @@ export default function Checkout() {
 
   return (
     <div className="p-4 lg:p-6 max-w-6xl mx-auto">
-      <h1 className="text-2xl font-bold mb-6">确认订单</h1>
+      <h1 className="text-2xl font-bold mb-6">{t('checkout.title', language)}</h1>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* 左侧：订单信息 */}
+        {/* Left: Order Info */}
         <div className="lg:col-span-2 space-y-6">
-          {/* 配送地址 */}
+          {/* Delivery Address */}
           <Card>
             <CardHeader>
               <CardTitle className="text-lg flex items-center">
                 <MapPin className="w-5 h-5 mr-2 text-green-600" />
-                配送地址
+                {t('checkout.deliveryAddress', language)}
               </CardTitle>
             </CardHeader>
             <CardContent className="p-6">
@@ -176,7 +178,7 @@ export default function Checkout() {
                           {address.name} {address.phone}
                         </Label>
                         {address.isDefault && (
-                          <Badge variant="secondary" className="text-xs">默认</Badge>
+                          <Badge variant="secondary" className="text-xs">{t('checkout.default', language)}</Badge>
                         )}
                       </div>
                       <p className="text-gray-500 text-sm mt-1">
@@ -189,22 +191,22 @@ export default function Checkout() {
               </RadioGroup>
               <Button variant="outline" className="mt-4 w-full">
                 <Plus className="w-4 h-4 mr-2" />
-                添加新地址
+                {t('checkout.addAddress', language)}
               </Button>
             </CardContent>
           </Card>
 
-          {/* 配送时间 */}
+          {/* Delivery Time */}
           <Card>
             <CardHeader>
               <CardTitle className="text-lg flex items-center">
                 <Clock className="w-5 h-5 mr-2 text-green-600" />
-                配送时间
+                {t('checkout.deliveryTime', language)}
               </CardTitle>
             </CardHeader>
             <CardContent className="p-6">
               <div className="mb-4">
-                <Label className="mb-2 block">选择日期</Label>
+                <Label className="mb-2 block">{t('checkout.deliveryDate', language)}</Label>
                 <input
                   type="date"
                   value={deliveryDate}
@@ -214,7 +216,7 @@ export default function Checkout() {
                 />
               </div>
               <div>
-                <Label className="mb-2 block">选择时段</Label>
+                <Label className="mb-2 block">{t('checkout.selectTimeSlot', language)}</Label>
                 <RadioGroup
                   value={selectedTimeSlot}
                   onValueChange={setSelectedTimeSlot}
@@ -240,12 +242,12 @@ export default function Checkout() {
             </CardContent>
           </Card>
 
-          {/* 商品清单 */}
+          {/* Product List */}
           <Card>
             <CardHeader>
               <CardTitle className="text-lg flex items-center">
                 <Package className="w-5 h-5 mr-2 text-green-600" />
-                商品清单
+                {t('checkout.productList', language)}
               </CardTitle>
             </CardHeader>
             <CardContent className="p-6">
@@ -263,9 +265,9 @@ export default function Checkout() {
                     <div className="flex-1">
                       <h4 className="font-medium">{item.packageName}</h4>
                       <p className="text-sm text-gray-500">
-                        {item.subscriptionType === 'weekly' && '周订阅'}
-                        {item.subscriptionType === 'monthly' && '月订阅'}
-                        {item.subscriptionType === 'quarterly' && '季订阅'}
+                        {item.subscriptionType === 'weekly' && t('checkout.weekly', language)}
+                        {item.subscriptionType === 'monthly' && t('checkout.monthly', language)}
+                        {item.subscriptionType === 'quarterly' && t('checkout.quarterly', language)}
                         {' '}× {item.quantity}
                       </p>
                     </div>
@@ -280,12 +282,12 @@ export default function Checkout() {
             </CardContent>
           </Card>
 
-          {/* 支付方式 */}
+          {/* Payment Method */}
           <Card>
             <CardHeader>
               <CardTitle className="text-lg flex items-center">
                 <CreditCard className="w-5 h-5 mr-2 text-green-600" />
-                支付方式
+                {t('checkout.payment', language)}
               </CardTitle>
             </CardHeader>
             <CardContent className="p-6">
@@ -306,7 +308,7 @@ export default function Checkout() {
                       className="flex items-center justify-center p-4 border-2 rounded-lg cursor-pointer transition-all peer-data-[state=checked]:border-green-500 peer-data-[state=checked]:bg-green-50 hover:bg-gray-50"
                     >
                       <span className="text-2xl mr-2">{method.icon}</span>
-                      <span>{method.name}</span>
+                      <span>{t(`checkout.payment.${method.name}`, language)}</span>
                     </Label>
                   </div>
                 ))}
@@ -315,31 +317,31 @@ export default function Checkout() {
           </Card>
         </div>
 
-        {/* 右侧：订单摘要 */}
+        {/* Right: Order Summary */}
         <div className="lg:col-span-1">
           <Card className="sticky top-6">
             <CardContent className="p-6">
-              <h3 className="font-bold text-lg mb-4">订单摘要</h3>
+              <h3 className="font-bold text-lg mb-4">{t('checkout.summary', language)}</h3>
 
               <div className="space-y-3 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-gray-500">商品总数</span>
-                  <span>{items.length} 件</span>
+                  <span className="text-gray-500">{t('checkout.totalItems', language)}</span>
+                  <span>{items.length} {t('checkout.items', language)}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-500">商品金额</span>
+                  <span className="text-gray-500">{t('checkout.subtotal', language)}</span>
                   <span>¥{totalAmount}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-500">运费</span>
-                  <span className="text-green-600">免运费</span>
+                  <span className="text-gray-500">{t('checkout.shipping', language)}</span>
+                  <span className="text-green-600">{t('checkout.freeShipping', language)}</span>
                 </div>
               </div>
 
               <Separator className="my-4" />
 
               <div className="flex justify-between items-center mb-6">
-                <span className="font-medium">应付总额</span>
+                <span className="font-medium">{t('checkout.total', language)}</span>
                 <span className="text-3xl font-bold text-green-600">
                   ¥{totalAmount}
                 </span>
@@ -353,37 +355,37 @@ export default function Checkout() {
                 {createOrderMutation.isPending ? (
                   <>
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    处理中...
+                    {t('checkout.processing', language)}
                   </>
                 ) : (
-                  '确认支付'
+                  t('checkout.pay', language)
                 )}
               </Button>
 
               <div className="flex items-center justify-center mt-4 text-sm text-gray-500">
                 <Shield className="w-4 h-4 mr-1" />
-                安全支付保障
+                {t('checkout.security', language)}
               </div>
             </CardContent>
           </Card>
         </div>
       </div>
 
-      {/* 支付成功弹窗 */}
+      {/* Payment Success Dialog */}
       <Dialog open={showSuccessDialog} onOpenChange={setShowSuccessDialog}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader className="text-center">
             <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <CheckCircle2 className="w-8 h-8 text-green-600" />
             </div>
-            <DialogTitle className="text-xl">支付成功！</DialogTitle>
+            <DialogTitle className="text-xl">{t('checkout.success', language)}</DialogTitle>
           </DialogHeader>
           <div className="text-center space-y-4">
             <p className="text-gray-500">
-              您的订单已创建成功，我们将尽快为您配送。
+              {t('checkout.successDesc', language)}
             </p>
             <div className="bg-gray-50 rounded-lg p-4">
-              <div className="text-sm text-gray-500">订单编号</div>
+              <div className="text-sm text-gray-500">{t('checkout.orderId', language)}</div>
               <div className="font-medium">{createdOrderId}</div>
             </div>
             <div className="flex space-x-3">
@@ -392,13 +394,13 @@ export default function Checkout() {
                 className="flex-1"
                 onClick={() => navigate('/orders')}
               >
-                查看订单
+                {t('checkout.viewOrder', language)}
               </Button>
               <Button
                 className="flex-1 bg-green-600 hover:bg-green-700"
                 onClick={() => navigate('/')}
               >
-                返回首页
+                {t('checkout.backHome', language)}
               </Button>
             </div>
           </div>

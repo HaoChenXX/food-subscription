@@ -7,7 +7,8 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useFoodPackageStore, useCartStore } from '@/store';
+import { useFoodPackageStore, useCartStore, useUIStore } from '@/store';
+import { t } from '@/lib/i18n';
 import api from '@/api';
 import {
   Search,
@@ -21,18 +22,28 @@ import {
 import { toast } from 'sonner';
 
 const levelFilters = [
-  { value: 'all', label: '全部' },
+  { value: 'all', label: t('packages.filter.all', 'zh') },
   { value: 'basic', label: '基础' },
   { value: 'advanced', label: '进阶' },
   { value: 'premium', label: '精品' },
 ];
 
 const tagFilters = [
-  '减脂', '增肌', '控糖', '高蛋白', '低卡', '新手', '快手', '家庭', '海鲜', '素食'
+  t('packages.filter.weightLoss', 'zh'), 
+  t('packages.filter.muscle', 'zh'), 
+  '控糖', 
+  '高蛋白', 
+  '低卡', 
+  '新手', 
+  '快手', 
+  t('packages.filter.family', 'zh'), 
+  '海鲜', 
+  '素食'
 ];
 
 export default function FoodPackages() {
   const navigate = useNavigate();
+  const { language } = useUIStore();
   const { packages, setPackages } = useFoodPackageStore();
   const { addItem, setIsOpen } = useCartStore();
   const [searchQuery, setSearchQuery] = useState('');
@@ -114,8 +125,8 @@ export default function FoodPackages() {
     <div className="p-4 lg:p-6 space-y-6">
       {/* 页面标题 */}
       <div>
-        <h1 className="text-2xl font-bold mb-2">食材包</h1>
-        <p className="text-gray-500">发现适合您的食材组合，轻松享受美味</p>
+        <h1 className="text-2xl font-bold mb-2">{t('packages.title', language)}</h1>
+        <p className="text-gray-500">{t('packages.subtitle', language)}</p>
       </div>
 
       {/* 搜索和过滤 */}
@@ -132,14 +143,14 @@ export default function FoodPackages() {
           </div>
           <Select value={sortBy} onValueChange={setSortBy}>
             <SelectTrigger className="w-full lg:w-48">
-              <SelectValue placeholder="排序方式" />
+              <SelectValue placeholder={t('packages.sort.default', language)} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="recommended">综合推荐</SelectItem>
-              <SelectItem value="price_asc">价格从低到高</SelectItem>
-              <SelectItem value="price_desc">价格从高到低</SelectItem>
+              <SelectItem value="recommended">{t('packages.sort.default', language)}</SelectItem>
+              <SelectItem value="price_asc">{t('packages.sort.priceAsc', language)}</SelectItem>
+              <SelectItem value="price_desc">{t('packages.sort.priceDesc', language)}</SelectItem>
               <SelectItem value="rating">评分最高</SelectItem>
-              <SelectItem value="sold">销量最高</SelectItem>
+              <SelectItem value="sold">{t('packages.sort.sales', language)}</SelectItem>
             </SelectContent>
           </Select>
         </div>

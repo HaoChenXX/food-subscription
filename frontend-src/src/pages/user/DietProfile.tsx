@@ -12,7 +12,8 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 // import { Separator } from '@/components/ui/separator';
 import { Progress } from '@/components/ui/progress';
-import { useAuthStore, useDietProfileStore } from '@/store';
+import { useAuthStore, useDietProfileStore, useUIStore } from '@/store';
+import { t } from '@/lib/i18n';
 import { mockApi } from '@/api/mock';
 import {
   User,
@@ -72,6 +73,7 @@ export default function DietProfilePage() {
   const navigate = useNavigate();
   const { user } = useAuthStore();
   const { profile, setProfile } = useDietProfileStore();
+  const { language } = useUIStore();
   const [step, setStep] = useState(1);
   const totalSteps = 4;
 
@@ -137,11 +139,11 @@ export default function DietProfilePage() {
     },
     onSuccess: (data) => {
       setProfile(data);
-      toast.success('饮食画像保存成功！');
+      toast.success(t('diet.saveSuccess', language));
       navigate('/');
     },
     onError: () => {
-      toast.error('保存失败，请重试');
+      toast.error(t('diet.saveError', language));
     }
   });
 
@@ -189,17 +191,17 @@ export default function DietProfilePage() {
       {/* 标题 */}
       <div className="text-center mb-8">
         <h1 className="text-2xl lg:text-3xl font-bold mb-2">
-          {profile ? '更新饮食画像' : '创建您的饮食画像'}
+          {profile ? t('diet.updateTitle', language) : t('diet.createTitle', language)}
         </h1>
         <p className="text-gray-500">
-          帮助我们了解您的饮食偏好，为您推荐最合适的食材包
+          {t('diet.subtitle', language)}
         </p>
       </div>
 
       {/* 进度条 */}
       <div className="mb-8">
         <div className="flex items-center justify-between mb-2">
-          <span className="text-sm text-gray-500">步骤 {step} / {totalSteps}</span>
+          <span className="text-sm text-gray-500">{t('diet.step', language)} {step} / {totalSteps}</span>
           <span className="text-sm font-medium">{Math.round((step / totalSteps) * 100)}%</span>
         </div>
         <Progress value={(step / totalSteps) * 100} className="h-2" />
@@ -213,16 +215,16 @@ export default function DietProfilePage() {
             {step === 2 && <Heart className="w-5 h-5 mr-2 text-red-500" />}
             {step === 3 && <ChefHat className="w-5 h-5 mr-2 text-orange-500" />}
             {step === 4 && <Users className="w-5 h-5 mr-2 text-blue-500" />}
-            {step === 1 && '基础属性'}
-            {step === 2 && '口味偏好'}
-            {step === 3 && '烹饪能力'}
-            {step === 4 && '用餐习惯'}
+            {step === 1 && t('diet.step1.title', language)}
+            {step === 2 && t('diet.step2.title', language)}
+            {step === 3 && t('diet.step3.title', language)}
+            {step === 4 && t('diet.step4.title', language)}
           </CardTitle>
           <CardDescription>
-            {step === 1 && '告诉我们您的基本信息和饮食目标'}
-            {step === 2 && '选择您喜欢的菜系和口味'}
-            {step === 3 && '了解您的烹饪技能和设备'}
-            {step === 4 && '告诉我们您的用餐习惯'}
+            {step === 1 && t('diet.step1.desc', language)}
+            {step === 2 && t('diet.step2.desc', language)}
+            {step === 3 && t('diet.step3.desc', language)}
+            {step === 4 && t('diet.step4.desc', language)}
           </CardDescription>
         </CardHeader>
 
@@ -232,7 +234,7 @@ export default function DietProfilePage() {
             <>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label>年龄</Label>
+                  <Label>{t('diet.age', language)}</Label>
                   <Input
                     type="number"
                     value={formData.age}
@@ -242,7 +244,7 @@ export default function DietProfilePage() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>性别</Label>
+                  <Label>{t('diet.gender', language)}</Label>
                   <RadioGroup
                     value={formData.gender}
                     onValueChange={(value) => updateFormData('gender', value)}
@@ -250,28 +252,28 @@ export default function DietProfilePage() {
                   >
                     <div className="flex items-center space-x-2">
                       <RadioGroupItem value="male" id="male" />
-                      <Label htmlFor="male">男</Label>
+                      <Label htmlFor="male">{t('diet.gender.male', language)}</Label>
                     </div>
                     <div className="flex items-center space-x-2">
                       <RadioGroupItem value="female" id="female" />
-                      <Label htmlFor="female">女</Label>
+                      <Label htmlFor="female">{t('diet.gender.female', language)}</Label>
                     </div>
                   </RadioGroup>
                 </div>
               </div>
 
               <div className="space-y-2">
-                <Label>饮食目标</Label>
+                <Label>{t('diet.goals', language)}</Label>
                 <RadioGroup
                   value={formData.dietGoal}
                   onValueChange={(value) => updateFormData('dietGoal', value)}
                   className="grid grid-cols-2 gap-4"
                 >
                   {[
-                    { value: 'weight_loss', label: '减脂', desc: '控制热量摄入' },
-                    { value: 'muscle_gain', label: '增肌', desc: '高蛋白饮食' },
-                    { value: 'blood_sugar_control', label: '控糖', desc: '低GI食材' },
-                    { value: 'balanced', label: '均衡', desc: '营养均衡' },
+                    { value: 'weight_loss', label: t('diet.goal.weightLoss', language), desc: t('diet.goal.weightLossDesc', language) },
+                    { value: 'muscle_gain', label: t('diet.goal.muscle', language), desc: t('diet.goal.muscleDesc', language) },
+                    { value: 'blood_sugar_control', label: t('diet.goal.bloodSugar', language), desc: t('diet.goal.bloodSugarDesc', language) },
+                    { value: 'balanced', label: t('diet.goal.balance', language), desc: t('diet.goal.balanceDesc', language) },
                   ].map((goal) => (
                     <div key={goal.value}>
                       <RadioGroupItem
@@ -294,7 +296,7 @@ export default function DietProfilePage() {
               <div className="space-y-2">
                 <Label className="flex items-center">
                   <AlertCircle className="w-4 h-4 mr-1 text-orange-500" />
-                  过敏食材
+                  {t('diet.allergies', language)}
                 </Label>
                 <div className="grid grid-cols-4 gap-3">
                   {allergyOptions.map((allergy) => (
@@ -311,9 +313,9 @@ export default function DietProfilePage() {
               </div>
 
               <div className="space-y-2">
-                <Label>忌口偏好</Label>
+                <Label>{t('diet.avoidances', language)}</Label>
                 <Input
-                  placeholder="请输入您不吃的食材，用逗号分隔"
+                  placeholder={t('diet.avoidancesPlaceholder', language)}
                   value={formData.avoidances.join(', ')}
                   onChange={(e) => updateFormData('avoidances', e.target.value.split(',').map(s => s.trim()).filter(Boolean))}
                 />
@@ -325,7 +327,7 @@ export default function DietProfilePage() {
           {step === 2 && (
             <>
               <div className="space-y-2">
-                <Label>喜欢的菜系</Label>
+                <Label>{t('diet.cuisinePreferences', language)}</Label>
                 <div className="grid grid-cols-4 gap-3">
                   {cuisineOptions.map((cuisine) => (
                     <div key={cuisine.id}>
@@ -347,17 +349,17 @@ export default function DietProfilePage() {
               </div>
 
               <div className="space-y-2">
-                <Label>辛辣接受度</Label>
+                <Label>{t('diet.spiceLevel', language)}</Label>
                 <RadioGroup
                   value={formData.spiceLevel}
                   onValueChange={(value) => updateFormData('spiceLevel', value)}
                   className="flex space-x-4"
                 >
                   {[
-                    { value: 'none', label: '不吃辣' },
-                    { value: 'mild', label: '微辣' },
-                    { value: 'medium', label: '中辣' },
-                    { value: 'hot', label: '重辣' },
+                    { value: 'none', label: t('diet.spice.none', language) },
+                    { value: 'mild', label: t('diet.spice.mild', language) },
+                    { value: 'medium', label: t('diet.spice.medium', language) },
+                    { value: 'hot', label: t('diet.spice.hot', language) },
                   ].map((level) => (
                     <div key={level.value} className="flex items-center space-x-2">
                       <RadioGroupItem value={level.value} id={level.value} />
@@ -368,7 +370,7 @@ export default function DietProfilePage() {
               </div>
 
               <div className="space-y-2">
-                <Label>口味偏好</Label>
+                <Label>{t('diet.tastePreferences', language)}</Label>
                 <div className="flex flex-wrap gap-3">
                   {tasteOptions.map((taste) => (
                     <Badge
@@ -393,16 +395,16 @@ export default function DietProfilePage() {
           {step === 3 && (
             <>
               <div className="space-y-2">
-                <Label>烹饪技能</Label>
+                <Label>{t('diet.cookingSkill', language)}</Label>
                 <RadioGroup
                   value={formData.cookingSkill}
                   onValueChange={(value) => updateFormData('cookingSkill', value)}
                   className="grid grid-cols-3 gap-4"
                 >
                   {[
-                    { value: 'beginner', label: '新手', desc: '刚入门' },
-                    { value: 'intermediate', label: '熟练', desc: '有一定经验' },
-                    { value: 'advanced', label: '高手', desc: '厨艺精湛' },
+                    { value: 'beginner', label: t('diet.skill.beginner', language), desc: t('diet.skill.beginnerDesc', language) },
+                    { value: 'intermediate', label: t('diet.skill.intermediate', language), desc: t('diet.skill.intermediateDesc', language) },
+                    { value: 'advanced', label: t('diet.skill.advanced', language), desc: t('diet.skill.advancedDesc', language) },
                   ].map((skill) => (
                     <div key={skill.value}>
                       <RadioGroupItem
@@ -424,7 +426,7 @@ export default function DietProfilePage() {
               </div>
 
               <div className="space-y-2">
-                <Label>可用厨具</Label>
+                <Label>{t('diet.appliances', language)}</Label>
                 <div className="grid grid-cols-4 gap-3">
                   {applianceOptions.map((appliance) => (
                     <div key={appliance.id} className="flex items-center space-x-2">
@@ -441,8 +443,8 @@ export default function DietProfilePage() {
 
               <div className="space-y-4">
                 <Label className="flex items-center justify-between">
-                  <span>平均烹饪时间</span>
-                  <span className="text-green-600 font-medium">{formData.avgCookingTime} 分钟</span>
+                  <span>{t('diet.cookingTime', language)}</span>
+                  <span className="text-green-600 font-medium">{formData.avgCookingTime} {t('diet.minutes', language)}</span>
                 </Label>
                 <Slider
                   value={[formData.avgCookingTime]}
@@ -452,9 +454,9 @@ export default function DietProfilePage() {
                   step={5}
                 />
                 <div className="flex justify-between text-xs text-gray-500">
-                  <span>10分钟</span>
-                  <span>60分钟</span>
-                  <span>120分钟</span>
+                  <span>10{t('diet.minutes', language)}</span>
+                  <span>60{t('diet.minutes', language)}</span>
+                  <span>120{t('diet.minutes', language)}</span>
                 </div>
               </div>
             </>
@@ -465,7 +467,7 @@ export default function DietProfilePage() {
             <>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label>家庭人数</Label>
+                  <Label>{t('diet.householdSize', language)}</Label>
                   <div className="flex items-center space-x-4">
                     <Button
                       variant="outline"
@@ -485,7 +487,7 @@ export default function DietProfilePage() {
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label>每日用餐次数</Label>
+                  <Label>{t('diet.mealFrequency', language)}</Label>
                   <div className="flex items-center space-x-4">
                     <Button
                       variant="outline"
@@ -507,16 +509,16 @@ export default function DietProfilePage() {
               </div>
 
               <div className="space-y-2">
-                <Label>食材消耗速度</Label>
+                <Label>{t('diet.consumptionRate', language)}</Label>
                 <RadioGroup
                   value={formData.consumptionRate}
                   onValueChange={(value) => updateFormData('consumptionRate', value)}
                   className="grid grid-cols-3 gap-4"
                 >
                   {[
-                    { value: 'slow', label: '较慢', desc: '2-3天' },
-                    { value: 'normal', label: '正常', desc: '1-2天' },
-                    { value: 'fast', label: '较快', desc: '当天' },
+                    { value: 'slow', label: t('diet.rate.slow', language), desc: t('diet.rate.slowDesc', language) },
+                    { value: 'normal', label: t('diet.rate.normal', language), desc: t('diet.rate.normalDesc', language) },
+                    { value: 'fast', label: t('diet.rate.fast', language), desc: t('diet.rate.fastDesc', language) },
                   ].map((rate) => (
                     <div key={rate.value}>
                       <RadioGroupItem
@@ -547,12 +549,12 @@ export default function DietProfilePage() {
             disabled={step === 1}
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
-            上一步
+            {t('diet.prev', language)}
           </Button>
           
           {step < totalSteps ? (
             <Button onClick={handleNext} className="bg-green-600 hover:bg-green-700">
-              下一步
+              {t('diet.next', language)}
               <ArrowRight className="w-4 h-4 ml-2" />
             </Button>
           ) : (
@@ -564,12 +566,12 @@ export default function DietProfilePage() {
               {saveMutation.isPending ? (
                 <>
                   <div className="w-4 h-4 mr-2 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                  保存中...
+                  {t('diet.saving', language)}
                 </>
               ) : (
                 <>
                   <CheckCircle2 className="w-4 h-4 mr-2" />
-                  保存画像
+                  {t('diet.save', language)}
                 </>
               )}
             </Button>

@@ -7,8 +7,9 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useFoodPackageStore, useCartStore } from '@/store';
+import { useFoodPackageStore, useCartStore, useUIStore } from '@/store';
 import api from '@/api';
+import { t } from '@/lib/i18n';
 import { formatPrice, getDifficultyText } from '@/lib/utils';
 import {
   Search,
@@ -24,10 +25,10 @@ import { toast } from 'sonner';
 import type { FoodPackage } from '@/types';
 
 const levelFilters = [
-  { value: 'all', label: '全部' },
-  { value: 'basic', label: '基础' },
-  { value: 'advanced', label: '进阶' },
-  { value: 'premium', label: '精品' },
+  { value: 'all', label: 'packages.filter.all' },
+  { value: 'basic', label: 'packages.filter.basic' },
+  { value: 'advanced', label: 'packages.filter.advanced' },
+  { value: 'premium', label: 'packages.filter.premium' },
 ];
 
 const tagFilters = [
@@ -35,17 +36,18 @@ const tagFilters = [
 ];
 
 const sortOptions = [
-  { value: 'recommended', label: '综合推荐' },
-  { value: 'price_asc', label: '价格从低到高' },
-  { value: 'price_desc', label: '价格从高到低' },
-  { value: 'rating', label: '评分最高' },
-  { value: 'sold', label: '销量最高' },
+  { value: 'recommended', label: 'packages.sort.recommended' },
+  { value: 'price_asc', label: 'packages.sort.priceAsc' },
+  { value: 'price_desc', label: 'packages.sort.priceDesc' },
+  { value: 'rating', label: 'packages.sort.rating' },
+  { value: 'sold', label: 'packages.sort.sold' },
 ];
 
 export default function PackageList() {
   const navigate = useNavigate();
   const { packages, setPackages } = useFoodPackageStore();
   const { addItem, setIsOpen } = useCartStore();
+  const { language } = useUIStore();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedLevel, setSelectedLevel] = useState('all');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
@@ -104,7 +106,7 @@ export default function PackageList() {
       quantity: 1,
       subscriptionType: 'weekly'
     });
-    toast.success(`已将 "${pkg.name}" 加入购物车`);
+    toast.success(t('cart.added', { name: pkg.name }));
     setIsOpen(true);
   };
 
@@ -134,8 +136,8 @@ export default function PackageList() {
       {/* 页面标题 */}
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold mb-2">食材包列表</h1>
-          <p className="text-gray-500">发现适合您的食材组合，轻松享受美味</p>
+          <h1 className="text-2xl font-bold mb-2">{t('packages.title')}</h1>
+          <p className="text-gray-500">{t('packages.subtitle')}</p>
         </div>
         <Button
           variant="outline"
@@ -143,7 +145,7 @@ export default function PackageList() {
           onClick={() => setShowFilters(!showFilters)}
         >
           <SlidersHorizontal className="w-4 h-4 mr-2" />
-          筛选
+          {t('common.filter')}
         </Button>
       </div>
 
@@ -153,7 +155,7 @@ export default function PackageList() {
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
             <Input
-              placeholder="搜索食材包..."
+              placeholder={t('packages.searchPlaceholder')}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-10"
@@ -161,12 +163,12 @@ export default function PackageList() {
           </div>
           <Select value={sortBy} onValueChange={setSortBy}>
             <SelectTrigger className="w-full lg:w-48">
-              <SelectValue placeholder="排序方式" />
+              <SelectValue placeholder={t('packages.sort.placeholder')} />
             </SelectTrigger>
             <SelectContent>
               {sortOptions.map(option => (
                 <SelectItem key={option.value} value={option.value}>
-                  {option.label}
+                  {t(option.label)}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -186,12 +188,12 @@ export default function PackageList() {
               }`}
               onClick={() => toggleTag(tag)}
             >
-              {tag}
+              {t(`packages.tags.${tag}`)}
             </Badge>
           ))}
           {(searchQuery || selectedLevel !== 'all' || selectedTags.length > 0) && (
             <Button variant="ghost" size="sm" onClick={clearFilters} className="text-gray-500">
-              清除筛选
+              {t('packages.clearFilters')}
             </Button>
           )}
         </div>
@@ -206,7 +208,7 @@ export default function PackageList() {
               value={filter.value}
               onClick={() => setSelectedLevel(filter.value)}
             >
-              {filter.label}
+              {t(filter.label)}
             </TabsTrigger>
           ))}
         </TabsList>
@@ -218,8 +220,8 @@ export default function PackageList() {
                 <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Search className="w-8 h-8 text-gray-400" />
                 </div>
-                <h3 className="text-lg font-medium text-gray-900 mb-1">未找到相关食材包</h3>
-                <p className="text-gray-500">尝试调整搜索条件或筛选条件</p>
+                <h3 className="text-lg font-medium text-gray-900 mb-1">{t('packages.noResults')}</h3>
+                <p className="text-gray-500">{t('packages.tryAdjust')}</p>
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
@@ -238,7 +240,7 @@ export default function PackageList() {
                       {pkg.isLimited && (
                         <Badge className="absolute top-3 left-3 bg-red-500">
                           <Flame className="w-3 h-3 mr-1" />
-                          限时特惠
+                          {t('packages.limitedOffer')}
                         </Badge>
                       )}
                       <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm rounded-full px-2 py-1 text-sm font-bold text-green-600">
@@ -246,7 +248,7 @@ export default function PackageList() {
                       </div>
                       {pkg.originalPrice > pkg.price && (
                         <div className="absolute bottom-3 right-3 bg-red-500 text-white rounded-full px-2 py-1 text-xs font-bold">
-                          省¥{pkg.originalPrice - pkg.price}
+                          {t('packages.save')}{pkg.originalPrice - pkg.price}
                         </div>
                       )}
                     </div>
@@ -254,9 +256,9 @@ export default function PackageList() {
                     <CardContent className="p-4">
                       <div className="flex items-center space-x-2 mb-2">
                         <Badge variant="secondary" className="text-xs">
-                          {pkg.level === 'basic' && '基础'}
-                          {pkg.level === 'advanced' && '进阶'}
-                          {pkg.level === 'premium' && '精品'}
+                          {pkg.level === 'basic' && t('packages.level.basic')}
+                          {pkg.level === 'advanced' && t('packages.level.advanced')}
+                          {pkg.level === 'premium' && t('packages.level.premium')}
                         </Badge>
                         <div className="flex items-center text-yellow-500 text-xs">
                           <Star className="w-3 h-3 fill-current" />
@@ -276,11 +278,11 @@ export default function PackageList() {
                       <div className="flex items-center space-x-3 text-sm text-gray-500 mb-3">
                         <span className="flex items-center">
                           <Clock className="w-4 h-4 mr-1" />
-                          {pkg.cookTime}分钟
+                          {pkg.cookTime}{t('common.minutes')}
                         </span>
                         <span className="flex items-center">
                           <Users className="w-4 h-4 mr-1" />
-                          {pkg.servingSize}人份
+                          {pkg.servingSize}{t('common.servings')}
                         </span>
                         <span className="flex items-center">
                           <ChefHat className="w-4 h-4 mr-1" />
@@ -294,7 +296,7 @@ export default function PackageList() {
                             key={tag}
                             className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded"
                           >
-                            {tag}
+                            {t(`packages.tags.${tag}`)}
                           </span>
                         ))}
                       </div>
@@ -321,7 +323,7 @@ export default function PackageList() {
                         }}
                       >
                         <ShoppingCart className="w-4 h-4 mr-1" />
-                        加入购物车
+                        {t('common.addToCart')}
                       </Button>
                     </CardContent>
                   </Card>

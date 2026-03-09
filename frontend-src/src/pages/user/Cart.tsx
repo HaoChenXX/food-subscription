@@ -6,7 +6,8 @@ import { Card, CardContent } from '@/components/ui/card';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
-import { useCartStore } from '@/store';
+import { useCartStore, useUIStore } from '@/store';
+import { t } from '@/lib/i18n';
 import {
   ShoppingCart,
   Trash2,
@@ -17,15 +18,16 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 
-const subscriptionOptions = [
-  { value: 'weekly', label: '周订阅', discount: 0 },
-  { value: 'monthly', label: '月订阅', discount: 0.1 },
-  { value: 'quarterly', label: '季订阅', discount: 0.2 },
+const subscriptionOptions = (lang: string) => [
+  { value: 'weekly', label: t('subscription.type.weekly', lang), discount: 0 },
+  { value: 'monthly', label: t('subscription.type.monthly', lang), discount: 0.1 },
+  { value: 'quarterly', label: t('subscription.type.quarterly', lang), discount: 0.2 },
 ];
 
 export default function Cart() {
   const navigate = useNavigate();
   const { items, removeItem, updateQuantity, updateSubscriptionType, clearCart } = useCartStore();
+  const { language } = useUIStore();
   const [selectedItems, setSelectedItems] = useState<string[]>(items.map(i => i.packageId));
 
   const toggleSelectItem = (packageId: string) => {
@@ -47,7 +49,7 @@ export default function Cart() {
   const handleRemove = (packageId: string) => {
     removeItem(packageId);
     setSelectedItems(prev => prev.filter(id => id !== packageId));
-    toast.success('已从购物车移除');
+    toast.success(t('toast.cart.removed', language));
   };
 
   const selectedTotal = items
@@ -56,7 +58,7 @@ export default function Cart() {
 
   const handleCheckout = () => {
     if (selectedItems.length === 0) {
-      toast.error('请选择要结算的商品');
+      toast.error(t('toast.cart.selectRequired', language));
       return;
     }
     navigate('/checkout');
@@ -65,15 +67,15 @@ export default function Cart() {
   if (items.length === 0) {
     return (
       <div className="p-4 lg:p-6">
-        <h1 className="text-2xl font-bold mb-6">购物车</h1>
+        <h1 className="text-2xl font-bold mb-6">{t('nav.cart', language)}</h1>
         <div className="text-center py-16">
           <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
             <ShoppingCart className="w-12 h-12 text-gray-400" />
           </div>
-          <h2 className="text-xl font-medium text-gray-900 mb-2">购物车是空的</h2>
-          <p className="text-gray-500 mb-6">快去选购您喜欢的食材包吧</p>
+          <h2 className="text-xl font-medium text-gray-900 mb-2">{t('cart.empty', language)}</h2>
+          <p className="text-gray-500 mb-6">{t('cart.empty.desc', language)}</p>
           <Button asChild className="bg-green-600 hover:bg-green-700">
-            <Link to="/packages">去选购</Link>
+            <Link to="/packages">{t('cart.goShopping', language)}</Link>
           </Button>
         </div>
       </div>
@@ -82,10 +84,10 @@ export default function Cart() {
 
   return (
     <div className="p-4 lg:p-6">
-      <h1 className="text-2xl font-bold mb-6">购物车 ({items.length})</h1>
+      <h1 className="text-2xl font-bold mb-6">{t('nav.cart', language)} ({items.length})</h1>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* 商品列表 */}
+        {/* {t('cart.productList', language)} */}
         <div className="lg:col-span-2 space-y-4">
           {/* 全选 */}
           <div className="flex items-center justify-between bg-white p-4 rounded-lg border">
@@ -103,7 +105,7 @@ export default function Cart() {
                 )}
               </button>
               <span className="font-medium">
-                全选 ({selectedItems.length}/{items.length})
+                {t('cart.selectAll', language)} ({selectedItems.length}/{items.length})
               </span>
             </div>
             <Button
@@ -113,7 +115,7 @@ export default function Cart() {
               onClick={clearCart}
             >
               <Trash2 className="w-4 h-4 mr-1" />
-              清空
+              {t('cart.clear', language)}
             </Button>
           </div>
 
@@ -160,7 +162,7 @@ export default function Cart() {
                       }
                       className="flex flex-wrap gap-2 mt-3"
                     >
-                      {subscriptionOptions.map((option) => (
+                      {subscriptionOptions(language).map((option) => (
                         <div key={option.value}>
                           <RadioGroupItem
                             value={option.value}
@@ -229,32 +231,32 @@ export default function Cart() {
           ))}
         </div>
 
-        {/* 结算区域 */}
+        {/* {t('cart.checkoutArea', language)} */}
         <div className="lg:col-span-1">
           <Card className="sticky top-6">
             <CardContent className="p-6">
-              <h3 className="font-bold text-lg mb-4">订单摘要</h3>
+              <h3 className="font-bold text-lg mb-4">{t('cart.orderSummary', language)}</h3>
 
               <div className="space-y-3 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-gray-500">商品总数</span>
-                  <span>{selectedItems.length} 件</span>
+                  <span className="text-gray-500">{t('cart.totalItems', language)}</span>
+                  <span>{selectedItems.length} {t('common.pieces', language)}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-500">商品金额</span>
+                  <span className="text-gray-500">{t('cart.itemAmount', language)}</span>
                   <span>¥{selectedTotal}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-500">运费</span>
-                  <span className="text-green-600">免运费</span>
+                  <span className="text-gray-500">{t('common.shipping', language)}</span>
+                  <span className="text-green-600">{t('common.freeShipping', language)}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-500">优惠</span>
+                  <span className="text-gray-500">{t('common.discount', language)}</span>
                   <span className="text-red-500">
                     -¥{items
                       .filter(item => selectedItems.includes(item.packageId))
                       .reduce((total, item) => {
-                        const discount = subscriptionOptions.find(
+                        const discount = subscriptionOptions(language).find(
                           o => o.value === item.subscriptionType
                         )?.discount || 0;
                         return total + item.price * item.quantity * discount / (1 - discount);
@@ -267,7 +269,7 @@ export default function Cart() {
               <Separator className="my-4" />
 
               <div className="flex justify-between items-center mb-6">
-                <span className="font-medium">合计</span>
+                <span className="font-medium">{t('common.total', language)}</span>
                 <span className="text-2xl font-bold text-green-600">
                   ¥{selectedTotal}
                 </span>
@@ -278,12 +280,12 @@ export default function Cart() {
                 disabled={selectedItems.length === 0}
                 onClick={handleCheckout}
               >
-                去结算
+                {t('cart.checkout', language)}
                 <ArrowRight className="w-4 h-4 ml-2" />
               </Button>
 
               <p className="text-xs text-gray-500 text-center mt-4">
-                点击结算即表示您同意我们的服务条款
+                {t('cart.termsAgree', language)}
               </p>
             </CardContent>
           </Card>

@@ -6,7 +6,8 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Separator } from '@/components/ui/separator';
-import { useAuthStore, useDietProfileStore, useFoodPackageStore, useOrderStore, useSubscriptionStore } from '@/store';
+import { useAuthStore, useDietProfileStore, useFoodPackageStore, useOrderStore, useSubscriptionStore, useUIStore } from '@/store';
+import { t } from '@/lib/i18n';
 import api from '@/api';
 import {
   ChefHat,
@@ -30,6 +31,7 @@ export default function UserHome() {
   const { recommendedPackages, limitedPackages, setRecommendedPackages, setLimitedPackages } = useFoodPackageStore();
   const { orders } = useOrderStore();
   const { subscriptions } = useSubscriptionStore();
+  const { language } = useUIStore();
 
   // 获取推荐食材包
   const { data: recommendedData, isLoading: isLoadingRecommended } = useQuery({
@@ -72,14 +74,14 @@ export default function UserHome() {
         <div className="relative z-10 flex flex-col lg:flex-row lg:items-center lg:justify-between">
           <div>
             <div className="flex items-center gap-2 mb-2">
-              <img src="/logo.svg" alt="梓里炊烟" className="w-8 h-8 rounded-lg" />
-              <span className="text-green-100 text-sm font-medium">梓里炊烟</span>
+              <img src="/logo.svg" alt={t('app.name', language)} className="w-8 h-8 rounded-lg" />
+              <span className="text-green-100 text-sm font-medium">{t('app.name', language)}</span>
             </div>
             <h1 className="text-2xl lg:text-3xl font-bold mb-2">
-              欢迎回来，{user?.name}！
+              {t('home.welcome', language).replace('{name}', user?.name || '')}
             </h1>
             <p className="text-green-100 mb-4">
-              {profile ? '根据您的饮食画像，为您推荐以下食材包' : '完善您的饮食画像，获取个性化推荐'}
+              {profile ? t('home.recommendationWithProfile', language) : t('home.recommendationWithoutProfile', language)}
             </p>
             {!profile && (
               <Button
@@ -89,7 +91,7 @@ export default function UserHome() {
               >
                 <Link to="/diet-profile">
                   <Sparkles className="w-4 h-4 mr-2" />
-                  创建饮食画像
+                  {t('home.createDietProfile', language)}
                 </Link>
               </Button>
             )}
@@ -97,12 +99,12 @@ export default function UserHome() {
           <div className="mt-6 lg:mt-0 flex items-center space-x-4">
             <div className="text-center">
               <div className="text-3xl font-bold">{orders.length}</div>
-              <div className="text-sm text-green-100">总订单</div>
+              <div className="text-sm text-green-100">{t('home.stats.totalOrders', language)}</div>
             </div>
             <Separator orientation="vertical" className="h-12 bg-white/30" />
             <div className="text-center">
               <div className="text-3xl font-bold">{activeSubscriptions.length}</div>
-              <div className="text-sm text-green-100">活跃订阅</div>
+              <div className="text-sm text-green-100">{t('home.stats.activeSubs', language)}</div>
             </div>
           </div>
         </div>
@@ -116,8 +118,8 @@ export default function UserHome() {
               <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mb-3">
                 <Package className="w-6 h-6 text-green-600" />
               </div>
-              <h3 className="font-medium">浏览食材包</h3>
-              <p className="text-sm text-gray-500 mt-1">发现更多美味</p>
+              <h3 className="font-medium">{t('home.quickActions.browse', language)}</h3>
+              <p className="text-sm text-gray-500 mt-1">{t('home.quickActions.browse.desc', language)}</p>
             </CardContent>
           </Card>
         </Link>
@@ -127,8 +129,8 @@ export default function UserHome() {
               <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mb-3">
                 <Truck className="w-6 h-6 text-blue-600" />
               </div>
-              <h3 className="font-medium">订单追踪</h3>
-              <p className="text-sm text-gray-500 mt-1">查看配送进度</p>
+              <h3 className="font-medium">{t('home.quickActions.track', language)}</h3>
+              <p className="text-sm text-gray-500 mt-1">{t('home.quickActions.track.desc', language)}</p>
             </CardContent>
           </Card>
         </Link>
@@ -138,8 +140,8 @@ export default function UserHome() {
               <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mb-3">
                 <Calendar className="w-6 h-6 text-purple-600" />
               </div>
-              <h3 className="font-medium">订阅管理</h3>
-              <p className="text-sm text-gray-500 mt-1">管理配送计划</p>
+              <h3 className="font-medium">{t('home.quickActions.manage', language)}</h3>
+              <p className="text-sm text-gray-500 mt-1">{t('home.quickActions.manage.desc', language)}</p>
             </CardContent>
           </Card>
         </Link>
@@ -149,8 +151,8 @@ export default function UserHome() {
               <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center mb-3">
                 <Heart className="w-6 h-6 text-orange-600" />
               </div>
-              <h3 className="font-medium">饮食画像</h3>
-              <p className="text-sm text-gray-500 mt-1">个性化设置</p>
+              <h3 className="font-medium">{t('home.quickActions.profile', language)}</h3>
+              <p className="text-sm text-gray-500 mt-1">{t('home.quickActions.profile.desc', language)}</p>
             </CardContent>
           </Card>
         </Link>
@@ -161,10 +163,10 @@ export default function UserHome() {
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-bold flex items-center">
             <TrendingUp className="w-5 h-5 mr-2 text-red-500" />
-            限时特惠
+            {t('home.section.limited', language)}
           </h2>
           <Link to="/packages" className="text-green-600 hover:text-green-700 flex items-center text-sm">
-            查看全部 <ArrowRight className="w-4 h-4 ml-1" />
+            {t('common.seeAll', language)} <ArrowRight className="w-4 h-4 ml-1" />
           </Link>
         </div>
         {isLoadingLimited ? (
@@ -183,7 +185,7 @@ export default function UserHome() {
                       className="w-full h-48 object-cover group-hover:scale-105 transition-transform"
                     />
                     <Badge className="absolute top-3 left-3 bg-red-500">
-                      限时特惠
+                      {t('home.section.limited', language)}
                     </Badge>
                     <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm rounded-full px-2 py-1 text-sm font-bold text-red-500">
                       ¥{pkg.price}
@@ -196,15 +198,15 @@ export default function UserHome() {
                       <div className="flex items-center space-x-3 text-sm text-gray-500">
                         <span className="flex items-center">
                           <Clock className="w-4 h-4 mr-1" />
-                          {pkg.cookTime}分钟
+                          {pkg.cookTime}{t('common.minutes', language)}
                         </span>
                         <span className="flex items-center">
                           <Users className="w-4 h-4 mr-1" />
-                          {pkg.servingSize}人份
+                          {pkg.servingSize}{t('common.servings', language)}
                         </span>
                       </div>
                       <div className="text-right">
-                        <span className="text-gray-400 line-through text-sm">¥{pkg.originalPrice}</span>
+                        <span className="text-gray-400 line-through text-sm">{t('home.originalPrice', language)} ¥{pkg.originalPrice}</span>
                       </div>
                     </div>
                   </CardContent>
@@ -216,9 +218,9 @@ export default function UserHome() {
           <Card className="bg-gray-50">
             <CardContent className="p-8 text-center">
               <Package className="w-12 h-12 mx-auto mb-3 text-gray-400" />
-              <p className="text-gray-500">暂无限时特惠商品</p>
+              <p className="text-gray-500">{t('home.noLimited', language)}</p>
               <Button variant="link" asChild className="mt-2">
-                <Link to="/packages">去浏览全部食材包</Link>
+                <Link to="/packages">{t('home.goBrowse', language)}</Link>
               </Button>
             </CardContent>
           </Card>
@@ -230,10 +232,10 @@ export default function UserHome() {
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-bold flex items-center">
             <Sparkles className="w-5 h-5 mr-2 text-yellow-500" />
-            为您推荐
+            {t('home.section.recommended', language)}
           </h2>
           <Link to="/packages" className="text-green-600 hover:text-green-700 flex items-center text-sm">
-            查看全部 <ArrowRight className="w-4 h-4 ml-1" />
+            {t('common.seeAll', language)} <ArrowRight className="w-4 h-4 ml-1" />
           </Link>
         </div>
         {isLoadingRecommended ? (
@@ -258,9 +260,9 @@ export default function UserHome() {
                   <CardContent className="p-4">
                     <div className="flex items-center space-x-2 mb-2">
                       <Badge variant="secondary" className="text-xs">
-                        {pkg.level === 'basic' && '基础'}
-                        {pkg.level === 'advanced' && '进阶'}
-                        {pkg.level === 'premium' && '精品'}
+                        {pkg.level === 'basic' && t('package.level.basic', language)}
+                        {pkg.level === 'advanced' && t('package.level.advanced', language)}
+                        {pkg.level === 'premium' && t('package.level.premium', language)}
                       </Badge>
                       <div className="flex items-center text-yellow-500 text-xs">
                         <Star className="w-3 h-3 fill-current" />
@@ -272,13 +274,13 @@ export default function UserHome() {
                     <div className="flex items-center justify-between text-sm text-gray-500">
                       <span className="flex items-center">
                         <Clock className="w-4 h-4 mr-1" />
-                        {pkg.cookTime}分钟
+                        {pkg.cookTime}{t('common.minutes', language)}
                       </span>
                       <span className="flex items-center">
                         <ChefHat className="w-4 h-4 mr-1" />
-                        {pkg.difficulty === 'easy' && '简单'}
-                        {pkg.difficulty === 'medium' && '中等'}
-                        {pkg.difficulty === 'hard' && '困难'}
+                        {pkg.difficulty === 'easy' && t('package.difficulty.easy', language)}
+                        {pkg.difficulty === 'medium' && t('package.difficulty.medium', language)}
+                        {pkg.difficulty === 'hard' && t('package.difficulty.hard', language)}
                       </span>
                     </div>
                   </CardContent>
@@ -290,10 +292,10 @@ export default function UserHome() {
           <Card className="bg-gray-50">
             <CardContent className="p-8 text-center">
               <Sparkles className="w-12 h-12 mx-auto mb-3 text-gray-400" />
-              <p className="text-gray-500">暂无推荐商品</p>
-              <p className="text-sm text-gray-400 mt-1">完善饮食画像，获取个性化推荐</p>
+              <p className="text-gray-500">{t('home.noRecommended', language)}</p>
+              <p className="text-sm text-gray-400 mt-1">{t('home.createProfileTip', language)}</p>
               <Button variant="link" asChild className="mt-2">
-                <Link to="/diet-profile">创建饮食画像</Link>
+                <Link to="/diet-profile">{t('home.createDietProfile', language)}</Link>
               </Button>
             </CardContent>
           </Card>
@@ -304,9 +306,9 @@ export default function UserHome() {
       {recentOrders.length > 0 && (
         <div>
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-bold">最近订单</h2>
+            <h2 className="text-xl font-bold">{t('home.recentOrders', language)}</h2>
             <Link to="/orders" className="text-green-600 hover:text-green-700 flex items-center text-sm">
-              查看全部 <ArrowRight className="w-4 h-4 ml-1" />
+              {t('common.seeAll', language)} <ArrowRight className="w-4 h-4 ml-1" />
             </Link>
           </div>
           <div className="space-y-3">
@@ -323,25 +325,25 @@ export default function UserHome() {
                       <div>
                         <h4 className="font-medium">{order.packageName}</h4>
                         <p className="text-sm text-gray-500">
-                          订单号：{order.id} · {new Date(order.createdAt).toLocaleDateString()}
+                          {t('order.orderNumber', language)}：{order.id} · {new Date(order.createdAt).toLocaleDateString()}
                         </p>
                         <div className="flex items-center mt-1">
                           {order.status === 'delivered' && (
                             <Badge variant="secondary" className="bg-green-100 text-green-700">
                               <CheckCircle2 className="w-3 h-3 mr-1" />
-                              已送达
+                              {t('order.status.delivered', language)}
                             </Badge>
                           )}
                           {order.status === 'shipped' && (
                             <Badge variant="secondary" className="bg-blue-100 text-blue-700">
                               <Truck className="w-3 h-3 mr-1" />
-                              配送中
+                              {t('order.status.shipping', language)}
                             </Badge>
                           )}
                           {order.status === 'preparing' && (
                             <Badge variant="secondary" className="bg-yellow-100 text-yellow-700">
                               <ChefHat className="w-3 h-3 mr-1" />
-                              准备中
+                              {t('order.status.preparing', language)}
                             </Badge>
                           )}
                         </div>
@@ -350,7 +352,7 @@ export default function UserHome() {
                     <div className="text-right">
                       <p className="font-bold text-lg">¥{order.totalAmount}</p>
                       <Button variant="ghost" size="sm" className="text-green-600" asChild>
-                        <Link to={`/orders/${order.id}`}>查看详情</Link>
+                        <Link to={`/orders/${order.id}`}>{t('common.viewDetails', language)}</Link>
                       </Button>
                     </div>
                   </div>
@@ -366,19 +368,19 @@ export default function UserHome() {
         <Card>
           <CardContent className="p-6">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="font-bold text-lg">饮食目标</h3>
+              <h3 className="font-bold text-lg">{t('home.dietGoals', language)}</h3>
               <Badge variant="outline">
-                {profile.dietGoal === 'weight_loss' && '减脂'}
-                {profile.dietGoal === 'muscle_gain' && '增肌'}
-                {profile.dietGoal === 'blood_sugar_control' && '控糖'}
-                {profile.dietGoal === 'balanced' && '均衡'}
-                {profile.dietGoal === 'other' && '其他'}
+                {profile.dietGoal === 'weight_loss' && t('dietGoal.weightLoss', language)}
+                {profile.dietGoal === 'muscle_gain' && t('dietGoal.muscleGain', language)}
+                {profile.dietGoal === 'blood_sugar_control' && t('dietGoal.bloodSugar', language)}
+                {profile.dietGoal === 'balanced' && t('dietGoal.balanced', language)}
+                {profile.dietGoal === 'other' && t('dietGoal.other', language)}
               </Badge>
             </div>
             <div className="space-y-4">
               <div>
                 <div className="flex justify-between text-sm mb-1">
-                  <span className="text-gray-600">本周目标完成度</span>
+                  <span className="text-gray-600">{t('home.weeklyGoal', language)}</span>
                   <span className="font-medium">75%</span>
                 </div>
                 <Progress value={75} className="h-2" />
@@ -386,15 +388,15 @@ export default function UserHome() {
               <div className="grid grid-cols-3 gap-4 text-center">
                 <div className="bg-gray-50 rounded-lg p-3">
                   <div className="text-2xl font-bold text-green-600">12</div>
-                  <div className="text-xs text-gray-500">健康餐</div>
+                  <div className="text-xs text-gray-500">{t('home.stats.healthyMeals', language)}</div>
                 </div>
                 <div className="bg-gray-50 rounded-lg p-3">
                   <div className="text-2xl font-bold text-blue-600">8</div>
-                  <div className="text-xs text-gray-500">蛋白质(g)</div>
+                  <div className="text-xs text-gray-500">{t('home.stats.protein', language)}</div>
                 </div>
                 <div className="bg-gray-50 rounded-lg p-3">
                   <div className="text-2xl font-bold text-orange-600">450</div>
-                  <div className="text-xs text-gray-500">卡路里</div>
+                  <div className="text-xs text-gray-500">{t('home.stats.calories', language)}</div>
                 </div>
               </div>
             </div>
