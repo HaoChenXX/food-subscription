@@ -439,7 +439,7 @@ export const useUIStore = create<UIState>()(
     (set, get) => ({
       sidebarOpen: true,
       theme: 'light',
-      language: 'zh',
+      language: 'zh', // 默认中文
       effectiveTheme: 'light',
       setSidebarOpen: (open) => set({ sidebarOpen: open }),
       toggleSidebar: () => set((state) => ({ sidebarOpen: !state.sidebarOpen })),
@@ -464,7 +464,18 @@ export const useUIStore = create<UIState>()(
       }
     }),
     {
-      name: 'ui-storage'
+      name: 'ui-storage',
+      version: 2, // 版本控制，更新版本时会重置为默认值
+      migrate: (persistedState, version) => {
+        // 如果版本低于2，重置语言为中文
+        if (version < 2) {
+          return {
+            ...(persistedState as object),
+            language: 'zh' as Language,
+          };
+        }
+        return persistedState;
+      },
     }
   )
 );
