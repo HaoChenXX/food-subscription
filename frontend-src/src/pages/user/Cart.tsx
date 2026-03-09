@@ -18,7 +18,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 
-const subscriptionOptions = (lang: string) => [
+const subscriptionOptions = (lang: import('@/lib/i18n').Language) => [
   { value: 'weekly', label: t('subscription.type.weekly', lang), discount: 0 },
   { value: 'monthly', label: t('subscription.type.monthly', lang), discount: 0.1 },
   { value: 'quarterly', label: t('subscription.type.quarterly', lang), discount: 0.2 },

@@ -46,6 +46,8 @@ export const translations = {
     'common.limited': '限时',
     'common.recommended': '推荐',
     'common.settings': '设置',
+    'common.clear': '清除',
+    'common.filter': '筛选',
     
     // ==================== 品牌 ====================
     'brand.name': '梓里炊烟',
@@ -530,7 +532,6 @@ export const translations = {
     'checkout.emptyCartDesc': '请先选择您喜欢的食材包',
     'checkout.goShopping': '去选购',
     'checkout.default': '默认',
-    'checkout.addAddress': '添加新地址',
     'checkout.productList': '商品清单',
     'checkout.totalItems': '商品总数',
     'checkout.items': '件',
@@ -568,51 +569,8 @@ export const translations = {
   },
   en: {
     // ==================== Common ====================
-    'common.save': 'Save',
-    'common.cancel': 'Cancel',
-    'common.edit': 'Edit',
-    'common.delete': 'Delete',
-    'common.confirm': 'Confirm',
-    'common.back': 'Back',
-    'common.loading': 'Loading...',
-    'common.success': 'Success',
-    'common.error': 'Error',
-    'common.warning': 'Warning',
-    'common.info': 'Info',
-    'common.search': 'Search',
-    'common.submit': 'Submit',
-    'common.add': 'Add',
-    'common.remove': 'Remove',
-    'common.close': 'Close',
-    'common.view': 'View',
-    'common.more': 'More',
-    'common.next': 'Next',
-    'common.prev': 'Previous',
-    'common.finish': 'Finish',
-    'common.pay': 'Pay',
-    'common.subscribe': 'Subscribe',
-    'common.buy': 'Buy Now',
-    'common.quantity': 'Quantity',
-    'common.price': 'Price',
-    'common.total': 'Total',
-    'common.free': 'Free',
-    'common.days': 'days',
-    'common.weeks': 'weeks',
-    'common.months': 'months',
-    'common.perWeek': 'per week',
-    'common.perMonth': 'per month',
-    'common.yes': 'Yes',
-    'common.no': 'No',
-    'common.empty': 'No data',
-    'common.seeAll': 'See All',
-    'common.hot': 'Hot',
-    'common.new': 'New',
-    'common.limited': 'Limited',
-    'common.recommended': 'Recommended',
-    'common.settings': 'Settings',
     
     // ==================== Brand ====================
-    'brand.name': 'ZiLi Kitchen',
     'brand.slogan': 'Farm-to-Table Platform',
     
     // ==================== Navigation ====================
@@ -1094,7 +1052,6 @@ export const translations = {
     'checkout.emptyCartDesc': 'Please select your favorite meal packages first',
     'checkout.goShopping': 'Go Shopping',
     'checkout.default': 'Default',
-    'checkout.addAddress': 'Add New Address',
     'checkout.productList': 'Product List',
     'checkout.totalItems': 'Total Items',
     'checkout.items': 'items',
@@ -1135,7 +1092,8 @@ export const translations = {
 // 翻译键类型
 export type TranslationKey = keyof typeof translations.zh;
 
-// 翻译函数
-export function t(key: TranslationKey, lang: Language): string {
-  return translations[lang][key] || translations.zh[key] || key;
+// 翻译函数 - 接受字符串作为key以保持灵活性
+export function t(key: TranslationKey | string, lang: Language): string {
+  const translationsRecord = translations as Record<Language, Record<string, string>>;
+  return translationsRecord[lang][key] || translationsRecord.zh[key] || key;
 }

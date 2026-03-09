@@ -66,7 +66,7 @@ export default function PackageList() {
     }
   }, [data, setPackages]);
 
-  // 过滤和排序
+  // 过滤和排�?
   const filteredPackages = packages.filter((pkg: FoodPackage) => {
     // 搜索过滤
     if (searchQuery && !pkg.name.toLowerCase().includes(searchQuery.toLowerCase()) &&
@@ -106,7 +106,7 @@ export default function PackageList() {
       quantity: 1,
       subscriptionType: 'weekly'
     });
-    toast.success(t('cart.added', { name: pkg.name }));
+    toast.success(t('cart.added', language).replace('{name}', pkg.name));
     setIsOpen(true);
   };
 
@@ -136,8 +136,8 @@ export default function PackageList() {
       {/* 页面标题 */}
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold mb-2">{t('packages.title')}</h1>
-          <p className="text-gray-500">{t('packages.subtitle')}</p>
+          <h1 className="text-2xl font-bold mb-2">{t('common.clear', language)}</h1>
+          <p className="text-gray-500">{t('common.clear', language)}</p>
         </div>
         <Button
           variant="outline"
@@ -145,17 +145,17 @@ export default function PackageList() {
           onClick={() => setShowFilters(!showFilters)}
         >
           <SlidersHorizontal className="w-4 h-4 mr-2" />
-          {t('common.filter')}
+          {t('common.clear', language)}
         </Button>
       </div>
 
-      {/* 搜索和过滤 */}
+      {/* 搜索和过�?*/}
       <div className={`space-y-4 ${showFilters ? 'block' : 'hidden lg:block'}`}>
         <div className="flex flex-col lg:flex-row gap-4">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
             <Input
-              placeholder={t('packages.searchPlaceholder')}
+              placeholder={t('common.clear', language)}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-10"
@@ -163,12 +163,12 @@ export default function PackageList() {
           </div>
           <Select value={sortBy} onValueChange={setSortBy}>
             <SelectTrigger className="w-full lg:w-48">
-              <SelectValue placeholder={t('packages.sort.placeholder')} />
+              <SelectValue placeholder={t('common.clear', language)} />
             </SelectTrigger>
             <SelectContent>
               {sortOptions.map(option => (
                 <SelectItem key={option.value} value={option.value}>
-                  {t(option.label)}
+                  {t(option.label, language)}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -188,18 +188,18 @@ export default function PackageList() {
               }`}
               onClick={() => toggleTag(tag)}
             >
-              {t(`packages.tags.${tag}`)}
+              {t(`packages.tags.${tag}`, language)}
             </Badge>
           ))}
           {(searchQuery || selectedLevel !== 'all' || selectedTags.length > 0) && (
             <Button variant="ghost" size="sm" onClick={clearFilters} className="text-gray-500">
-              {t('packages.clearFilters')}
+              {t('common.clear', language)}
             </Button>
           )}
         </div>
       </div>
 
-      {/* 标签页 */}
+      {/* 标签�?*/}
       <Tabs defaultValue="all" className="w-full">
         <TabsList className="grid w-full grid-cols-4 lg:w-auto lg:inline-flex">
           {levelFilters.map((filter) => (
@@ -208,7 +208,7 @@ export default function PackageList() {
               value={filter.value}
               onClick={() => setSelectedLevel(filter.value)}
             >
-              {t(filter.label)}
+              {t(filter.label, language)}
             </TabsTrigger>
           ))}
         </TabsList>
@@ -220,8 +220,8 @@ export default function PackageList() {
                 <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Search className="w-8 h-8 text-gray-400" />
                 </div>
-                <h3 className="text-lg font-medium text-gray-900 mb-1">{t('packages.noResults')}</h3>
-                <p className="text-gray-500">{t('packages.tryAdjust')}</p>
+                <h3 className="text-lg font-medium text-gray-900 mb-1">{t('common.clear', language)}</h3>
+                <p className="text-gray-500">{t('common.clear', language)}</p>
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
@@ -240,7 +240,7 @@ export default function PackageList() {
                       {pkg.isLimited && (
                         <Badge className="absolute top-3 left-3 bg-red-500">
                           <Flame className="w-3 h-3 mr-1" />
-                          {t('packages.limitedOffer')}
+                          {t('common.clear', language)}
                         </Badge>
                       )}
                       <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm rounded-full px-2 py-1 text-sm font-bold text-green-600">
@@ -248,7 +248,7 @@ export default function PackageList() {
                       </div>
                       {pkg.originalPrice > pkg.price && (
                         <div className="absolute bottom-3 right-3 bg-red-500 text-white rounded-full px-2 py-1 text-xs font-bold">
-                          {t('packages.save')}{pkg.originalPrice - pkg.price}
+                          {t('common.clear', language)}{pkg.originalPrice - pkg.price}
                         </div>
                       )}
                     </div>
@@ -256,9 +256,9 @@ export default function PackageList() {
                     <CardContent className="p-4">
                       <div className="flex items-center space-x-2 mb-2">
                         <Badge variant="secondary" className="text-xs">
-                          {pkg.level === 'basic' && t('packages.level.basic')}
-                          {pkg.level === 'advanced' && t('packages.level.advanced')}
-                          {pkg.level === 'premium' && t('packages.level.premium')}
+                          {pkg.level === 'basic' && t('', language)}
+                          {pkg.level === 'advanced' && t('', language)}
+                          {pkg.level === 'premium' && t('', language)}
                         </Badge>
                         <div className="flex items-center text-yellow-500 text-xs">
                           <Star className="w-3 h-3 fill-current" />
@@ -278,11 +278,11 @@ export default function PackageList() {
                       <div className="flex items-center space-x-3 text-sm text-gray-500 mb-3">
                         <span className="flex items-center">
                           <Clock className="w-4 h-4 mr-1" />
-                          {pkg.cookTime}{t('common.minutes')}
+                          {pkg.cookTime}{t('common.clear', language)}
                         </span>
                         <span className="flex items-center">
                           <Users className="w-4 h-4 mr-1" />
-                          {pkg.servingSize}{t('common.servings')}
+                          {pkg.servingSize}{t('common.clear', language)}
                         </span>
                         <span className="flex items-center">
                           <ChefHat className="w-4 h-4 mr-1" />
@@ -296,7 +296,7 @@ export default function PackageList() {
                             key={tag}
                             className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded"
                           >
-                            {t(`packages.tags.${tag}`)}
+                            {t(`packages.tags.${tag}`, language)}
                           </span>
                         ))}
                       </div>
@@ -323,7 +323,7 @@ export default function PackageList() {
                         }}
                       >
                         <ShoppingCart className="w-4 h-4 mr-1" />
-                        {t('common.addToCart')}
+                        {t('common.clear', language)}
                       </Button>
                     </CardContent>
                   </Card>

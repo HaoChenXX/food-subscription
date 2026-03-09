@@ -48,17 +48,17 @@ export default function SubscriptionDetail() {
   // 优先使用 store 中的数据
   const sub = subscriptions.find(s => s.id === id) || subscription;
 
-  // 更新订阅状态
+  // 更新订阅状�?
   const updateMutation = useMutation({
     mutationFn: ({ id, status }: { id: string; status: 'active' | 'paused' | 'cancelled' }) =>
       mockApi.subscriptions.updateStatus(id, status),
     onSuccess: (data) => {
       updateSubscription(data);
-      toast.success(t('subscription.statusUpdated'));
+      toast.success(t('', language));
       setDialogOpen(false);
     },
     onError: () => {
-      toast.error(t('common.operationFailed'));
+      toast.error(t('', language));
     }
   });
 
@@ -93,10 +93,10 @@ export default function SubscriptionDetail() {
   if (!sub) {
     return (
       <div className="p-4 lg:p-6 text-center">
-        <h2 className="text-xl font-bold mb-2">{t('subscription.notFound')}</h2>
+        <h2 className="text-xl font-bold mb-2">{t('', language)}</h2>
         <Button onClick={() => navigate('/subscriptions')} variant="outline">
           <ArrowLeft className="w-4 h-4 mr-2" />
-          {t('subscription.backToList')}
+          {t('', language)}
         </Button>
       </div>
     );
@@ -107,15 +107,15 @@ export default function SubscriptionDetail() {
     : 0;
 
   const statusConfig = {
-    active: { label: t('subscription.status.active'), color: 'bg-green-100 text-green-700', icon: CheckCircle2 },
-    paused: { label: t('subscription.status.paused'), color: 'bg-yellow-100 text-yellow-700', icon: Pause },
-    cancelled: { label: t('subscription.status.cancelled'), color: 'bg-gray-100 text-gray-700', icon: X },
+    active: { label: t('', language), color: 'bg-green-100 text-green-700', icon: CheckCircle2 },
+    paused: { label: t('', language), color: 'bg-yellow-100 text-yellow-700', icon: Pause },
+    cancelled: { label: t('', language), color: 'bg-gray-100 text-gray-700', icon: X },
   };
 
   const typeConfig = {
-    weekly: { label: t('subscription.type.weekly'), desc: t('subscription.type.weeklyDesc') },
-    monthly: { label: t('subscription.type.monthly'), desc: t('subscription.type.monthlyDesc') },
-    quarterly: { label: t('subscription.type.quarterly'), desc: t('subscription.type.quarterlyDesc') },
+    weekly: { label: t('', language), desc: t('', language) },
+    monthly: { label: t('', language), desc: t('', language) },
+    quarterly: { label: t('', language), desc: t('', language) },
   };
 
   const status = statusConfig[sub.status];
@@ -131,78 +131,78 @@ export default function SubscriptionDetail() {
         onClick={() => navigate('/subscriptions')}
       >
         <ArrowLeft className="w-4 h-4 mr-2" />
-        {t('subscription.backToList')}
+        {t('', language)}
       </Button>
 
-      {/* 订阅状态卡片 */}
+      {/* 订阅状态卡�?*/}
       <Card className="mb-6">
         <CardContent className="p-6">
           <div className="flex flex-col lg:flex-row lg:items-center justify-between mb-6">
             <div>
               <div className="flex items-center space-x-3 mb-2">
-                <h1 className="text-2xl font-bold">{t('subscription.title')} #{sub.id}</h1>
+                <h1 className="text-2xl font-bold">{t('', language)} #{sub.id}</h1>
                 <Badge className={status.color}>
                   <StatusIcon className="w-3 h-3 mr-1" />
                   {status.label}
                 </Badge>
               </div>
               <p className="text-gray-500">
-                {t('subscription.startTime')}：{formatDate(sub.startDate)}
+                {t('', language)}：{formatDate(sub.startDate)}
               </p>
             </div>
             <div className="mt-4 lg:mt-0 text-right">
               <div className="text-3xl font-bold text-green-600">
                 {formatPrice(sub.price)}
-                <span className="text-sm text-gray-500 font-normal">{t('subscription.perDelivery')}</span>
+                <span className="text-sm text-gray-500 font-normal">{t('', language)}</span>
               </div>
             </div>
           </div>
 
-          {/* 进度条 */}
+          {/* 进度�?*/}
           <div className="space-y-2">
             <div className="flex justify-between text-sm">
-              <span className="text-gray-600">{t('subscription.deliveryProgress')}</span>
-              <span className="font-medium">{sub.completedDeliveries} / {sub.totalDeliveries} {t('subscription.times')}</span>
+              <span className="text-gray-600">{t('', language)}</span>
+              <span className="font-medium">{sub.completedDeliveries} / {sub.totalDeliveries} {t('', language)}</span>
             </div>
             <Progress value={progressPercent} className="h-3" />
             <p className="text-sm text-gray-500">
-              {t('subscription.completed')} {Math.round(progressPercent)}% {t('subscription.deliveryPlan')}
+              {t('', language)} {Math.round(progressPercent)}% {t('', language)}
             </p>
           </div>
         </CardContent>
       </Card>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* 左侧：订阅信息 */}
+        {/* 左侧：订阅信�?*/}
         <div className="lg:col-span-2 space-y-6">
           {/* 订阅详情 */}
           <Card>
             <CardHeader>
               <CardTitle className="text-lg flex items-center">
                 <Package className="w-5 h-5 mr-2 text-green-600" />
-                {t('subscription.details')}
+                {t('', language)}
               </CardTitle>
             </CardHeader>
             <CardContent className="p-6 space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <div className="text-sm text-gray-500 mb-1">{t('subscription.type')}</div>
+                  <div className="text-sm text-gray-500 mb-1"></div>
                   <div className="font-medium">{type.label}</div>
                   <div className="text-sm text-gray-500">{type.desc}</div>
                 </div>
                 <div>
-                  <div className="text-sm text-gray-500 mb-1">{t('subscription.nextDelivery')}</div>
+                  <div className="text-sm text-gray-500 mb-1"></div>
                   <div className="font-medium flex items-center">
                     <Calendar className="w-4 h-4 mr-1 text-green-600" />
                     {formatDate(sub.nextDeliveryDate)}
                   </div>
                 </div>
                 <div>
-                  <div className="text-sm text-gray-500 mb-1">{t('subscription.deliveryProgress')}</div>
-                  <div className="font-medium">{sub.completedDeliveries} / {sub.totalDeliveries} {t('subscription.times')}</div>
+                  <div className="text-sm text-gray-500 mb-1"></div>
+                  <div className="font-medium">{sub.completedDeliveries} / {sub.totalDeliveries} </div>
                 </div>
                 <div>
-                  <div className="text-sm text-gray-500 mb-1">{t('subscription.unitPrice')}</div>
+                  <div className="text-sm text-gray-500 mb-1"></div>
                   <div className="font-medium text-green-600">{formatPrice(sub.price)}</div>
                 </div>
               </div>
@@ -214,15 +214,15 @@ export default function SubscriptionDetail() {
             <CardHeader>
               <CardTitle className="text-lg flex items-center">
                 <Truck className="w-5 h-5 mr-2 text-green-600" />
-                {t('subscription.deliveryHistory')}
+                {t('', language)}
               </CardTitle>
             </CardHeader>
             <CardContent className="p-6">
               {sub.completedDeliveries === 0 ? (
                 <div className="text-center py-8 text-gray-500">
                   <Clock className="w-12 h-12 mx-auto mb-3 text-gray-300" />
-                  <p>{t('subscription.noDeliveryHistory')}</p>
-                  <p className="text-sm">{t('subscription.firstDeliveryWillBe')} {formatDate(sub.nextDeliveryDate)} {t('subscription.delivered')}</p>
+                  <p>{t('', language)}</p>
+                  <p className="text-sm">{t('subscription.nextDelivery', language)}: {formatDate(sub.nextDeliveryDate)} {t('', language)}</p>
                 </div>
               ) : (
                 <div className="space-y-4">
@@ -232,8 +232,8 @@ export default function SubscriptionDetail() {
                         <CheckCircle2 className="w-4 h-4 text-green-600" />
                       </div>
                       <div className="flex-1">
-                        <div className="font-medium">{t('subscription.deliveryNumber', { number: index + 1 })} {t('subscription.delivery')}</div>
-                        <div className="text-sm text-gray-500">{t('subscription.completed')}</div>
+                        <div className="font-medium">{t('subscription.deliveryNumber', language).replace('{number}', String(index + 1))}</div>
+                        <div className="text-sm text-gray-500"></div>
                       </div>
                     </div>
                   ))}
@@ -243,8 +243,8 @@ export default function SubscriptionDetail() {
                         <Clock className="w-4 h-4 text-blue-600" />
                       </div>
                       <div className="flex-1">
-                        <div className="font-medium">{t('subscription.deliveryNumber', { number: sub.completedDeliveries + 1 })} {t('subscription.delivery')}</div>
-                        <div className="text-sm text-gray-500">{t('subscription.estimated')} {formatDate(sub.nextDeliveryDate)}</div>
+                        <div className="font-medium">{t('subscription.deliveryNumber', language).replace('{number}', String(sub.completedDeliveries + 1))}</div>
+                        <div className="text-sm text-gray-500">{t('', language)} {formatDate(sub.nextDeliveryDate)}</div>
                       </div>
                     </div>
                   )}
@@ -254,12 +254,12 @@ export default function SubscriptionDetail() {
           </Card>
         </div>
 
-        {/* 右侧：操作面板 */}
+        {/* 右侧：操作面�?*/}
         <div className="space-y-6">
-          {/* 状态信息 */}
+          {/* 状态信�?*/}
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">{t('subscription.statusTitle')}</CardTitle>
+              <CardTitle className="text-lg">{t('', language)}</CardTitle>
             </CardHeader>
             <CardContent className="p-6 space-y-4">
               <div className={`p-4 rounded-lg ${status.color}`}>
@@ -268,9 +268,9 @@ export default function SubscriptionDetail() {
                   <span className="font-medium">{status.label}</span>
                 </div>
                 <p className="text-sm mt-1 opacity-80">
-                  {sub.status === 'active' && t('subscription.statusDesc.active')}
-                  {sub.status === 'paused' && t('subscription.statusDesc.paused')}
-                  {sub.status === 'cancelled' && t('subscription.statusDesc.cancelled')}
+                  {sub.status === 'active' && t('', language)}
+                  {sub.status === 'paused' && t('', language)}
+                  {sub.status === 'cancelled' && t('', language)}
                 </p>
               </div>
 
@@ -286,7 +286,7 @@ export default function SubscriptionDetail() {
                       onClick={() => handleAction('pause')}
                     >
                       <Pause className="w-4 h-4 mr-2" />
-                      {t('subscription.pause')}
+                      {t('', language)}
                     </Button>
                     <Button
                       variant="outline"
@@ -294,7 +294,7 @@ export default function SubscriptionDetail() {
                       onClick={() => handleAction('cancel')}
                     >
                       <X className="w-4 h-4 mr-2" />
-                      {t('subscription.cancel')}
+                      {t('', language)}
                     </Button>
                   </>
                 )}
@@ -305,7 +305,7 @@ export default function SubscriptionDetail() {
                       onClick={() => handleAction('resume')}
                     >
                       <Play className="w-4 h-4 mr-2" />
-                      {t('subscription.resume')}
+                      {t('', language)}
                     </Button>
                     <Button
                       variant="outline"
@@ -313,7 +313,7 @@ export default function SubscriptionDetail() {
                       onClick={() => handleAction('cancel')}
                     >
                       <X className="w-4 h-4 mr-2" />
-                      {t('subscription.cancel')}
+                      {t('', language)}
                     </Button>
                   </>
                 )}
@@ -324,7 +324,7 @@ export default function SubscriptionDetail() {
                     onClick={() => navigate('/packages')}
                   >
                     <RotateCcw className="w-4 h-4 mr-2" />
-                    {t('subscription.resubscribe')}
+                    {t('', language)}
                   </Button>
                 )}
               </div>
@@ -336,39 +336,39 @@ export default function SubscriptionDetail() {
             <CardHeader>
               <CardTitle className="text-lg flex items-center">
                 <MapPin className="w-5 h-5 mr-2 text-green-600" />
-                {t('subscription.needHelp')}
+                {t('', language)}
               </CardTitle>
             </CardHeader>
             <CardContent className="p-6">
               <p className="text-sm text-gray-500 mb-4">
-                {t('subscription.helpDesc')}
+                {t('', language)}
               </p>
               <Button variant="outline" className="w-full">
-                {t('subscription.contactSupport')}
+                {t('', language)}
               </Button>
             </CardContent>
           </Card>
         </div>
       </div>
 
-      {/* 确认对话框 */}
+      {/* 确认对话�?*/}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>
-              {dialogAction === 'pause' && t('subscription.pause')}
-              {dialogAction === 'resume' && t('subscription.resume')}
-              {dialogAction === 'cancel' && t('subscription.cancel')}
+              {dialogAction === 'pause' && t('', language)}
+              {dialogAction === 'resume' && t('', language)}
+              {dialogAction === 'cancel' && t('', language)}
             </DialogTitle>
             <DialogDescription>
-              {dialogAction === 'pause' && t('subscription.pauseDesc')}
-              {dialogAction === 'resume' && t('subscription.resumeDesc')}
-              {dialogAction === 'cancel' && t('subscription.cancelDesc')}
+              {dialogAction === 'pause' && t('', language)}
+              {dialogAction === 'resume' && t('', language)}
+              {dialogAction === 'cancel' && t('', language)}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDialogOpen(false)}>
-              {t('common.cancel')}
+              {t('', language)}
             </Button>
             <Button
               onClick={confirmAction}
@@ -382,7 +382,7 @@ export default function SubscriptionDetail() {
               {updateMutation.isPending ? (
                 <div className="w-4 h-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
               ) : (
-                t('common.confirm')
+                t('', language)
               )}
             </Button>
           </DialogFooter>

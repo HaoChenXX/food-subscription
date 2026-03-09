@@ -33,7 +33,7 @@ import { toast } from 'sonner';
 import { t } from '@/lib/i18n';
 
 // 侧边栏导航项
-const getNavItems = (language: string) => [
+const getNavItems = (language: import('@/lib/i18n').Language) => [
   { path: '/merchant', label: t('merchant.overview', language), icon: LayoutDashboard },
   { path: '/merchant/products', label: t('merchant.products', language), icon: Package },
   { path: '/merchant/orders', label: t('merchant.orders', language), icon: ClipboardList },
