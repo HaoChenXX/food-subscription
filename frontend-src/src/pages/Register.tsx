@@ -41,11 +41,11 @@ export default function Register() {
     }),
     onSuccess: (data: { user: any; token: string }) => {
       login(data.user, data.token);
-      toast.success('注册成功！');
+      toast.success(t('auth.register.success', language));
       navigate('/diet-profile');
     },
     onError: (error: Error) => {
-      toast.error(error.message || '注册失败');
+      toast.error(error.message || t('auth.register.error', language));
     }
   });
 
@@ -53,12 +53,12 @@ export default function Register() {
     e.preventDefault();
     
     if (form.password !== form.confirmPassword) {
-      toast.error('两次输入的密码不一致');
+      toast.error(t('auth.register.passwordMismatch', language));
       return;
     }
     
     if (!agreeTerms) {
-      toast.error(language === 'zh' ? '请先同意服务条款和隐私政策' : 'Please agree to Terms of Service and Privacy Policy');
+      toast.error(t('auth.login.agreeRequired', language));
       return;
     }
     
@@ -257,10 +257,10 @@ export default function Register() {
           <DialogHeader>
             <DialogTitle className="flex items-center">
               <FileText className="w-5 h-5 mr-2 text-green-600" />
-              {language === 'zh' ? '服务条款' : 'Terms of Service'}
+              {t('auth.terms.title', language)}
             </DialogTitle>
             <DialogDescription>
-              {language === 'zh' ? '最后更新日期：2026年3月9日' : 'Last updated: March 9, 2026'}
+              {t('auth.terms.lastUpdated', language)}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 text-sm text-gray-600 dark:text-gray-300">
@@ -363,10 +363,10 @@ export default function Register() {
           <DialogHeader>
             <DialogTitle className="flex items-center">
               <Shield className="w-5 h-5 mr-2 text-green-600" />
-              {language === 'zh' ? '隐私政策' : 'Privacy Policy'}
+              {t('auth.privacy.title', language)}
             </DialogTitle>
             <DialogDescription>
-              {language === 'zh' ? '最后更新日期：2026年3月9日' : 'Last updated: March 9, 2026'}
+              {t('auth.terms.lastUpdated', language)}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 text-sm text-gray-600 dark:text-gray-300">

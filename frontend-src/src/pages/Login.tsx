@@ -71,7 +71,7 @@ export default function Login() {
   const handleUserLogin = (e: React.FormEvent) => {
     e.preventDefault();
     if (!agreeTerms) {
-      toast.error(language === 'zh' ? '请先同意服务条款和隐私政策' : 'Please agree to Terms of Service and Privacy Policy');
+      toast.error(t('auth.login.agreeRequired', language));
       return;
     }
     loginMutation.mutate(userForm);
@@ -167,21 +167,21 @@ export default function Login() {
                       onCheckedChange={(checked) => setAgreeTerms(checked as boolean)}
                     />
                     <Label htmlFor="agree-terms" className="text-sm font-normal">
-                      {language === 'zh' ? '我已阅读并同意' : 'I have read and agree to'}{' '}
+                      {t('auth.register.agree', language)}{' '}
                       <button
                         type="button"
                         onClick={() => setTermsDialogOpen(true)}
                         className="text-green-600 hover:text-green-700 underline"
                       >
-                        {language === 'zh' ? '服务条款' : 'Terms of Service'}
+                        {t('auth.register.terms', language)}
                       </button>
-                      {language === 'zh' ? '和' : ' and '}{' '}
+                      {t('auth.register.and', language)}{' '}
                       <button
                         type="button"
                         onClick={() => setPrivacyDialogOpen(true)}
                         className="text-green-600 hover:text-green-700 underline"
                       >
-                        {language === 'zh' ? '隐私政策' : 'Privacy Policy'}
+                        {t('auth.register.privacy', language)}
                       </button>
                     </Label>
                   </div>
@@ -328,10 +328,10 @@ export default function Login() {
           <DialogHeader>
             <DialogTitle className="flex items-center">
               <FileText className="w-5 h-5 mr-2 text-green-600" />
-              {language === 'zh' ? '服务条款' : 'Terms of Service'}
+              {t('auth.register.terms', language)}
             </DialogTitle>
             <DialogDescription>
-              {language === 'zh' ? '最后更新日期：2026年3月9日' : 'Last updated: March 9, 2026'}
+              {t('auth.terms.lastUpdated', language)}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 text-sm text-gray-600 dark:text-gray-300">
@@ -434,10 +434,10 @@ export default function Login() {
           <DialogHeader>
             <DialogTitle className="flex items-center">
               <Shield className="w-5 h-5 mr-2 text-green-600" />
-              {language === 'zh' ? '隐私政策' : 'Privacy Policy'}
+              {t('auth.privacy.title', language)}
             </DialogTitle>
             <DialogDescription>
-              {language === 'zh' ? '最后更新日期：2026年3月9日' : 'Last updated: March 9, 2026'}
+              {t('auth.terms.lastUpdated', language)}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 text-sm text-gray-600 dark:text-gray-300">

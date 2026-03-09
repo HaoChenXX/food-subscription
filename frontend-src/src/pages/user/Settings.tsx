@@ -497,9 +497,7 @@ export default function Settings() {
                 </Select>
                 {theme === 'system' && (
                   <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                    {language === 'zh' 
-                      ? `${t('settings.general.theme.system', language)}: ${effectiveTheme === 'dark' ? t('settings.general.theme.dark.current', language) : t('settings.general.theme.light.current', language)}`
-                      : `${t('settings.general.theme.system', language)}: ${effectiveTheme === 'dark' ? t('settings.general.theme.dark.current', language) : t('settings.general.theme.light.current', language)}`}
+                    {`${t('settings.general.theme.system', language)}: ${effectiveTheme === 'dark' ? t('settings.general.theme.dark.current', language) : t('settings.general.theme.light.current', language)}`}
                   </p>
                 )}
               </div>

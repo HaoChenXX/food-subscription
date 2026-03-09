@@ -58,7 +58,7 @@ export default function UserLayout() {
 
   const handleLogout = () => {
     logout();
-    toast.success(language === 'zh' ? '已退出登录' : 'Logged out');
+    toast.success(t('nav.logoutSuccess', language));
     navigate('/login');
   };
 
