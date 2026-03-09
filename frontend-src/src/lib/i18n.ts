@@ -112,6 +112,35 @@ export const translations = {
     'home.stats.packages': '食材套餐',
     'home.stats.delivery': '次日达',
     
+    // 首页新增翻译键
+    'home.welcome': '欢迎回来，{name}',
+    'home.recommendationWithProfile': '根据您的饮食画像为您推荐',
+    'home.recommendationWithoutProfile': '填写饮食画像，获取个性化推荐',
+    'home.createDietProfile': '创建饮食画像',
+    'home.stats.totalOrders': '总订单',
+    'home.stats.activeSubs': '进行中订阅',
+    'home.quickActions.browse': '浏览食材包',
+    'home.quickActions.browse.desc': '发现新鲜美味',
+    'home.quickActions.track': '追踪订单',
+    'home.quickActions.track.desc': '查看配送进度',
+    'home.quickActions.manage': '管理订阅',
+    'home.quickActions.manage.desc': '查看和修改订阅',
+    'home.quickActions.profile': '饮食画像',
+    'home.quickActions.profile.desc': '个性化推荐',
+    'home.noLimited': '暂无限时特惠',
+    'home.goBrowse': '去浏览',
+    'home.noRecommended': '暂无推荐',
+    'home.createProfileTip': '创建饮食画像获取个性化推荐',
+    'home.recentOrders': '最近订单',
+    'home.dietGoals': '饮食目标',
+    'home.weeklyGoal': '本周目标完成度',
+    'home.stats.healthyMeals': '健康餐数',
+    'home.stats.protein': '蛋白质(g)',
+    'home.stats.calories': '卡路里',
+    
+    // App
+    'app.name': '梓里炊烟',
+    
     'home.section.popular': '热门套餐',
     'home.section.popular.desc': '深受用户喜爱的精选套餐',
     'home.section.limited': '限时特惠',
@@ -135,6 +164,18 @@ export const translations = {
     // ==================== 食材包 ====================
     'packages.title': '食材包',
     'packages.subtitle': '精选优质食材，营养师精心搭配',
+    
+    // 套餐等级
+    'package.level.basic': '基础版',
+    'package.level.advanced': '进阶版',
+    'package.level.premium': '尊享版',
+    
+    // 饮食目标
+    'dietGoal.weightLoss': '减脂瘦身',
+    'dietGoal.muscleGain': '增肌健身',
+    'dietGoal.bloodSugar': '血糖控制',
+    'dietGoal.balanced': '均衡饮食',
+    'dietGoal.other': '其他',
     'packages.filter.all': '全部',
     'packages.filter.weightLoss': '减脂',
     'packages.filter.muscle': '增肌',
@@ -215,6 +256,12 @@ export const translations = {
     // ==================== 订单 ====================
     'orders.title': '我的订单',
     'orders.subtitle': '查看和管理您的订单',
+    
+    // 订单相关
+    'order.orderNumber': '订单号',
+    'order.status.delivered': '已送达',
+    'order.status.shipping': '配送中',
+    'order.status.preparing': '准备中',
     'orders.status.all': '全部',
     'orders.status.pending': '待支付',
     'orders.status.paid': '已支付',
@@ -633,6 +680,35 @@ export const translations = {
     'home.stats.packages': 'Meal Packages',
     'home.stats.delivery': 'Next-Day Delivery',
     
+    // Home new keys
+    'home.welcome': 'Welcome back, {name}',
+    'home.recommendationWithProfile': 'Personalized recommendations based on your diet profile',
+    'home.recommendationWithoutProfile': 'Create your diet profile for personalized recommendations',
+    'home.createDietProfile': 'Create Diet Profile',
+    'home.stats.totalOrders': 'Total Orders',
+    'home.stats.activeSubs': 'Active Subscriptions',
+    'home.quickActions.browse': 'Browse Packages',
+    'home.quickActions.browse.desc': 'Discover fresh flavors',
+    'home.quickActions.track': 'Track Orders',
+    'home.quickActions.track.desc': 'Check delivery status',
+    'home.quickActions.manage': 'Manage Subscriptions',
+    'home.quickActions.manage.desc': 'View and modify subscriptions',
+    'home.quickActions.profile': 'Diet Profile',
+    'home.quickActions.profile.desc': 'Personalized recommendations',
+    'home.noLimited': 'No limited-time offers',
+    'home.goBrowse': 'Browse Now',
+    'home.noRecommended': 'No recommendations yet',
+    'home.createProfileTip': 'Create a diet profile for personalized recommendations',
+    'home.recentOrders': 'Recent Orders',
+    'home.dietGoals': 'Diet Goals',
+    'home.weeklyGoal': 'Weekly Goal Progress',
+    'home.stats.healthyMeals': 'Healthy Meals',
+    'home.stats.protein': 'Protein (g)',
+    'home.stats.calories': 'Calories',
+    
+    // App
+    'app.name': 'Zili Chuiyan',
+    
     'home.section.popular': 'Popular Packages',
     'home.section.popular.desc': 'Customer favorite selections',
     'home.section.limited': 'Limited Time Offers',
@@ -656,6 +732,18 @@ export const translations = {
     // ==================== Packages ====================
     'packages.title': 'Packages',
     'packages.subtitle': 'Premium ingredients, nutritionist curated',
+    
+    // Package levels
+    'package.level.basic': 'Basic',
+    'package.level.advanced': 'Advanced',
+    'package.level.premium': 'Premium',
+    
+    // Diet goals
+    'dietGoal.weightLoss': 'Weight Loss',
+    'dietGoal.muscleGain': 'Muscle Gain',
+    'dietGoal.bloodSugar': 'Blood Sugar Control',
+    'dietGoal.balanced': 'Balanced Diet',
+    'dietGoal.other': 'Other',
     'packages.filter.all': 'All',
     'packages.filter.weightLoss': 'Weight Loss',
     'packages.filter.muscle': 'Muscle Gain',
@@ -736,6 +824,12 @@ export const translations = {
     // ==================== Orders ====================
     'orders.title': 'My Orders',
     'orders.subtitle': 'View and manage your orders',
+    
+    // Order related
+    'order.orderNumber': 'Order No.',
+    'order.status.delivered': 'Delivered',
+    'order.status.shipping': 'Shipping',
+    'order.status.preparing': 'Preparing',
     'orders.status.all': 'All',
     'orders.status.pending': 'Pending',
     'orders.status.paid': 'Paid',
@@ -1048,6 +1142,9 @@ export const translations = {
     'common.shipping': 'Shipping',
     'common.freeShipping': 'Free Shipping',
     'common.discount': 'Discount',
+    'common.minutes': 'min',
+    'common.servings': 'servings',
+    'common.viewDetails': 'View Details',
     
     // ==================== Checkout ====================
     'checkout.emptyCart': 'Cart is empty',

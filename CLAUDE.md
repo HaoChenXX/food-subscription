@@ -20,6 +20,7 @@ This is a food subscription platform (食材包订阅平台) - a Chinese meal ki
 - **Charts**: Recharts 2.15.4
 - **Icons**: Lucide React 0.562.0
 - **Notifications**: Sonner 2.0.7
+- **Internationalization**: Custom i18n system with Chinese/English translations
 
 **Backend** (`backend/`):
 - **Runtime**: Node.js 18+ with Express 4.18.2
@@ -68,6 +69,45 @@ python3 update-server.py
 
 ### Testing
 This project currently has no automated testing infrastructure. No test files, test directories, or testing frameworks are configured.
+
+## Development Workflow
+
+The standard development and deployment workflow follows these steps:
+
+1. **Local Development (Windows)**:
+   - Develop and test changes locally using the commands above
+   - Frontend: `npm run dev` (port 5173)
+   - Backend: `npm run dev` (port 3001)
+   - Use Git Bash or WSL for shell commands to avoid line‑ending issues
+
+2. **Commit and Push**:
+   - Commit changes to Git
+   - Push to both remote repositories:
+     ```bash
+     git push origin main   # Huawei CodeArts (primary)
+     git push github main   # GitHub (backup)
+     ```
+
+3. **Server Update (Ubuntu)**:
+   - On the production server, run the automated update script:
+     ```bash
+     cd /var/www/food-subscription-v01.1-backup
+     python3 update-server.py
+     ```
+   - This script automatically:
+     - Backs up the current version
+     - Pulls the latest code from Huawei CodeArts
+     - Fixes Windows‑style CRLF line endings to Linux‑style LF
+     - Synchronizes the frontend build files
+     - Adds a version marker to the deployed HTML
+     - Installs backend dependencies
+     - Restarts the service (using PM2, systemctl, or direct process)
+
+4. **Verification**:
+   - Check the service health at `http://localhost:3001/api/health`
+   - Visit the production site to confirm updates are live
+
+**Note**: The `update-server.py` script is the primary deployment mechanism. It handles cross‑platform line‑ending conversion, version management, and service restart. No manual deployment steps are needed beyond running this script.
 
 ## Architecture Overview
 
@@ -134,6 +174,16 @@ Key configuration files:
 - `frontend-src/tailwind.config.js` – Tailwind CSS configuration
 - `update-server.py` – Python script for server updates (used in production)
 
+### Claude Code Permissions
+The repository includes a `.claude/settings.local.json` file that configures permissions for Claude Code. It allows Bash commands for npm, git, systemctl, mysql, python, etc., and WebFetch access to the production server IP (39.104.25.212). This configuration ensures Claude Code can perform deployment and maintenance tasks without permission errors.
+
+### Internationalization (i18n) Support
+- **Translation System**: Custom i18n implementation in `frontend-src/src/lib/i18n.ts`
+- **Languages**: Chinese (`zh`) and English (`en`) – default is Chinese
+- **Translation Keys**: Structured keys for all UI text (common, auth, home, packages, orders, cart, checkout, diet profile, addresses, settings, admin, merchant, etc.)
+- **Integration**: UI store (`useUIStore`) manages language state; translation function `t(key, lang)` retrieves strings
+- **Language Switch**: Users can toggle between Chinese and English via settings
+
 ### API Architecture
 RESTful API with JWT authentication. Main endpoints:
 - `POST /api/auth/login` – User login
@@ -189,6 +239,9 @@ Zustand stores in `frontend-src/src/store/index.ts`:
 - `useAddressStore` – Delivery addresses (persisted)
 - `useFoodPackageStore` – Food packages data
 - `useUIStore` – UI state (sidebar, theme, language) (persisted)
+  - **Theme**: `light` / `dark` / `system` (applied to document root)
+  - **Language**: `zh` (Chinese) / `en` (English) – defaults to Chinese
+  - **Sidebar**: Collapsible sidebar state
 
 ### Data Fetching Pattern
 - Uses TanStack Query for server‑state management
@@ -240,10 +293,19 @@ Multiple shell scripts are available for deployment and maintenance:
 - `v1_2.sh` – v1.2 upgrade script (adds MySQL support)
 - `fix-v1.2.sh` – Fix script for v1.2 issues
 - `auto-deploy.sh` – Automated deployment script
-- `update-server.sh` – Server update script
+- `update-server.sh` – Server update script (shell version)
+- `update-server.py` – Primary server update script (Python, handles line‑ending conversion)
 - `fix-login.sh` – Login issue fix script
 
 These scripts are intended for production deployment and require sudo privileges.
+
+### Additional Utility Scripts
+- `fix_i18n.py` – Python script to fix i18n translation keys
+- `check-db.js` – Database connection verification script
+- `fix-line-endings.py` – Convert Windows CRLF to Linux LF line endings
+- `generate_food_data.py` – Generate mock food package data
+- `export_mermaid.py` / `export_svg.py` – Generate architecture diagrams
+- Various Python scripts for documentation and image processing
 
 ### Cross‑Platform Line Endings
 - Deployment scripts assume Linux environment (LF line endings)

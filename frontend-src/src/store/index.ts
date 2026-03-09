@@ -465,15 +465,28 @@ export const useUIStore = create<UIState>()(
     }),
     {
       name: 'ui-storage',
-      version: 2, // 版本控制，更新版本时会重置为默认值
+      version: 3, // 版本控制，更新版本时会重置为默认值
       migrate: (persistedState, version) => {
-        // 如果版本低于2，重置语言为中文
-        if (version < 2) {
+        // 如果版本低于3，重置语言为中文（修复默认英文问题）
+        if (version < 3) {
           return {
             ...(persistedState as object),
             language: 'zh' as Language,
           };
         }
+
+        // 版本 >= 3 时，确保语言值有效
+        if (persistedState) {
+          const state = persistedState as any;
+          // 检查 language 字段是否存在且为有效值
+          if (!state.language || (state.language !== 'zh' && state.language !== 'en')) {
+            return {
+              ...state,
+              language: 'zh' as Language,
+            };
+          }
+        }
+
         return persistedState;
       },
     }
