@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>食材包订阅平台 - 架构图表 (SVG版)</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #4CAF50;
+        }
+        .chart {
+            background: white;
+            padding: 25px;
+            margin: 25px 0;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+        .chart-title {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #2c5282;
+            border-bottom: 2px solid #4299e1;
+            padding-bottom: 10px;
+        }
+        .chart-description {
+            color: #666;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+        .svg-container {
+            width: 100%;
+            overflow: auto;
+            border: 1px solid #e0e0e0;
+            border-radius: 5px;
+            padding: 15px;
+            background: #fafafa;
+            min-height: 400px;
+        }
+        .svg-container svg {
+            width: 100%;
+            height: auto;
+            max-width: 100%;
+        }
+        .download-links {
+            margin-top: 15px;
+            padding: 10px;
+            background: #f0f8ff;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        .download-links a {
+            color: #2c5282;
+            text-decoration: none;
+            margin-right: 15px;
+        }
+        .download-links a:hover {
+            text-decoration: underline;
+        }
+        .index {
+            background: #e8f5e9;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .index h3 {
+            margin-top: 0;
+            color: #2e7d32;
+        }
+        .index ul {
+            columns: 2;
+            list-style-type: none;
+            padding: 0;
+        }
+        .index li {
+            padding: 8px 0;
+            border-bottom: 1px solid #c8e6c9;
+        }
+        .index a {
+            color: #2e7d32;
+            text-decoration: none;
+        }
+        .index a:hover {
+            text-decoration: underline;
+        }
+        .instructions {
+            background: #fff3cd;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+            border-left: 4px solid #ffc107;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🥬 食材包订阅平台 - 架构示意图 (SVG矢量图)</h1>
+
+        <div class="instructions">
+            <strong>📋 使用说明:</strong>
+            <p>所有图表已导出为 SVG 矢量格式，可在任何图像查看器中打开，支持无损缩放。</p>
+            <p>SVG 文件保存在 <code>svg_charts/</code> 目录中。</p>
+        </div>
+
+        <div class="index">
+            <h3>📊 图表索引</h3>
+            <ul><li><a href="#chart1">1. 整体架构概览</a></li>
+<li><a href="#chart2">2. 前端架构 (React + TypeScript)</a></li>
+<li><a href="#chart3">3. 后端架构 (Node.js + Express)</a></li>
+<li><a href="#chart4">4. 数据流示意图</a></li>
+<li><a href="#chart5">5. 组件依赖关系</a></li>
+<li><a href="#chart6">6. 部署架构</a></li>
+            </ul>
+        </div>
+        <div class="chart" id="chart1">
+            <div class="chart-title">整体架构概览 - 用户端、后端服务和部署环境关系</div>
+            <div class="chart-description">展示用户界面、后端服务和部署环境的整体关系，包括数据流向和组件交互。</div>
+
+            <div class="svg-container">
+                <object data="svg_charts\overall-architecture.svg" type="image/svg+xml" width="100%" height="500">
+                    <img src="svg_charts\overall-architecture.svg" alt="整体架构概览 - 用户端、后端服务和部署环境关系" style="max-width: 100%;">
+                </object>
+            </div>
+
+            <div class="download-links">
+                <strong>下载:</strong>
+                <a href="svg_charts\overall-architecture.svg" download="architecture-chart-1.svg">SVG 矢量图</a>
+                <a href="svg_charts\overall-architecture.svg" target="_blank">在新窗口打开</a>
+                <span style="color: #666; float: right;">文件: svg_charts\overall-architecture.svg</span>
+            </div>
+        </div>
+        <div class="chart" id="chart2">
+            <div class="chart-title">前端架构 - React 19 + TypeScript 分层结构</div>
+            <div class="chart-description">React前端的分层架构，包含页面层、组件层、状态管理层和服务层。</div>
+
+            <div class="svg-container">
+                <object data="svg_charts\frontend-architecture.svg" type="image/svg+xml" width="100%" height="500">
+                    <img src="svg_charts\frontend-architecture.svg" alt="前端架构 - React 19 + TypeScript 分层结构" style="max-width: 100%;">
+                </object>
+            </div>
+
+            <div class="download-links">
+                <strong>下载:</strong>
+                <a href="svg_charts\frontend-architecture.svg" download="architecture-chart-2.svg">SVG 矢量图</a>
+                <a href="svg_charts\frontend-architecture.svg" target="_blank">在新窗口打开</a>
+                <span style="color: #666; float: right;">文件: svg_charts\frontend-architecture.svg</span>
+            </div>
+        </div>
+        <div class="chart" id="chart3">
+            <div class="chart-title">后端架构 - Node.js + Express + MySQL 分层结构</div>
+            <div class="chart-description">Node.js后端的中间件、路由层、数据层和配置文件的完整架构。</div>
+
+            <div class="svg-container">
+                <object data="svg_charts\backend-architecture.svg" type="image/svg+xml" width="100%" height="500">
+                    <img src="svg_charts\backend-architecture.svg" alt="后端架构 - Node.js + Express + MySQL 分层结构" style="max-width: 100%;">
+                </object>
+            </div>
+
+            <div class="download-links">
+                <strong>下载:</strong>
+                <a href="svg_charts\backend-architecture.svg" download="architecture-chart-3.svg">SVG 矢量图</a>
+                <a href="svg_charts\backend-architecture.svg" target="_blank">在新窗口打开</a>
+                <span style="color: #666; float: right;">文件: svg_charts\backend-architecture.svg</span>
+            </div>
+        </div>
+        <div class="chart" id="chart4">
+            <div class="chart-title">数据流示意图 - 用户交互完整流程</div>
+            <div class="chart-description">用户从登录到下单的完整交互流程，展示前后端数据传递过程。</div>
+
+            <div class="svg-container">
+                <object data="svg_charts\data-flow-diagram.svg" type="image/svg+xml" width="100%" height="500">
+                    <img src="svg_charts\data-flow-diagram.svg" alt="数据流示意图 - 用户交互完整流程" style="max-width: 100%;">
+                </object>
+            </div>
+
+            <div class="download-links">
+                <strong>下载:</strong>
+                <a href="svg_charts\data-flow-diagram.svg" download="architecture-chart-4.svg">SVG 矢量图</a>
+                <a href="svg_charts\data-flow-diagram.svg" target="_blank">在新窗口打开</a>
+                <span style="color: #666; float: right;">文件: svg_charts\data-flow-diagram.svg</span>
+            </div>
+        </div>
+        <div class="chart" id="chart5">
+            <div class="chart-title">组件依赖关系 - 前后端技术栈依赖</div>
+            <div class="chart-description">前后端技术栈的依赖关系，包括库和框架的版本信息。</div>
+
+            <div class="svg-container">
+                <object data="svg_charts\dependencies-diagram.svg" type="image/svg+xml" width="100%" height="500">
+                    <img src="svg_charts\dependencies-diagram.svg" alt="组件依赖关系 - 前后端技术栈依赖" style="max-width: 100%;">
+                </object>
+            </div>
+
+            <div class="download-links">
+                <strong>下载:</strong>
+                <a href="svg_charts\dependencies-diagram.svg" download="architecture-chart-5.svg">SVG 矢量图</a>
+                <a href="svg_charts\dependencies-diagram.svg" target="_blank">在新窗口打开</a>
+                <span style="color: #666; float: right;">文件: svg_charts\dependencies-diagram.svg</span>
+            </div>
+        </div>
+        <div class="chart" id="chart6">
+            <div class="chart-title">部署架构 - 生产环境和开发环境对比</div>
+            <div class="chart-description">生产环境与开发环境的部署架构对比，展示服务器配置和服务管理。</div>
+
+            <div class="svg-container">
+                <object data="svg_charts\deployment-architecture.svg" type="image/svg+xml" width="100%" height="500">
+                    <img src="svg_charts\deployment-architecture.svg" alt="部署架构 - 生产环境和开发环境对比" style="max-width: 100%;">
+                </object>
+            </div>
+
+            <div class="download-links">
+                <strong>下载:</strong>
+                <a href="svg_charts\deployment-architecture.svg" download="architecture-chart-6.svg">SVG 矢量图</a>
+                <a href="svg_charts\deployment-architecture.svg" target="_blank">在新窗口打开</a>
+                <span style="color: #666; float: right;">文件: svg_charts\deployment-architecture.svg</span>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

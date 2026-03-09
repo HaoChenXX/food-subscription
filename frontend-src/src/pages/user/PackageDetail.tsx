@@ -255,7 +255,6 @@ export default function PackageDetail() {
   const [isFavorite, setIsFavorite] = useState(false);
   const [pkg, setPkg] = useState<FoodPackage | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [showTraceability, setShowTraceability] = useState(false);
 
   // 获取食材包详情 - 使用假数据
   useEffect(() => {
@@ -511,6 +510,7 @@ export default function PackageDetail() {
             <TabsTrigger value="ingredients">食材清单</TabsTrigger>
             <TabsTrigger value="recipe">菜谱详情</TabsTrigger>
             <TabsTrigger value="nutrition">营养成分</TabsTrigger>
+            <TabsTrigger value="traceability">食材溯源</TabsTrigger>
           </TabsList>
 
           <TabsContent value="ingredients" className="mt-6">
@@ -745,6 +745,144 @@ export default function PackageDetail() {
                     <Leaf className="w-8 h-8 mx-auto mb-2 text-green-500" />
                     <div className="text-2xl font-bold">{pkg.nutritionInfo.fiber}g</div>
                     <div className="text-sm text-gray-500">膳食纤维</div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* 食材溯源标签页 */}
+          <TabsContent value="traceability" className="mt-6">
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between mb-6">
+                  <div>
+                    <h3 className="text-lg font-bold">食材溯源信息</h3>
+                    <p className="text-sm text-gray-500 mt-1">扫码或点击食材查看完整溯源链路</p>
+                  </div>
+                  <Badge className="bg-green-100 text-green-700">
+                    <CheckCircle2 className="w-4 h-4 mr-1" />
+                    溯源数据已上链
+                  </Badge>
+                </div>
+
+                {/* 溯源数据展示 */}
+                {demoTraceability[pkg.id]?.map((trace) => {
+                  const ingredient = pkg.ingredients.find(i => i.id === trace.ingredientId);
+                  if (!ingredient) return null;
+                  return (
+                    <div key={trace.ingredientId} className="mb-6 border rounded-xl p-4">
+                      {/* 食材标题 */}
+                      <div className="flex items-center space-x-3 mb-4">
+                        <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                          <Leaf className="w-6 h-6 text-green-600" />
+                        </div>
+                        <div>
+                          <h4 className="font-bold text-lg">{ingredient.name}</h4>
+                          <p className="text-sm text-gray-500">{ingredient.category} · {trace.origin.province}{trace.origin.city}</p>
+                        </div>
+                      </div>
+
+                      {/* 溯源信息网格 */}
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        {/* 产地信息 */}
+                        <div className="bg-blue-50 rounded-lg p-4">
+                          <div className="flex items-center space-x-2 mb-3">
+                            <MapPin className="w-5 h-5 text-blue-600" />
+                            <span className="font-medium text-blue-800">产地信息</span>
+                          </div>
+                          <div className="space-y-2 text-sm">
+                            <div><span className="text-gray-500">产地：</span>{trace.origin.province}{trace.origin.city}</div>
+                            <div><span className="text-gray-500">农场：</span>{trace.origin.farm}</div>
+                            <div><span className="text-gray-500">坐标：</span>{trace.origin.coordinates}</div>
+                          </div>
+                        </div>
+
+                        {/* 生产信息 */}
+                        <div className="bg-orange-50 rounded-lg p-4">
+                          <div className="flex items-center space-x-2 mb-3">
+                            <Factory className="w-5 h-5 text-orange-600" />
+                            <span className="font-medium text-orange-800">生产信息</span>
+                          </div>
+                          <div className="space-y-2 text-sm">
+                            <div><span className="text-gray-500">采收日期：</span>{trace.production.harvestDate}</div>
+                            <div><span className="text-gray-500">加工方式：</span>{trace.production.processMethod}</div>
+                            <div><span className="text-gray-500">储存温度：</span>{trace.production.storageTemp}</div>
+                          </div>
+                        </div>
+
+                        {/* 质检信息 */}
+                        <div className="bg-green-50 rounded-lg p-4">
+                          <div className="flex items-center space-x-2 mb-3">
+                            <CheckCircle2 className="w-5 h-5 text-green-600" />
+                            <span className="font-medium text-green-800">质检信息</span>
+                          </div>
+                          <div className="space-y-2 text-sm">
+                            <div><span className="text-gray-500">检验日期：</span>{trace.quality.inspectionDate}</div>
+                            <div><span className="text-gray-500">检验员：</span>{trace.quality.inspector}</div>
+                            <div><span className="text-gray-500">等级：</span><Badge variant="outline" className="ml-1">{trace.quality.grade}</Badge></div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* 供应商信息 */}
+                      <div className="mt-4 pt-4 border-t flex items-center justify-between">
+                        <div className="flex items-center space-x-2">
+                          <Factory className="w-4 h-4 text-gray-400" />
+                          <span className="text-sm text-gray-600">供应商：{trace.supplier.name}</span>
+                          <span className="text-xs text-gray-400">| {trace.supplier.address}</span>
+                        </div>
+                        <Badge variant="outline" className="text-xs">
+                          {trace.supplier.cert}
+                        </Badge>
+                      </div>
+                    </div>
+                  );
+                })}
+
+                {/* 溯源说明 */}
+                <div className="bg-gradient-to-r from-green-50 to-blue-50 rounded-xl p-6 mt-6">
+                  <h4 className="font-bold text-gray-800 mb-3 flex items-center">
+                    <Sprout className="w-5 h-5 mr-2 text-green-600" />
+                    全程可追溯，吃得更放心
+                  </h4>
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-sm">
+                    <div className="flex items-start space-x-2">
+                      <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center flex-shrink-0">
+                        <MapPin className="w-4 h-4 text-blue-500" />
+                      </div>
+                      <div>
+                        <div className="font-medium">产地溯源</div>
+                        <div className="text-gray-500">精准定位种植/养殖基地</div>
+                      </div>
+                    </div>
+                    <div className="flex items-start space-x-2">
+                      <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center flex-shrink-0">
+                        <Thermometer className="w-4 h-4 text-orange-500" />
+                      </div>
+                      <div>
+                        <div className="font-medium">温控监测</div>
+                        <div className="text-gray-500">全程冷链温度记录</div>
+                      </div>
+                    </div>
+                    <div className="flex items-start space-x-2">
+                      <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center flex-shrink-0">
+                        <Droplet className="w-4 h-4 text-cyan-500" />
+                      </div>
+                      <div>
+                        <div className="font-medium">农残检测</div>
+                        <div className="text-gray-500">第三方机构权威检测</div>
+                      </div>
+                    </div>
+                    <div className="flex items-start space-x-2">
+                      <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center flex-shrink-0">
+                        <CheckCircle2 className="w-4 h-4 text-green-500" />
+                      </div>
+                      <div>
+                        <div className="font-medium">质检认证</div>
+                        <div className="text-gray-500">多重认证品质保障</div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </CardContent>

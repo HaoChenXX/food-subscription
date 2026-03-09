@@ -20,7 +20,10 @@
       "Bash(sc query:*)",
       "Bash(tasklist:*)",
       "WebFetch(domain:39.104.25.212)",
-      "Bash(pip install:*)"
+      "Bash(pip install:*)",
+      "Bash(git push:*)",
+      "Bash(python:*)",
+      "Bash(ls:*)"
     ]
   }
 }
