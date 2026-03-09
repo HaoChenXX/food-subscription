@@ -99,50 +99,50 @@ interface BackendOrder {
   package_image?: string;
 }
 
-const statusConfig: Record<OrderStatus, { label: string; color: string; description: string }> = {
-  pending_payment: { 
-    label: '待支付', 
+const statusConfig: Record<OrderStatus, { labelKey: string; color: string; descriptionKey: string }> = {
+  pending_payment: {
+    labelKey: 'orders.status.pending',
     color: 'bg-yellow-100 text-yellow-700',
-    description: '请在30分钟内完成支付'
+    descriptionKey: 'order.status.description.pending_payment'
   },
-  paid: { 
-    label: '已支付', 
+  paid: {
+    labelKey: 'orders.status.paid',
     color: 'bg-blue-100 text-blue-700',
-    description: '订单已确认，正在准备食材'
+    descriptionKey: 'order.status.description.paid'
   },
-  preparing: { 
-    label: '准备中', 
+  preparing: {
+    labelKey: 'orders.status.preparing',
     color: 'bg-orange-100 text-orange-700',
-    description: '食材正在分拣打包中'
+    descriptionKey: 'order.status.description.preparing'
   },
-  shipped: { 
-    label: '配送中', 
+  shipped: {
+    labelKey: 'orders.status.shipped',
     color: 'bg-purple-100 text-purple-700',
-    description: '食材已发出，请注意查收'
+    descriptionKey: 'order.status.description.shipped'
   },
-  delivered: { 
-    label: '已送达', 
+  delivered: {
+    labelKey: 'orders.status.delivered',
     color: 'bg-green-100 text-green-700',
-    description: '订单已完成，感谢您的订购'
+    descriptionKey: 'order.status.description.delivered'
   },
-  cancelled: { 
-    label: '已取消', 
+  cancelled: {
+    labelKey: 'orders.status.cancelled',
     color: 'bg-gray-100 text-gray-700',
-    description: '订单已取消'
+    descriptionKey: 'order.status.description.cancelled'
   },
-  refunded: { 
-    label: '已退款', 
+  refunded: {
+    labelKey: 'orders.status.refunded',
     color: 'bg-gray-100 text-gray-700',
-    description: '退款已处理'
+    descriptionKey: 'order.status.description.refunded'
   },
 };
 
 const timelineSteps = [
-  { status: 'pending_payment', label: '提交订单', icon: Clock },
-  { status: 'paid', label: '支付成功', icon: CheckCircle2 },
-  { status: 'preparing', label: '准备中', icon: Package },
-  { status: 'shipped', label: '配送中', icon: Truck },
-  { status: 'delivered', label: '已送达', icon: CheckCircle2 },
+  { status: 'pending_payment', labelKey: 'order.timeline.submitted', icon: Clock },
+  { status: 'paid', labelKey: 'order.timeline.paid', icon: CheckCircle2 },
+  { status: 'preparing', labelKey: 'order.timeline.preparing', icon: Package },
+  { status: 'shipped', labelKey: 'order.timeline.shipped', icon: Truck },
+  { status: 'delivered', labelKey: 'order.timeline.delivered', icon: CheckCircle2 },
 ];
 
 export default function OrderDetail() {
@@ -212,7 +212,7 @@ export default function OrderDetail() {
   // 格式化日期
   const formatDate = (dateStr: string | null) => {
     if (!dateStr) return '-';
-    return new Date(dateStr).toLocaleString('zh-CN');
+    return new Date(dateStr).toLocaleString(language === 'zh' ? 'zh-CN' : 'en-US');
   };
 
   if (loading) {
@@ -259,7 +259,7 @@ export default function OrderDetail() {
               <div className="flex items-center space-x-3 mb-2">
                 <h1 className="text-xl font-bold">{t('orders.orderNo', language)} {order.id}</h1>
                 <Badge className={status.color}>
-                  {status.label}
+                  {t(status.labelKey, language)}
                 </Badge>
               </div>
               <p className="text-gray-500">
@@ -298,7 +298,7 @@ export default function OrderDetail() {
                           isCompleted ? 'text-gray-900' : 'text-gray-400'
                         }`}
                       >
-                        {step.label}
+                        {t(step.labelKey, language)}
                       </span>
                     </div>
                   );

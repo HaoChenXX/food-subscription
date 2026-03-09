@@ -91,14 +91,14 @@ interface BackendOrder {
   remark?: string;
 }
 
-const statusConfig: Record<OrderStatus, { label: string; color: string; icon: React.ElementType }> = {
-  pending_payment: { label: '待支付', color: 'bg-yellow-100 text-yellow-700', icon: Clock },
-  paid: { label: '已支付', color: 'bg-blue-100 text-blue-700', icon: CheckCircle2 },
-  preparing: { label: '准备中', color: 'bg-orange-100 text-orange-700', icon: Package },
-  shipped: { label: '配送中', color: 'bg-purple-100 text-purple-700', icon: Truck },
-  delivered: { label: '已送达', color: 'bg-green-100 text-green-700', icon: CheckCircle2 },
-  cancelled: { label: '已取消', color: 'bg-gray-100 text-gray-700', icon: XCircle },
-  refunded: { label: '已退款', color: 'bg-gray-100 text-gray-700', icon: XCircle },
+const statusConfig: Record<OrderStatus, { labelKey: string; color: string; icon: React.ElementType }> = {
+  pending_payment: { labelKey: 'orders.status.pending', color: 'bg-yellow-100 text-yellow-700', icon: Clock },
+  paid: { labelKey: 'orders.status.paid', color: 'bg-blue-100 text-blue-700', icon: CheckCircle2 },
+  preparing: { labelKey: 'orders.status.preparing', color: 'bg-orange-100 text-orange-700', icon: Package },
+  shipped: { labelKey: 'orders.status.shipped', color: 'bg-purple-100 text-purple-700', icon: Truck },
+  delivered: { labelKey: 'orders.status.delivered', color: 'bg-green-100 text-green-700', icon: CheckCircle2 },
+  cancelled: { labelKey: 'orders.status.cancelled', color: 'bg-gray-100 text-gray-700', icon: XCircle },
+  refunded: { labelKey: 'orders.status.refunded', color: 'bg-gray-100 text-gray-700', icon: XCircle },
 };
 
 export default function Orders() {
@@ -173,7 +173,7 @@ export default function Orders() {
   // 格式化日期
   const formatDate = (dateStr: string | null) => {
     if (!dateStr) return '-';
-    return new Date(dateStr).toLocaleDateString('zh-CN');
+    return new Date(dateStr).toLocaleDateString(language === 'zh' ? 'zh-CN' : 'en-US');
   };
 
   if (loading) {
@@ -297,7 +297,7 @@ export default function Orders() {
                         </div>
                         <Badge className={`${status.color} w-fit`}>
                           <StatusIcon className="w-3 h-3 mr-1" />
-                          {status.label}
+                          {t(status.labelKey, language)}
                         </Badge>
                       </div>
 
@@ -316,7 +316,7 @@ export default function Orders() {
                             </div>
                             <div className="flex items-center space-x-4 mt-2">
                               <span className="text-sm text-gray-500">
-                                数量：{order.quantity}
+                                {t('common.quantity', language)}：{order.quantity}
                               </span>
                             </div>
                           </div>

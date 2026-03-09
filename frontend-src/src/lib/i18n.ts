@@ -175,6 +175,9 @@ export const translations = {
     'package.level.basic': '基础版',
     'package.level.advanced': '进阶版',
     'package.level.premium': '尊享版',
+    'package.difficulty.easy': '简单',
+    'package.difficulty.medium': '中等',
+    'package.difficulty.hard': '困难',
     
     // 饮食目标
     'dietGoal.weightLoss': '减脂瘦身',
@@ -268,6 +271,13 @@ export const translations = {
     'order.status.delivered': '已送达',
     'order.status.shipping': '配送中',
     'order.status.preparing': '准备中',
+    'order.status.description.pending_payment': '请在30分钟内完成支付',
+    'order.status.description.paid': '订单已确认，正在准备食材',
+    'order.status.description.preparing': '食材正在分拣打包中',
+    'order.status.description.shipped': '食材已发出，请注意查收',
+    'order.status.description.delivered': '订单已完成，感谢您的订购',
+    'order.status.description.cancelled': '订单已取消',
+    'order.status.description.refunded': '退款已处理',
     'orders.status.all': '全部',
     'orders.status.pending': '待支付',
     'orders.status.paid': '已支付',
@@ -275,6 +285,7 @@ export const translations = {
     'orders.status.shipped': '配送中',
     'orders.status.delivered': '已送达',
     'orders.status.cancelled': '已取消',
+    'orders.status.refunded': '已退款',
     'orders.total': '订单总数',
     'orders.pending': '待支付',
     'orders.inProgress': '进行中',
@@ -299,6 +310,11 @@ export const translations = {
     'orders.subscription.weekly': '周订阅',
     'orders.subscription.monthly': '月订阅',
     'orders.subscription.quarterly': '季订阅',
+    'order.timeline.submitted': '提交订单',
+    'order.timeline.paid': '支付成功',
+    'order.timeline.preparing': '准备中',
+    'order.timeline.shipped': '配送中',
+    'order.timeline.delivered': '已送达',
     
     // ==================== 购物车 ====================
     'cart.title': '购物车',
@@ -580,6 +596,8 @@ export const translations = {
     'common.shipping': '运费',
     'common.freeShipping': '免运费',
     'common.discount': '优惠',
+    'common.minutes': '分钟',
+    'common.servings': '人份',
     
     // ==================== Checkout ====================
     'checkout.emptyCart': '购物车为空',
@@ -749,6 +767,9 @@ export const translations = {
     'package.level.basic': 'Basic',
     'package.level.advanced': 'Advanced',
     'package.level.premium': 'Premium',
+    'package.difficulty.easy': 'Easy',
+    'package.difficulty.medium': 'Medium',
+    'package.difficulty.hard': 'Hard',
     
     // Diet goals
     'dietGoal.weightLoss': 'Weight Loss',
@@ -842,6 +863,13 @@ export const translations = {
     'order.status.delivered': 'Delivered',
     'order.status.shipping': 'Shipping',
     'order.status.preparing': 'Preparing',
+    'order.status.description.pending_payment': 'Please complete payment within 30 minutes',
+    'order.status.description.paid': 'Order confirmed, preparing ingredients',
+    'order.status.description.preparing': 'Ingredients are being sorted and packed',
+    'order.status.description.shipped': 'Ingredients have been shipped, please check',
+    'order.status.description.delivered': 'Order completed, thank you for your order',
+    'order.status.description.cancelled': 'Order cancelled',
+    'order.status.description.refunded': 'Refund processed',
     'orders.status.all': 'All',
     'orders.status.pending': 'Pending',
     'orders.status.paid': 'Paid',
@@ -849,6 +877,7 @@ export const translations = {
     'orders.status.shipped': 'Shipped',
     'orders.status.delivered': 'Delivered',
     'orders.status.cancelled': 'Cancelled',
+    'orders.status.refunded': 'Refunded',
     'orders.total': 'Total Orders',
     'orders.pending': 'Pending',
     'orders.inProgress': 'In Progress',
@@ -873,6 +902,11 @@ export const translations = {
     'orders.subscription.weekly': 'Weekly Subscription',
     'orders.subscription.monthly': 'Monthly Subscription',
     'orders.subscription.quarterly': 'Quarterly Subscription',
+    'order.timeline.submitted': 'Order Submitted',
+    'order.timeline.paid': 'Payment Successful',
+    'order.timeline.preparing': 'Preparing',
+    'order.timeline.shipped': 'Shipping',
+    'order.timeline.delivered': 'Delivered',
     
     // ==================== Cart ====================
     'cart.title': 'Shopping Cart',
