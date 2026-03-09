@@ -71,23 +71,23 @@ export default function UserLayout() {
 
   return (
     <>
-      <div className="min-h-screen bg-gray-50 flex">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex">
       {/* 桌面端侧边栏 */}
       <aside
-        className={`hidden lg:flex flex-col bg-white border-r border-gray-200 transition-all duration-300 ${
+        className={`hidden lg:flex flex-col bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 transition-all duration-300 ${
           sidebarOpen ? 'w-64' : 'w-20'
         }`}
       >
         {/* Logo */}
-        <div className="h-16 flex items-center justify-center border-b border-gray-200">
+        <div className="h-16 flex items-center justify-center border-b border-gray-200 dark:border-gray-700">
           <Link to="/" className="flex items-center space-x-2">
             <div className="w-10 h-10 rounded-xl flex items-center justify-center overflow-hidden bg-gradient-to-br from-green-100 to-emerald-50 shadow-sm">
               <img src="/logo.svg" alt="梓里炊烟" className="w-8 h-8 object-contain" />
             </div>
             {sidebarOpen && (
               <div className="flex flex-col">
-                <span className="font-bold text-base text-gray-900 leading-tight">梓里炊烟</span>
-                <span className="text-[10px] text-gray-500 leading-tight">县域富民食材平台</span>
+                <span className="font-bold text-base text-gray-900 dark:text-gray-100 leading-tight">梓里炊烟</span>
+                <span className="text-[10px] text-gray-500 dark:text-gray-400 leading-tight">县域富民食材平台</span>
               </div>
             )}
           </Link>
@@ -103,8 +103,8 @@ export default function UserLayout() {
                 to={item.path}
                 className={`flex items-center space-x-3 px-3 py-3 rounded-lg transition-colors ${
                   isActive(item.path)
-                    ? 'bg-green-50 text-green-600'
-                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                    ? 'bg-green-50 dark:bg-green-900/30 text-green-600 dark:text-green-400'
+                    : 'text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-100'
                 }`}
               >
                 <Icon className="w-5 h-5 flex-shrink-0" />
@@ -115,10 +115,10 @@ export default function UserLayout() {
         </nav>
 
         {/* 底部操作 */}
-        <div className="p-4 border-t border-gray-200">
+        <div className="p-4 border-t border-gray-200 dark:border-gray-700">
           <button
             onClick={toggleSidebar}
-            className="w-full flex items-center justify-center p-2 rounded-lg hover:bg-gray-100 transition-colors"
+            className="w-full flex items-center justify-center p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
           >
             <ChevronRight
               className={`w-5 h-5 text-gray-400 transition-transform ${
@@ -132,7 +132,7 @@ export default function UserLayout() {
       {/* 主内容区 */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* 顶部导航栏 */}
-        <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-4 lg:px-6 sticky top-0 z-30">
+        <header className="h-16 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between px-4 lg:px-6 sticky top-0 z-30">
           {/* 左侧：移动端菜单按钮 */}
           <div className="flex items-center space-x-4">
             <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
@@ -163,8 +163,8 @@ export default function UserLayout() {
                         onClick={() => setMobileMenuOpen(false)}
                         className={`flex items-center space-x-3 px-3 py-3 rounded-lg transition-colors ${
                           isActive(item.path)
-                            ? 'bg-amber-50 text-amber-600'
-                            : 'text-gray-600 hover:bg-gray-50'
+                            ? 'bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400'
+                            : 'text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'
                         }`}
                       >
                         <Icon className="w-5 h-5" />
@@ -177,12 +177,12 @@ export default function UserLayout() {
             </Sheet>
 
             {/* 搜索框 */}
-            <div className="hidden md:flex items-center bg-gray-100 rounded-lg px-3 py-2">
-              <Search className="w-4 h-4 text-gray-400 mr-2" />
+            <div className="hidden md:flex items-center bg-gray-100 dark:bg-gray-700 rounded-lg px-3 py-2">
+              <Search className="w-4 h-4 text-gray-400 dark:text-gray-300 mr-2" />
               <input
                 type="text"
                 placeholder="搜索食材包..."
-                className="bg-transparent border-none outline-none text-sm w-48"
+                className="bg-transparent border-none outline-none text-sm w-48 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500"
               />
             </div>
           </div>
@@ -222,7 +222,7 @@ export default function UserLayout() {
                       {user?.name?.charAt(0) || 'U'}
                     </AvatarFallback>
                   </Avatar>
-                  <span className="hidden sm:inline font-medium">{user?.name}</span>
+                  <span className="hidden sm:inline font-medium dark:text-gray-100">{user?.name}</span>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">

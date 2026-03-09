@@ -112,6 +112,8 @@ export const translations = {
     'settings.general.theme.light': '浅色模式',
     'settings.general.theme.dark': '深色模式',
     'settings.general.theme.system': '跟随系统',
+    'settings.general.theme.light.current': '浅色模式',
+    'settings.general.theme.dark.current': '深色模式',
     
     'settings.general.language': '语言',
     'settings.general.language.desc': '设置您的语言偏好',
@@ -126,7 +128,7 @@ export const translations = {
     'settings.general.help': '帮助中心',
     'settings.general.help.desc': '查看使用帮助和常见问题',
     'settings.general.contact': '联系我们',
-    'settings.general.contact.desc': '客服邮箱：support@zili.com',
+    'settings.general.contact.desc': '客服邮箱：haocx2006@outlook.com',
     
     // Toast 消息
     'toast.settings.updated': '设置已更新',
@@ -257,6 +259,8 @@ export const translations = {
     'settings.general.theme.light': 'Light Mode',
     'settings.general.theme.dark': 'Dark Mode',
     'settings.general.theme.system': 'Follow System',
+    'settings.general.theme.light.current': 'Light Mode',
+    'settings.general.theme.dark.current': 'Dark Mode',
     
     'settings.general.language': 'Language',
     'settings.general.language.desc': 'Set your language preference',
@@ -271,7 +275,7 @@ export const translations = {
     'settings.general.help': 'Help Center',
     'settings.general.help.desc': 'View help and FAQs',
     'settings.general.contact': 'Contact Us',
-    'settings.general.contact.desc': 'Support: support@zili.com',
+    'settings.general.contact.desc': 'Support: haocx2006@outlook.com',
     
     // Toast Messages
     'toast.settings.updated': 'Settings updated',

@@ -134,7 +134,7 @@ export default function Settings() {
       {/* 页面标题 */}
       <div className="mb-6">
         <h1 className="text-2xl font-bold mb-2">{t('settings.title', language)}</h1>
-        <p className="text-gray-500">{t('settings.subtitle', language)}</p>
+        <p className="text-gray-500 dark:text-gray-400">{t('settings.subtitle', language)}</p>
       </div>
 
       <Tabs defaultValue="account" className="w-full">
@@ -164,7 +164,7 @@ export default function Settings() {
                 </div>
                 <div className="space-y-2">
                   <Label>{t('settings.account.registerTime', language)}</Label>
-                  <Input value="2024-01-15" disabled className="bg-gray-50 dark:bg-gray-800" />
+                  <Input value="2026-02-15" disabled className="bg-gray-50 dark:bg-gray-800 dark:text-gray-300" />
                 </div>
                 <div className="space-y-2">
                   <Label>{t('settings.account.role', language)}</Label>
@@ -181,7 +181,7 @@ export default function Settings() {
                 <div className="space-y-2">
                   <Label>{t('settings.account.status', language)}</Label>
                   <div className="flex items-center space-x-2">
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200">
                       {t('settings.account.status.active', language)}
                     </span>
                   </div>
@@ -203,7 +203,7 @@ export default function Settings() {
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
                   <div className="font-medium">{t('settings.security.twoFactor', language)}</div>
-                  <div className="text-sm text-gray-500">{t('settings.security.twoFactor.desc', language)}</div>
+                  <div className="text-sm text-gray-500 dark:text-gray-400">{t('settings.security.twoFactor.desc', language)}</div>
                 </div>
                 <Switch 
                   checked={security.twoFactor}
@@ -214,7 +214,7 @@ export default function Settings() {
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
                   <div className="font-medium">{t('settings.security.loginAlert', language)}</div>
-                  <div className="text-sm text-gray-500">{t('settings.security.loginAlert.desc', language)}</div>
+                  <div className="text-sm text-gray-500 dark:text-gray-400">{t('settings.security.loginAlert.desc', language)}</div>
                 </div>
                 <Switch 
                   checked={security.loginAlert}
@@ -225,7 +225,7 @@ export default function Settings() {
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
                   <div className="font-medium">{t('settings.security.deviceMgmt', language)}</div>
-                  <div className="text-sm text-gray-500">{t('settings.security.deviceMgmt.desc', language)}</div>
+                  <div className="text-sm text-gray-500 dark:text-gray-400">{t('settings.security.deviceMgmt.desc', language)}</div>
                 </div>
                 <Button variant="outline" size="sm">
                   {t('settings.security.deviceMgmt.btn', language)}
@@ -247,7 +247,7 @@ export default function Settings() {
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
                   <div className="font-medium">{t('settings.danger.clearCache', language)}</div>
-                  <div className="text-sm text-gray-500">{t('settings.danger.clearCache.desc', language)}</div>
+                  <div className="text-sm text-gray-500 dark:text-gray-400">{t('settings.danger.clearCache.desc', language)}</div>
                 </div>
                 <Button variant="outline" size="sm" onClick={() => {
                   localStorage.removeItem('cart-storage');
@@ -260,7 +260,7 @@ export default function Settings() {
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
                   <div className="font-medium text-red-600">{t('settings.danger.deleteAccount', language)}</div>
-                  <div className="text-sm text-gray-500">{t('settings.danger.deleteAccount.desc', language)}</div>
+                  <div className="text-sm text-gray-500 dark:text-gray-400">{t('settings.danger.deleteAccount.desc', language)}</div>
                 </div>
                 <Button variant="destructive" size="sm" onClick={handleDeleteAccount}>
                   {t('settings.danger.deleteAccount.btn', language)}
@@ -286,7 +286,7 @@ export default function Settings() {
                   <Mail className="w-5 h-5 text-gray-400" />
                   <div className="space-y-0.5">
                     <div className="font-medium">{t('settings.notifications.email', language)}</div>
-                    <div className="text-sm text-gray-500">{t('settings.notifications.email.desc', language)}</div>
+                    <div className="text-sm text-gray-500 dark:text-gray-400">{t('settings.notifications.email.desc', language)}</div>
                   </div>
                 </div>
                 <Switch 
@@ -300,7 +300,7 @@ export default function Settings() {
                   <Smartphone className="w-5 h-5 text-gray-400" />
                   <div className="space-y-0.5">
                     <div className="font-medium">{t('settings.notifications.sms', language)}</div>
-                    <div className="text-sm text-gray-500">{t('settings.notifications.sms.desc', language)}</div>
+                    <div className="text-sm text-gray-500 dark:text-gray-400">{t('settings.notifications.sms.desc', language)}</div>
                   </div>
                 </div>
                 <Switch 
@@ -314,7 +314,7 @@ export default function Settings() {
                   <Bell className="w-5 h-5 text-gray-400" />
                   <div className="space-y-0.5">
                     <div className="font-medium">{t('settings.notifications.push', language)}</div>
-                    <div className="text-sm text-gray-500">{t('settings.notifications.push.desc', language)}</div>
+                    <div className="text-sm text-gray-500 dark:text-gray-400">{t('settings.notifications.push.desc', language)}</div>
                   </div>
                 </div>
                 <Switch 
@@ -342,7 +342,7 @@ export default function Settings() {
                   <div className="flex items-center justify-between">
                     <div className="space-y-0.5">
                       <div className="font-medium">{item.label}</div>
-                      <div className="text-sm text-gray-500">{item.desc}</div>
+                      <div className="text-sm text-gray-500 dark:text-gray-400">{item.desc}</div>
                     </div>
                     <Switch defaultChecked={item.id !== 'promotion'} />
                   </div>
@@ -360,7 +360,7 @@ export default function Settings() {
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
                   <div className="font-medium">{t('settings.notifications.marketing.enable', language)}</div>
-                  <div className="text-sm text-gray-500">{t('settings.notifications.marketing.desc', language)}</div>
+                  <div className="text-sm text-gray-500 dark:text-gray-400">{t('settings.notifications.marketing.desc', language)}</div>
                 </div>
                 <Switch 
                   checked={notifications.marketing}
@@ -385,7 +385,7 @@ export default function Settings() {
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
                   <div className="font-medium">{t('settings.privacy.profileVisible', language)}</div>
-                  <div className="text-sm text-gray-500">{t('settings.privacy.profileVisible.desc', language)}</div>
+                  <div className="text-sm text-gray-500 dark:text-gray-400">{t('settings.privacy.profileVisible.desc', language)}</div>
                 </div>
                 <Switch 
                   checked={privacy.profileVisible}
@@ -396,7 +396,7 @@ export default function Settings() {
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
                   <div className="font-medium">{t('settings.privacy.shareData', language)}</div>
-                  <div className="text-sm text-gray-500">{t('settings.privacy.shareData.desc', language)}</div>
+                  <div className="text-sm text-gray-500 dark:text-gray-400">{t('settings.privacy.shareData.desc', language)}</div>
                 </div>
                 <Switch 
                   checked={privacy.shareData}
@@ -407,7 +407,7 @@ export default function Settings() {
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
                   <div className="font-medium">{t('settings.privacy.location', language)}</div>
-                  <div className="text-sm text-gray-500">{t('settings.privacy.location.desc', language)}</div>
+                  <div className="text-sm text-gray-500 dark:text-gray-400">{t('settings.privacy.location.desc', language)}</div>
                 </div>
                 <Switch 
                   checked={privacy.locationTracking}
@@ -426,7 +426,7 @@ export default function Settings() {
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
                   <div className="font-medium">{t('settings.privacy.export', language)}</div>
-                  <div className="text-sm text-gray-500">{t('settings.privacy.export.desc', language)}</div>
+                  <div className="text-sm text-gray-500 dark:text-gray-400">{t('settings.privacy.export.desc', language)}</div>
                 </div>
                 <Button variant="outline" size="sm" onClick={handleExportData}>
                   <Download className="w-4 h-4 mr-2" />
@@ -437,7 +437,7 @@ export default function Settings() {
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
                   <div className="font-medium">{t('settings.privacy.policy', language)}</div>
-                  <div className="text-sm text-gray-500">{t('settings.privacy.policy.desc', language)}</div>
+                  <div className="text-sm text-gray-500 dark:text-gray-400">{t('settings.privacy.policy.desc', language)}</div>
                 </div>
                 <Button variant="ghost" size="sm" onClick={() => toast.info(t('toast.info.privacy', language))}> 
                   <ChevronRight className="w-4 h-4" />
@@ -447,7 +447,7 @@ export default function Settings() {
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
                   <div className="font-medium">{t('settings.privacy.terms', language)}</div>
-                  <div className="text-sm text-gray-500">{t('settings.privacy.terms.desc', language)}</div>
+                  <div className="text-sm text-gray-500 dark:text-gray-400">{t('settings.privacy.terms.desc', language)}</div>
                 </div>
                 <Button variant="ghost" size="sm" onClick={() => toast.info(t('toast.info.terms', language))}>
                   <ChevronRight className="w-4 h-4" />
@@ -496,10 +496,10 @@ export default function Settings() {
                   </SelectContent>
                 </Select>
                 {theme === 'system' && (
-                  <p className="text-xs text-gray-500 mt-1">
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                     {language === 'zh' 
-                      ? `当前跟随系统: ${effectiveTheme === 'dark' ? '深色模式' : '浅色模式'}`
-                      : `Following system: ${effectiveTheme === 'dark' ? 'Dark Mode' : 'Light Mode'}`}
+                      ? `${t('settings.general.theme.system', language)}: ${effectiveTheme === 'dark' ? t('settings.general.theme.dark.current', language) : t('settings.general.theme.light.current', language)}`
+                      : `${t('settings.general.theme.system', language)}: ${effectiveTheme === 'dark' ? t('settings.general.theme.dark.current', language) : t('settings.general.theme.light.current', language)}`}
                   </p>
                 )}
               </div>
@@ -541,14 +541,14 @@ export default function Settings() {
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
                   <div className="font-medium">{t('settings.general.version', language)}</div>
-                  <div className="text-sm text-gray-500">v1.2.0</div>
+                  <div className="text-sm text-gray-500 dark:text-gray-400">v1.2.0</div>
                 </div>
               </div>
               <Separator />
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
                   <div className="font-medium">{t('settings.general.update', language)}</div>
-                  <div className="text-sm text-gray-500">{t('settings.general.update.desc', language)}</div>
+                  <div className="text-sm text-gray-500 dark:text-gray-400">{t('settings.general.update.desc', language)}</div>
                 </div>
                 <Button variant="outline" size="sm" onClick={() => toast.success(t('toast.update.latest', language))}>
                   {t('settings.general.update.btn', language)}
@@ -558,7 +558,7 @@ export default function Settings() {
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
                   <div className="font-medium">{t('settings.general.help', language)}</div>
-                  <div className="text-sm text-gray-500">{t('settings.general.help.desc', language)}</div>
+                  <div className="text-sm text-gray-500 dark:text-gray-400">{t('settings.general.help.desc', language)}</div>
                 </div>
                 <Button variant="ghost" size="sm" onClick={() => toast.info(t('toast.info.help', language))}>
                   <ChevronRight className="w-4 h-4" />
@@ -568,7 +568,7 @@ export default function Settings() {
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
                   <div className="font-medium">{t('settings.general.contact', language)}</div>
-                  <div className="text-sm text-gray-500">{t('settings.general.contact.desc', language)}</div>
+                  <div className="text-sm text-gray-500 dark:text-gray-400">{t('settings.general.contact.desc', language)}</div>
                 </div>
                 <Button variant="ghost" size="sm" onClick={() => toast.info(t('toast.info.contact', language))}>
                   <ChevronRight className="w-4 h-4" />
