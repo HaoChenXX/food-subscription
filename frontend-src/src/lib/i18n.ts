@@ -214,7 +214,13 @@ export const translations = {
     'packages.origin': '产地',
     'packages.supplier': '供应商',
     'packages.quality': '质检报告',
-    
+    'packages.limitedOffer': '限时优惠',
+    'packages.stock': '库存',
+    'packages.stockInsufficient': '库存不足',
+    'packages.stockQuantity': '库存',
+    'packages.outOfStock': '缺货',
+    'packages.traceabilityDesc': '食材溯源描述',
+
     // ==================== 订阅 ====================
     'subscription.title': '订阅管理',
     'subscription.subtitle': '管理您的食材包订阅',
@@ -224,6 +230,12 @@ export const translations = {
     'subscription.type.weekly': '周订阅',
     'subscription.type.monthly': '月订阅',
     'subscription.type.quarterly': '季订阅',
+    'subscription.save10Percent': '节省10%',
+    'subscription.save20Percent': '节省20%',
+    'subscription.save': '节省',
+    'subscription.type.description.weekly': '每周配送一次',
+    'subscription.type.description.monthly': '每月配送四次',
+    'subscription.type.description.quarterly': '每月配送四次，连订三月',
     'subscription.nextDelivery': '下次配送',
     'subscription.totalDeliveries': '总配送次数',
     'subscription.completedDeliveries': '已完成',
@@ -237,6 +249,7 @@ export const translations = {
     'subscription.browse': '去浏览套餐',
     'subscription.id': '订阅ID',
     'subscription.type': '订阅类型',
+    'subscription.selectPeriod': '选择订阅周期',
     'subscription.deliveryProgress': '配送进度',
     'subscription.price': '订阅价格',
     'subscription.perDelivery': '每次',
@@ -590,7 +603,8 @@ export const translations = {
     'cart.totalItems': '商品总数',
     'cart.itemAmount': '商品金额',
     'cart.termsAgree': '点击结算即表示您同意我们的服务条款',
-    
+    'cart.addToCart': '加入购物车',
+
     // ==================== Common ====================
     'common.pieces': '件',
     'common.shipping': '运费',
@@ -598,7 +612,9 @@ export const translations = {
     'common.discount': '优惠',
     'common.minutes': '分钟',
     'common.servings': '人份',
-    
+    'common.unitPrice': '单价',
+    'common.viewDetails': '查看详情',
+
     // ==================== Checkout ====================
     'checkout.emptyCart': '购物车为空',
     'checkout.emptyCartDesc': '请先选择您喜欢的食材包',
@@ -806,7 +822,13 @@ export const translations = {
     'packages.origin': 'Origin',
     'packages.supplier': 'Supplier',
     'packages.quality': 'Quality Report',
-    
+    'packages.limitedOffer': 'Limited Offer',
+    'packages.stock': 'Stock',
+    'packages.stockInsufficient': 'Insufficient Stock',
+    'packages.stockQuantity': 'Stock',
+    'packages.outOfStock': 'Out of Stock',
+    'packages.traceabilityDesc': 'Ingredients traceability description',
+
     // ==================== Subscription ====================
     'subscription.title': 'Subscriptions',
     'subscription.subtitle': 'Manage your meal package subscriptions',
@@ -816,6 +838,12 @@ export const translations = {
     'subscription.type.weekly': 'Weekly',
     'subscription.type.monthly': 'Monthly',
     'subscription.type.quarterly': 'Quarterly',
+    'subscription.save10Percent': 'Save 10%',
+    'subscription.save20Percent': 'Save 20%',
+    'subscription.save': 'Save',
+    'subscription.type.description.weekly': 'Weekly delivery',
+    'subscription.type.description.monthly': 'Four deliveries per month',
+    'subscription.type.description.quarterly': 'Four deliveries per month for three months',
     'subscription.nextDelivery': 'Next Delivery',
     'subscription.totalDeliveries': 'Total Deliveries',
     'subscription.completedDeliveries': 'Completed',
@@ -829,6 +857,7 @@ export const translations = {
     'subscription.browse': 'Browse Packages',
     'subscription.id': 'Subscription ID',
     'subscription.type': 'Subscription Type',
+    'subscription.selectPeriod': 'Select Subscription Period',
     'subscription.deliveryProgress': 'Delivery Progress',
     'subscription.price': 'Subscription Price',
     'subscription.perDelivery': 'per delivery',
@@ -1182,7 +1211,8 @@ export const translations = {
     'cart.totalItems': 'Total Items',
     'cart.itemAmount': 'Item Amount',
     'cart.termsAgree': 'By clicking checkout, you agree to our terms of service',
-    
+    'cart.addToCart': 'Add to Cart',
+
     // ==================== Common ====================
     'common.pieces': 'items',
     'common.shipping': 'Shipping',
@@ -1190,6 +1220,7 @@ export const translations = {
     'common.discount': 'Discount',
     'common.minutes': 'min',
     'common.servings': 'servings',
+    'common.unitPrice': 'Unit Price',
     'common.viewDetails': 'View Details',
     
     // ==================== Checkout ====================

@@ -240,11 +240,6 @@ const demoTraceability: Record<string, TraceabilityInfo[]> = {
   ]
 };
 
-const subscriptionOptions = [
-  { value: 'weekly', label: 'weekly', desc: '每周配送一次', discount: 0 },
-  { value: 'monthly', label: 'monthly', desc: '每月配送四次', discount: 0.1 },
-  { value: 'quarterly', label: 'quarterly', desc: '每月配送四次，连订三月', discount: 0.2 },
-];
 
 export default function PackageDetail() {
   const { id } = useParams<{ id: string }>();
@@ -257,6 +252,28 @@ export default function PackageDetail() {
   const [isFavorite, setIsFavorite] = useState(false);
   const [pkg, setPkg] = useState<FoodPackage | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+
+  // 订阅选项
+  const subscriptionOptions = [
+    {
+      value: 'weekly' as const,
+      label: 'weekly',
+      desc: t('subscription.type.description.weekly', language),
+      discount: 0
+    },
+    {
+      value: 'monthly' as const,
+      label: 'monthly',
+      desc: t('subscription.type.description.monthly', language),
+      discount: 0.1
+    },
+    {
+      value: 'quarterly' as const,
+      label: 'quarterly',
+      desc: t('subscription.type.description.quarterly', language),
+      discount: 0.2
+    },
+  ];
 
   // 获取食材包详情 - 使用假数据
   useEffect(() => {
@@ -360,9 +377,9 @@ export default function PackageDetail() {
           <div>
             <div className="flex items-center space-x-2 mb-2">
               <Badge variant="secondary">
-                {pkg.level === 'basic' && t('packages.level.basic', language)}
-                {pkg.level === 'advanced' && t('packages.level.advanced', language)}
-                {pkg.level === 'premium' && t('packages.level.premium', language)}
+                {pkg.level === 'basic' && t('package.level.basic', language)}
+                {pkg.level === 'advanced' && t('package.level.advanced', language)}
+                {pkg.level === 'premium' && t('package.level.premium', language)}
               </Badge>
               <div className="flex items-center text-yellow-500">
                 <Star className="w-4 h-4 fill-current" />
@@ -379,14 +396,14 @@ export default function PackageDetail() {
             <div className="flex items-center text-gray-600">
               <Clock className="w-5 h-5 mr-2 text-green-600" />
               <div>
-                <div className="font-medium">{pkg.cookTime}{t('common.minute', language)}</div>
+                <div className="font-medium">{pkg.cookTime}{t('common.minutes', language)}</div>
                 <div className="text-gray-400">{t('packages.cookTime', language)}</div>
               </div>
             </div>
             <div className="flex items-center text-gray-600">
               <Users className="w-5 h-5 mr-2 text-blue-600" />
               <div>
-                <div className="font-medium">{pkg.servingSize}{t('packages.servings', language)}</div>
+                <div className="font-medium">{pkg.servingSize}{t('common.servings', language)}</div>
                 <div className="text-gray-400">{t('packages.servingSize', language)}</div>
               </div>
             </div>
@@ -691,7 +708,7 @@ export default function PackageDetail() {
                             {step.duration && (
                               <span className="text-sm text-gray-500 mt-1">
                                 <Clock className="w-3 h-3 inline mr-1" />
-                                {step.duration}{t('common.minute', language)}
+                                {step.duration}{t('common.minutes', language)}
                               </span>
                             )}
                           </div>
